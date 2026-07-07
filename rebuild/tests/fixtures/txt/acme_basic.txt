@@ -1,0 +1,22 @@
+Name of Product/Version: Acme Learn 4.2
+Report Date: March 2024
+Vendor: Acme Corporation
+Applicable Standards: WCAG 2.1 Level AA, Section 508 (Revised 2017)
+
+1.1.1 Non-text Content (Level A)
+Supports
+Remarks:
+All images have alt text.
+
+1.4.3 Contrast (Minimum) (Level AA)
+Partially Supports
+Remarks:
+Some low-contrast text on secondary buttons.
+
+1.4.4 Resize Text (Level AA)
+Supports
+
+2.4.7 Focus Visible (Level AA)
+Does Not Support
+Remarks:
+Focus indicator missing on custom widgets.

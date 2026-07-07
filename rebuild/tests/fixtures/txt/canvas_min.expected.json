@@ -1,0 +1,90 @@
+{
+  "product_name": "Canvas",
+  "product_version": "2024.1",
+  "vendor_name": "Instructure",
+  "vendor_report_date_raw": "August 2020",
+  "standards_reviewed": [
+    "WCAG 2.1 Level A",
+    "WCAG 2.1 Level AA"
+  ],
+  "score": 50,
+  "supported": 1,
+  "reviewable_total": 2,
+  "barriers": [
+    "3.3.3"
+  ],
+  "criteria": [
+    {
+      "id": "1.3.1",
+      "level": "A",
+      "status": "Supports",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.6",
+      "level": "AA",
+      "status": "Supports",
+      "section": "wcag"
+    },
+    {
+      "id": "3.3.3",
+      "level": "AA",
+      "status": "Partially Supports",
+      "section": "wcag"
+    },
+    {
+      "id": "302.1",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.2",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.3",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.4",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.5",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.6",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.7",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.8",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.9",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    }
+  ]
+}

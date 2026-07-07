@@ -1,0 +1,98 @@
+{
+  "product_name": "Acme Learn",
+  "product_version": "4.2",
+  "vendor_name": "Acme Corporation",
+  "vendor_report_date_raw": "March 2024",
+  "standards_reviewed": [
+    "WCAG 2.1 Level A",
+    "WCAG 2.1 Level AA",
+    "Section 508 (Revised 2017)"
+  ],
+  "score": 33,
+  "supported": 1,
+  "reviewable_total": 3,
+  "barriers": [
+    "1.4.3",
+    "2.4.7"
+  ],
+  "criteria": [
+    {
+      "id": "1.1.1",
+      "level": "A",
+      "status": "Supports",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.3",
+      "level": "AA",
+      "status": "Partially Supports",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.4",
+      "level": "AA",
+      "status": "Supports",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.7",
+      "level": "AA",
+      "status": "Does Not Support",
+      "section": "wcag"
+    },
+    {
+      "id": "302.1",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.2",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.3",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.4",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.5",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.6",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.7",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.8",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    },
+    {
+      "id": "302.9",
+      "level": "",
+      "status": "Not Evaluated",
+      "section": "508_fpc"
+    }
+  ]
+}
