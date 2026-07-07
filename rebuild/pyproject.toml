@@ -58,6 +58,11 @@ strict = true
 files = ["src/vpat_reviewer"]
 warn_unused_ignores = true
 
+# Third-party libraries without type stubs.
+[[tool.mypy.overrides]]
+module = ["pdfplumber.*", "docx.*", "reportlab.*", "pypdf.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 # src => the new package; "." => legacy flat modules still under strangler.
 pythonpath = ["src", "."]
