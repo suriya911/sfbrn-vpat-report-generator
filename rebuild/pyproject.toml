@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vpat-reviewer"
+version = "11.0.0"
+description = "Reads a vendor VPAT (PDF/DOCX/TXT) and produces a branded WCAG accessibility compliance report. Offline, single-machine."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+authors = [{ name = "SFBRN" }]
+dependencies = [
+    "reportlab>=4.0",   # PDF report generation
+    "pdfplumber>=0.10", # PDF VPAT text/table extraction
+    "python-docx>=1.1", # DOCX VPAT extraction
+    "pypdf>=4.0",       # post-generation PDF validation
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "pre-commit>=3.8",
+]
+build = [
+    "pyinstaller>=6.0", # single-exe packaging (Phase 8)
+]
+
+[project.scripts]
+vpat-review = "vpat_reviewer.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vpat_reviewer"]
+
+# ── Tooling ──────────────────────────────────────────────────────────────────
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+# Legacy flat modules are being strangled phase by phase; don't lint them yet.
+extend-exclude = [
+    "run_app.py", "vpat_parser.py", "report_generator.py",
+    "wcag_reference.py", "settings_manager.py", "make_demo.py",
+    "test_v10_regression.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+# Strict typing applies to the new package only during migration.
+files = ["src/vpat_reviewer"]
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+# src => the new package; "." => legacy flat modules still under strangler.
+pythonpath = ["src", "."]
+testpaths = ["tests", "test_v10_regression.py"]
+addopts = "-q"
