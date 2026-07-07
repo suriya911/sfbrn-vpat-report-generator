@@ -1,0 +1,26 @@
+# Normalize line endings so cross-platform checkouts don't churn the diff.
+# Text files are stored with LF in the repo; Git converts on checkout per-OS.
+* text=auto
+
+# Explicitly LF for source and config (Git Bash / CI read these on any OS).
+*.py    text eol=lf
+*.toml  text eol=lf
+*.cfg   text eol=lf
+*.ini   text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat   text eol=crlf
+*.ps1   text eol=crlf
+*.iss   text eol=crlf
+
+# Binary assets — never touch.
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.ico   binary
+*.docx  binary

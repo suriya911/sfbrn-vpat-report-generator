@@ -19,7 +19,9 @@ from pathlib import Path
 from typing import Any
 
 from vpat_reviewer import __version__, service
-from vpat_reviewer.config import settings
+from vpat_reviewer.config import policy_form, settings
+from vpat_reviewer.config.settings import IDENTITY_DEFAULTS
+from vpat_reviewer.domain.policy import GradingPolicy
 
 _AUDIENCE = ["individual", "small_team", "department", "campus_wide"]
 _ACCESS = ["no_limit", "limits_some", "denies_access"]
@@ -137,6 +139,55 @@ def _cmd_policy_validate(_args: argparse.Namespace) -> int:
     return 1
 
 
+def _cmd_policy_set(args: argparse.Namespace) -> int:
+    new, err = policy_form.set_field(settings.load_policy(), args.key, args.value)
+    if err:
+        print(f"error: {err}", file=sys.stderr)
+        return 1
+    settings.save_policy(new)
+    print(f"Set {args.key}. Saved to {settings.default_settings_path()}")
+    return 0
+
+
+def _cmd_policy_reset(_args: argparse.Namespace) -> int:
+    settings.save_policy(GradingPolicy.default())
+    print("Grading policy reset to defaults.")
+    return 0
+
+
+def _cmd_policy_import(args: argparse.Namespace) -> int:
+    try:
+        data = json.loads(Path(args.file).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"error: could not read {args.file}: {e}", file=sys.stderr)
+        return 1
+    policy = GradingPolicy.from_dict(data)
+    problems = policy.validate()
+    if problems:
+        print("error: invalid policy:", file=sys.stderr)
+        for p in problems:
+            print(f"  - {p}", file=sys.stderr)
+        return 1
+    settings.save_policy(policy)
+    print("Imported grading policy.")
+    return 0
+
+
+def _cmd_settings_show(_args: argparse.Namespace) -> int:
+    print(json.dumps(settings.load_settings(), indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_settings_set(args: argparse.Namespace) -> int:
+    if args.key not in IDENTITY_DEFAULTS:
+        known = ", ".join(IDENTITY_DEFAULTS)
+        print(f"error: unknown setting '{args.key}'. Known: {known}", file=sys.stderr)
+        return 1
+    settings.save_settings({args.key: args.value})
+    print(f"Set {args.key}.")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="vpat-review", description="VPAT accessibility reviewer.")
     parser.add_argument("--version", action="version", version=f"vpat-review {__version__}")
@@ -156,7 +207,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_impact_flags(p_review)
     p_review.set_defaults(func=_cmd_review)
 
-    p_policy = sub.add_parser("policy", help="Inspect the editable grading policy.")
+    p_policy = sub.add_parser("policy", help="Inspect and edit the grading policy.")
     policy_sub = p_policy.add_subparsers(dest="policy_command", required=True)
     policy_sub.add_parser("show", help="Print the current grading policy as JSON.").set_defaults(
         func=_cmd_policy_show
@@ -167,6 +218,28 @@ def build_parser() -> argparse.ArgumentParser:
     policy_sub.add_parser("validate", help="Validate the current grading policy.").set_defaults(
         func=_cmd_policy_validate
     )
+    p_set = policy_sub.add_parser(
+        "set", help="Set one policy field (e.g. compliance_threshold 85)."
+    )
+    p_set.add_argument("key", help="Field name, e.g. graded_level, compliance_threshold.")
+    p_set.add_argument("value", help="New value (comma-separate lists).")
+    p_set.set_defaults(func=_cmd_policy_set)
+    policy_sub.add_parser("reset", help="Reset the grading policy to defaults.").set_defaults(
+        func=_cmd_policy_reset
+    )
+    p_import = policy_sub.add_parser("import", help="Load a full policy from a JSON file.")
+    p_import.add_argument("file", help="Path to a policy JSON file (see `policy show`).")
+    p_import.set_defaults(func=_cmd_policy_import)
+
+    p_settings = sub.add_parser("settings", help="Inspect and edit organization settings.")
+    settings_sub = p_settings.add_subparsers(dest="settings_command", required=True)
+    settings_sub.add_parser("show", help="Print organization settings as JSON.").set_defaults(
+        func=_cmd_settings_show
+    )
+    p_sset = settings_sub.add_parser("set", help="Set one setting (e.g. org_name 'Acme').")
+    p_sset.add_argument("key", help="Setting name, e.g. org_name, reviewer_name, threshold.")
+    p_sset.add_argument("value", help="New value.")
+    p_sset.set_defaults(func=_cmd_settings_set)
 
     return parser
 

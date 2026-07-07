@@ -1,0 +1,37 @@
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.installed.cfg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ── Build / packaging ────────────────────────────────────────────────────────
+build/
+dist/
+*.spec.bak
+*.manifest
+
+# ── Tooling caches ───────────────────────────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ── Editors / OS ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── App-generated artifacts ──────────────────────────────────────────────────
+# Demo/report PDFs are produced by make_demo.py / the app; regenerate, don't commit.
+demo_*.pdf
+*_VPAT_Report.pdf
