@@ -1,0 +1,635 @@
+{
+  "1.1.1": {
+    "title": "Non-text Content",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "All non-text content that is presented to the user has a text alternative that serves the equivalent purpose, except for controls, time-based media, tests, sensory experiences, CAPTCHA, and decoration.",
+    "plain": "Every meaningful image, icon, chart, or control needs a text description so people who cannot see it — including screen-reader users — get the same information. Purely decorative graphics should be hidden from assistive technology.",
+    "workarounds": [
+      "Use a screen reader (NVDA, JAWS, or VoiceOver) to check whether images are announced with a meaningful description.",
+      "If an image button has no accessible name, right-click the element and use your browser's accessibility inspector to check for an aria-label.",
+      "Request the vendor add alt text to all informative images and mark decorative images as presentation role.",
+      "As an interim measure, faculty can provide a text-based version of any visual content embedded in the tool."
+    ]
+  },
+  "1.2.1": {
+    "title": "Audio-only and Video-only (Prerecorded)",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "For prerecorded audio-only and prerecorded video-only media, an alternative is provided that presents equivalent information.",
+    "plain": "Audio-only files need a transcript, and silent video needs either a transcript or an audio track, so the content is available to people who cannot hear or cannot see it.",
+    "workarounds": [
+      "Request a written transcript from the content creator for any audio-only files.",
+      "For video-only content, request a text description of what occurs visually.",
+      "Faculty should provide alternative text-based materials alongside audio or silent video content."
+    ]
+  },
+  "1.2.2": {
+    "title": "Captions (Prerecorded)",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "Captions are provided for all prerecorded audio content in synchronized media, except when the media is a media alternative for text and is clearly labeled as such.",
+    "plain": "Recorded videos with sound must have accurate synchronized captions so people who are deaf or hard of hearing can follow the spoken content.",
+    "workarounds": [
+      "Request caption files (.vtt or .srt) from the vendor or content creator.",
+      "Use YouTube's auto-caption feature as a starting point, then review for accuracy.",
+      "Google Live Transcribe (Android) or Microsoft Translator can provide real-time speech-to-text.",
+      "Students needing captions should contact Disability Services for accommodation support."
+    ]
+  },
+  "1.2.3": {
+    "title": "Audio Description or Media Alternative (Prerecorded)",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "An alternative for time-based media or audio description of the prerecorded video content is provided for synchronized media, except when the media is a media alternative for text and is clearly labeled as such.",
+    "plain": "Prerecorded video needs either a full text alternative or audio description so that people who are blind understand the important visual action.",
+    "workarounds": [
+      "Request an audio description track or a text transcript that describes both audio and visual content.",
+      "Faculty can record a secondary narration track describing visual elements for students who are blind."
+    ]
+  },
+  "1.2.4": {
+    "title": "Captions (Live)",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "Captions are provided for all live audio content in synchronized media.",
+    "plain": "Live video with sound (webinars, live streams) must have real-time captions so people who are deaf or hard of hearing can participate as it happens.",
+    "workarounds": [
+      "Use Google Live Transcribe (free, Android) or Otter.ai (free tier available) for real-time transcription of live sessions.",
+      "Microsoft Teams, Zoom, and Google Meet all offer built-in live captions that can be used alongside this product.",
+      "Request that the vendor enable WebVTT caption support for any live video features.",
+      "Students needing live captioning should contact Disability Services for a CART (Communication Access Realtime Translation) provider."
+    ]
+  },
+  "1.2.5": {
+    "title": "Audio Description (Prerecorded)",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "Audio description is provided for all prerecorded video content in synchronized media.",
+    "plain": "Prerecorded video should include an audio-description track that narrates key visual details for viewers who are blind or have low vision.",
+    "workarounds": [
+      "Request an audio description track from the vendor or content creator.",
+      "Faculty can provide a written narration document that describes the visual content of any prerecorded video.",
+      "Use Described and Captioned Media Program (DCMP) guidelines to create audio descriptions for critical course videos."
+    ]
+  },
+  "1.3.1": {
+    "title": "Info and Relationships",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "Information, structure, and relationships conveyed through presentation can be programmatically determined or are available in text.",
+    "plain": "Headings, lists, tables, and form labels must be marked up with real structure — not just visual styling — so assistive technology can convey the same relationships a sighted user sees.",
+    "workarounds": [
+      "Use NVDA (free) or JAWS with the browser to navigate by headings (H key) and landmarks (D key for main content).",
+      "Install the Accessibility Insights for Web browser extension (free, Microsoft) to quickly view the heading structure and landmark regions.",
+      "If the page lacks a main landmark, use Ctrl+F (Find) in the browser to search for key terms and navigate directly.",
+      "Report missing heading structure and landmark regions to the vendor — these are high-priority fixes."
+    ]
+  },
+  "1.3.2": {
+    "title": "Meaningful Sequence",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "When the sequence in which content is presented affects its meaning, a correct reading sequence can be programmatically determined.",
+    "plain": "Content must be coded in a logical reading order so a screen reader announces it in a sequence that still makes sense.",
+    "workarounds": [
+      "Use a screen reader's Reading View (NVDA: Insert+Space) to hear content in linear reading order.",
+      "Use the browser Reader Mode (F9 in Firefox, or Reader View in Safari) to strip layout and reveal content in logical order.",
+      "If content order is confusing, navigate by paragraph (Ctrl+Down in NVDA) rather than by layout."
+    ]
+  },
+  "1.3.3": {
+    "title": "Sensory Characteristics",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "Instructions provided for understanding and operating content do not rely solely on sensory characteristics of components such as shape, color, size, visual location, orientation, or sound.",
+    "plain": "Directions should not depend only on things like \"click the round button on the right\" — they must also work for people who cannot perceive shape, color, or position.",
+    "workarounds": [
+      "When instructions reference shape, color, or position, ask the vendor to also include a text label.",
+      "As a workaround, faculty should supplement any position-based instructions ('click the button on the right') with explicit step-by-step text instructions."
+    ]
+  },
+  "1.3.4": {
+    "title": "Orientation",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "Content does not restrict its view and operation to a single display orientation, such as portrait or landscape, unless a specific orientation is essential.",
+    "plain": "The interface must work in both portrait and landscape so people who have their device mounted in a fixed orientation are not locked out.",
+    "workarounds": [
+      "If the application forces portrait orientation, users who mount devices in landscape can use a physical rotation lock override on their device.",
+      "On Windows tablets, disable auto-rotate in Action Center and manually set orientation.",
+      "Contact the vendor to request that orientation restrictions be removed in a future update.",
+      "As an interim measure, use the desktop web version of the product which is not subject to orientation restrictions."
+    ]
+  },
+  "1.3.5": {
+    "title": "Identify Input Purpose",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "The purpose of each input field collecting information about the user can be programmatically determined when the field serves a common purpose and the technology supports identifying it.",
+    "plain": "Common form fields (name, email, address) should declare their purpose in code so browsers and assistive tools can autofill and adapt them.",
+    "workarounds": [
+      "Use your browser's autofill or password manager to fill personal information fields automatically.",
+      "If fields are not auto-filling, use your screen reader's Forms Mode to manually identify and fill each field."
+    ]
+  },
+  "1.4.1": {
+    "title": "Use of Color",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "Color is not used as the only visual means of conveying information, indicating an action, prompting a response, or distinguishing a visual element.",
+    "plain": "Information shown with color (like a red \"error\" field) must also be shown another way — text, an icon, or a pattern — for people who cannot distinguish colors.",
+    "workarounds": [
+      "Enable High Contrast Mode in Windows (Settings > Ease of Access > High Contrast) to override color-only indicators.",
+      "On macOS, enable Increase Contrast (System Settings > Accessibility > Display).",
+      "Install the Colorblindly or Color Enhancer browser extension to remap color-based indicators.",
+      "Request the vendor add a text label or icon alongside any color-only status indicators."
+    ]
+  },
+  "1.4.2": {
+    "title": "Audio Control",
+    "level": "A",
+    "principle": "Perceivable",
+    "description": "If any audio plays automatically for more than 3 seconds, a mechanism is available to pause or stop it, or to control its volume independently of the overall system volume.",
+    "plain": "Sound that starts on its own must be easy to stop or mute so it does not interfere with a screen reader or startle the user.",
+    "workarounds": []
+  },
+  "1.4.3": {
+    "title": "Contrast (Minimum)",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "The visual presentation of text and images of text has a contrast ratio of at least 4.5:1, except for large text (3:1), incidental text, and logotypes.",
+    "plain": "Text must stand out clearly from its background (at least 4.5:1 contrast) so people with low vision can read it.",
+    "workarounds": [
+      "Increase browser zoom to 150% or 200% (Ctrl++ or Cmd++) to make low-contrast text easier to read.",
+      "Enable High Contrast Mode in Windows (Win+Ctrl+C or Settings > Ease of Access > High Contrast).",
+      "On macOS, enable Increase Contrast under System Settings > Accessibility > Display.",
+      "Install the Dark Reader browser extension to apply a high-contrast dark mode overlay to any web application.",
+      "Use the Chrome DevTools Accessibility panel to check exact contrast ratios and report specific failures to the vendor.",
+      "Students with low vision or color perception differences should contact Disability Services for accommodation support."
+    ]
+  },
+  "1.4.4": {
+    "title": "Resize Text",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "Except for captions and images of text, text can be resized without assistive technology up to 200 percent without loss of content or functionality.",
+    "plain": "Users must be able to enlarge text to 200% (using browser zoom) without content overlapping, being cut off, or breaking.",
+    "workarounds": [
+      "Use browser zoom (Ctrl++ repeatedly) up to 200%. If content truncates at high zoom, try a wider browser window or a larger physical monitor.",
+      "In Chrome or Edge, go to Settings > Appearance > Page Zoom and set a persistent default zoom level.",
+      "Use Windows Magnifier (Win+Plus) to zoom into specific screen regions without triggering browser reflow.",
+      "Use ZoomText or SuperNova (commercial low-vision tools) for advanced magnification without layout disruption.",
+      "Report the specific page and zoom level where content truncates to the vendor with a screenshot."
+    ]
+  },
+  "1.4.5": {
+    "title": "Images of Text",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "If the technologies being used can achieve the visual presentation, text is used to convey information rather than images of text, except for customizable images and where a particular presentation is essential.",
+    "plain": "Use real text instead of pictures of text so it can be resized, recolored, and read by assistive technology.",
+    "workarounds": [
+      "Use your operating system's accessibility zoom (Windows Magnifier or macOS Zoom) to enlarge images of text.",
+      "Request the vendor replace image-based text with live, selectable HTML text."
+    ]
+  },
+  "1.4.10": {
+    "title": "Reflow",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "Content can be presented without loss of information or functionality, and without requiring scrolling in two dimensions, at a width equivalent to 320 CSS pixels or a height equivalent to 256 CSS pixels.",
+    "plain": "Content should reflow into a single column on a narrow screen or at high zoom, so users don't have to scroll both horizontally and vertically to read it.",
+    "workarounds": [
+      "If the page does not reflow at 400% zoom, set zoom to 200% and use a larger physical display.",
+      "Use Windows Magnifier (Win+Plus) to zoom into specific screen regions without triggering browser reflow.",
+      "Switch to the vendor's mobile app if available, as mobile-first designs typically handle narrow viewports better.",
+      "Use the browser's Reader Mode (Firefox: F9) which strips layout and reformats content into a single readable column.",
+      "Report non-reflowing pages to the vendor with the specific URL and zoom level — reflow is a legal requirement under Section 508."
+    ]
+  },
+  "1.4.11": {
+    "title": "Non-text Contrast",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "The visual presentation of user-interface components and graphical objects has a contrast ratio of at least 3:1 against adjacent colors.",
+    "plain": "Buttons, form borders, icons, and meaningful graphics need at least 3:1 contrast so people with low vision can see and operate them.",
+    "workarounds": [
+      "Enable High Contrast Mode (Windows: Win+Ctrl+C) to boost the contrast of all UI controls and focus indicators.",
+      "Install the Dark Reader browser extension to apply uniform high-contrast styling to the entire application.",
+      "Use NVDA's Object Navigation (NumPad 2/8) to interact with controls that are visually hard to distinguish.",
+      "Report specific pages with low-contrast controls to the vendor, including screenshots with identified elements."
+    ]
+  },
+  "1.4.12": {
+    "title": "Text Spacing",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "No loss of content or functionality occurs when users override line height to 1.5 times the font size, paragraph spacing to 2 times, letter spacing to 0.12 times, and word spacing to 0.16 times the font size.",
+    "plain": "When users adjust spacing to make text easier to read, the layout must adapt without clipping or hiding content.",
+    "workarounds": [
+      "Use browser DevTools (F12 > Elements) to manually add line-height and letter-spacing CSS overrides for readability.",
+      "Install the Stylus browser extension to apply a persistent custom stylesheet that increases text spacing.",
+      "Use the browser's built-in Reading Mode for a reformatted, better-spaced reading experience."
+    ]
+  },
+  "1.4.13": {
+    "title": "Content on Hover or Focus",
+    "level": "AA",
+    "principle": "Perceivable",
+    "description": "Where receiving and then removing pointer hover or keyboard focus triggers additional content, that content is dismissable, hoverable, and persistent.",
+    "plain": "Tooltips and pop-ups that appear on hover or focus must be dismissible, must stay open long enough to read, and must not disappear when the pointer moves onto them.",
+    "workarounds": [
+      "Use the Tab key to trigger hover-activated content via keyboard focus, which keeps it visible longer.",
+      "Use NVDA or JAWS with the arrow keys to read tooltip and popup content once it appears.",
+      "Press Escape to dismiss stuck tooltips or popovers — report any that cannot be dismissed to the vendor.",
+      "Use the Accessibility Insights browser extension to inspect tooltip content in the accessibility tree."
+    ]
+  },
+  "2.1.1": {
+    "title": "Keyboard",
+    "level": "A",
+    "principle": "Operable",
+    "description": "All functionality of the content is operable through a keyboard interface without requiring specific timings for individual keystrokes.",
+    "plain": "Everything you can do with a mouse must also be doable with a keyboard alone, for people who cannot use a pointing device.",
+    "workarounds": [
+      "Use Tab and Shift+Tab to navigate forward and backward between interactive elements.",
+      "Use Enter or Space to activate buttons, and arrow keys to navigate within components like dropdowns or menus.",
+      "If a control is not keyboard-reachable, use NVDA's Object Navigator (Insert+Numpad arrows) to access it.",
+      "Use the browser's Find (Ctrl+F) to locate and navigate to specific on-page elements.",
+      "Report all inaccessible interactive elements to the vendor — keyboard access is a fundamental legal requirement.",
+      "As a workaround, some actions blocked from keyboard can be accessed via the browser's right-click context menu."
+    ]
+  },
+  "2.1.2": {
+    "title": "No Keyboard Trap",
+    "level": "A",
+    "principle": "Operable",
+    "description": "If keyboard focus can be moved to a component using a keyboard interface, then focus can be moved away from that component using only a keyboard interface.",
+    "plain": "Keyboard users must never get \"trapped\" in a widget — they must always be able to tab back out.",
+    "workarounds": [
+      "If keyboard focus becomes trapped, press Escape to attempt to exit the component.",
+      "As a last resort, press F5 to refresh the page and restart navigation.",
+      "Report keyboard traps to the vendor immediately with the specific page and the key combination that triggers the trap.",
+      "Use Tab+Shift+Tab rapidly to try to break out of a trapped focus loop."
+    ]
+  },
+  "2.1.4": {
+    "title": "Character Key Shortcuts",
+    "level": "A",
+    "principle": "Operable",
+    "description": "If a keyboard shortcut is implemented using only letter, punctuation, number, or symbol characters, then it can be turned off, remapped, or is active only on focus.",
+    "plain": "Single-key shortcuts must be avoidable or remappable so speech-input users don't trigger them by accident.",
+    "workarounds": []
+  },
+  "2.2.1": {
+    "title": "Timing Adjustable",
+    "level": "A",
+    "principle": "Operable",
+    "description": "For each time limit set by the content, the user can turn it off, adjust it, or extend it, with limited exceptions.",
+    "plain": "If a task has a time limit, users must be able to turn it off, lengthen it, or extend it, so people who need more time are not cut off.",
+    "workarounds": []
+  },
+  "2.2.2": {
+    "title": "Pause, Stop, Hide",
+    "level": "A",
+    "principle": "Operable",
+    "description": "For moving, blinking, scrolling, or auto-updating information, users can pause, stop, or hide it, subject to defined exceptions.",
+    "plain": "Anything that moves, blinks, or auto-updates must have a way to pause or stop it, so it does not distract or block people from reading.",
+    "workarounds": []
+  },
+  "2.3.1": {
+    "title": "Three Flashes or Below Threshold",
+    "level": "A",
+    "principle": "Operable",
+    "description": "Web pages do not contain anything that flashes more than three times in any one-second period, or the flash is below the general flash and red flash thresholds.",
+    "plain": "Nothing should flash more than three times per second, because rapid flashing can trigger seizures.",
+    "workarounds": []
+  },
+  "2.4.1": {
+    "title": "Bypass Blocks",
+    "level": "A",
+    "principle": "Operable",
+    "description": "A mechanism is available to bypass blocks of content that are repeated on multiple web pages.",
+    "plain": "A \"skip to main content\" link or landmark lets keyboard and screen-reader users jump past repeated menus instead of tabbing through them every time.",
+    "workarounds": [
+      "Use the browser address bar (Ctrl+L / Cmd+L) to navigate directly to specific pages, bypassing repeated navigation menus.",
+      "Use NVDA's Landmark Navigation (D key) to jump directly to the main content region, skipping navigation.",
+      "Install the SkipTo browser extension which adds a visible Skip Navigation control to all web pages.",
+      "Create browser bookmarks for frequently used pages deep within the application to bypass the navigation structure."
+    ]
+  },
+  "2.4.2": {
+    "title": "Page Titled",
+    "level": "A",
+    "principle": "Operable",
+    "description": "Web pages have titles that describe topic or purpose.",
+    "plain": "Every page needs a clear, descriptive title so users know where they are and can tell tabs and windows apart.",
+    "workarounds": []
+  },
+  "2.4.3": {
+    "title": "Focus Order",
+    "level": "A",
+    "principle": "Operable",
+    "description": "If a web page can be navigated sequentially and the navigation sequences affect meaning or operation, focusable components receive focus in an order that preserves meaning and operability.",
+    "plain": "As you tab through a page, focus should move in a logical order that matches the visual and reading flow.",
+    "workarounds": [
+      "When focus jumps unexpectedly after opening a dialog, press Shift+Tab to move focus backward to the dialog content.",
+      "Use NVDA's Focus Mode (Insert+Space) to track and follow focus as it moves through the page.",
+      "After closing a dialog, if focus is lost, press Tab once to reorient to the nearest focusable element.",
+      "Use the browser's accessibility tree inspector (F12 > Accessibility tab) to locate where focus is currently positioned."
+    ]
+  },
+  "2.4.4": {
+    "title": "Link Purpose (In Context)",
+    "level": "A",
+    "principle": "Operable",
+    "description": "The purpose of each link can be determined from the link text alone, or from the link text together with its programmatically determined context, except where the purpose would be ambiguous to users in general.",
+    "plain": "Link text should make its destination clear — avoid vague links like \"click here\" that make no sense out of context.",
+    "workarounds": [
+      "Use NVDA's Links List (Insert+F7) to view all links on the page and their full accessible names.",
+      "Use JAWS Links List (Insert+F7) to navigate links with context shown.",
+      "When a link text is ambiguous, hover over it to see if a tooltip provides additional context.",
+      "Report identical or ambiguous link labels to the vendor with specific examples."
+    ]
+  },
+  "2.4.5": {
+    "title": "Multiple Ways",
+    "level": "AA",
+    "principle": "Operable",
+    "description": "More than one way is available to locate a web page within a set of web pages, except where the page is the result of, or a step in, a process.",
+    "plain": "Users should have more than one way to find a page — such as a menu, search, and a site map — to suit different needs.",
+    "workarounds": [
+      "Use the browser's built-in search (Ctrl+F) to locate content within the application.",
+      "Use browser bookmarks to create direct navigation shortcuts to frequently used sections.",
+      "Request the vendor add a site-wide search feature or sitemap to enable multiple navigation pathways."
+    ]
+  },
+  "2.4.6": {
+    "title": "Headings and Labels",
+    "level": "AA",
+    "principle": "Operable",
+    "description": "Headings and labels describe topic or purpose.",
+    "plain": "Headings and form labels must be clear and descriptive so users can understand and navigate the content quickly.",
+    "workarounds": [
+      "Use NVDA's Headings List (Insert+F7 > Headings tab) to review all heading labels and identify ambiguous ones.",
+      "Use JAWS's Headings List (Insert+F6) for the same purpose.",
+      "When buttons are identically labeled, use NVDA's Object Properties (Insert+Tab) to read the full accessible name.",
+      "Request the vendor add unique, descriptive labels to all repeated buttons and form fields."
+    ]
+  },
+  "2.4.7": {
+    "title": "Focus Visible",
+    "level": "AA",
+    "principle": "Operable",
+    "description": "Any keyboard-operable user interface has a mode of operation where the keyboard focus indicator is visible.",
+    "plain": "The element that currently has keyboard focus must be visibly highlighted so keyboard users can see where they are.",
+    "workarounds": [
+      "Enable High Contrast Mode (Windows: Win+Ctrl+C) which typically makes focus indicators more visible.",
+      "Install the Focus Indicator browser extension (Chrome Web Store) to add a visible yellow outline to all focused elements.",
+      "In Firefox, go to about:config and enable accessibility.browsewithcaret to see a text cursor on all pages.",
+      "Use keyboard navigation in combination with NVDA's speech output to confirm focus position even when the indicator is not visible.",
+      "Report pages where focus is invisible with specific interactive elements noted — this is a legal requirement."
+    ]
+  },
+  "2.4.11": {
+    "title": "Focus Not Obscured (Minimum)",
+    "level": "AA",
+    "principle": "Operable",
+    "description": "When a user-interface component receives keyboard focus, the component is not entirely hidden due to author-created content.",
+    "plain": "When you tab to a control, it must not be completely covered by sticky headers, footers, or pop-ups.",
+    "workarounds": [
+      "Enable High Contrast Mode in Windows (Win+Ctrl+C) to enhance visibility of all focused elements.",
+      "Install the Focus Indicator browser extension (Chrome Web Store) to add a bright outline around the focused element.",
+      "Use keyboard navigation alongside NVDA speech output — NVDA announces the focused element even when visually obscured.",
+      "In Firefox, enable accessibility.browsewithcaret in about:config to show a text cursor that indicates focus position.",
+      "Report specific pages where the focused element is obscured by a sticky header or fixed element to the vendor."
+    ]
+  },
+  "2.5.1": {
+    "title": "Pointer Gestures",
+    "level": "A",
+    "principle": "Operable",
+    "description": "All functionality that uses multipoint or path-based gestures can be operated with a single pointer without a path-based gesture, unless such a gesture is essential.",
+    "plain": "Actions that need complex gestures (pinch, swipe paths) must also work with a simple single tap or click.",
+    "workarounds": []
+  },
+  "2.5.2": {
+    "title": "Pointer Cancellation",
+    "level": "A",
+    "principle": "Operable",
+    "description": "For functionality operated using a single pointer, the down-event is not used to complete the action, or completion can be aborted or undone.",
+    "plain": "An action should complete on release, not on press, so users can slide off a control to cancel a mistaken tap.",
+    "workarounds": []
+  },
+  "2.5.3": {
+    "title": "Label in Name",
+    "level": "A",
+    "principle": "Operable",
+    "description": "For user-interface components with labels that include text or images of text, the accessible name contains the text that is presented visually.",
+    "plain": "A control's programmatic name must include its visible label text, so speech-input users can activate it by saying what they see.",
+    "workarounds": [
+      "Use speech recognition software (Dragon NaturallySpeaking or Windows Speech Recognition) and say the visible button text — if the accessible name differs, the voice command may not work.",
+      "Report mismatched accessible names to the vendor: specify the visible label and the announced name from a screen reader.",
+      "As a workaround, use Tab to navigate to the control by position rather than by name."
+    ]
+  },
+  "2.5.4": {
+    "title": "Motion Actuation",
+    "level": "A",
+    "principle": "Operable",
+    "description": "Functionality that can be operated by device motion or user motion can also be operated by user-interface components, and responding to the motion can be disabled, unless the motion is essential.",
+    "plain": "Features triggered by shaking or tilting the device must also have a normal control and be able to be turned off, for people who cannot move the device precisely.",
+    "workarounds": []
+  },
+  "2.5.7": {
+    "title": "Dragging Movements",
+    "level": "AA",
+    "principle": "Operable",
+    "description": "All functionality that uses a dragging movement for operation can be achieved by a single pointer without dragging, unless dragging is essential.",
+    "plain": "Anything that requires dragging must also offer a simple tap/click alternative for people who cannot perform a sustained drag.",
+    "workarounds": [
+      "Look for a menu or settings option to perform the same action that is available via drag — many applications offer alternative UI for drag operations.",
+      "Use NVDA's Object Navigator to interact with drag targets using the keyboard.",
+      "On Windows, some drag operations can be performed via the keyboard using the application's context menu (Shift+F10 or the Menu key).",
+      "Request the vendor add a keyboard-accessible alternative for all drag-and-drop interactions — this is required by WCAG 2.2.",
+      "Contact the vendor specifically about this barrier as it is a WCAG 2.2 Level AA requirement added in 2023."
+    ]
+  },
+  "2.5.8": {
+    "title": "Target Size (Minimum)",
+    "level": "AA",
+    "principle": "Operable",
+    "description": "The size of the target for pointer inputs is at least 24 by 24 CSS pixels, except where spacing, an equivalent control, inline placement, essential presentation, or user-agent control applies.",
+    "plain": "Clickable targets should be at least 24×24 pixels (or adequately spaced) so people with limited dexterity can hit them accurately.",
+    "workarounds": [
+      "Increase display scaling (Windows: Settings > Display > Scale) to make small targets larger on-screen.",
+      "Use mouse pointer size settings (Windows: Settings > Ease of Access > Mouse Pointer) to make clicking more precise.",
+      "Consider using a stylus or trackball for more controlled pointer input on small targets."
+    ]
+  },
+  "3.1.1": {
+    "title": "Language of Page",
+    "level": "A",
+    "principle": "Understandable",
+    "description": "The default human language of each web page can be programmatically determined.",
+    "plain": "The page must declare its language in code so screen readers pronounce the content with the correct accent and rules.",
+    "workarounds": [
+      "Set your screen reader's language manually to match the content language in screen reader settings.",
+      "In NVDA, go to NVDA Menu > Preferences > Speech > Language to set the synthesizer language.",
+      "In JAWS, use the Language Selection dialog to set a preferred language.",
+      "Report the missing lang attribute to the vendor — this is typically a one-line code fix."
+    ]
+  },
+  "3.1.2": {
+    "title": "Language of Parts",
+    "level": "AA",
+    "principle": "Understandable",
+    "description": "The human language of each passage or phrase in the content can be programmatically determined, except for proper names, technical terms, words of indeterminate language, and words that are part of the vernacular.",
+    "plain": "Words or passages in a different language should be marked as such so a screen reader switches pronunciation correctly.",
+    "workarounds": [
+      "Set your screen reader to auto-detect language changes: in NVDA, enable 'Automatic language switching' under Preferences > Speech.",
+      "If pronunciation is incorrect for a foreign phrase, manually switch your screen reader's language while reading that section.",
+      "Request the vendor add lang attributes to all content in languages other than the primary page language."
+    ]
+  },
+  "3.2.1": {
+    "title": "On Focus",
+    "level": "A",
+    "principle": "Understandable",
+    "description": "When any user-interface component receives focus, it does not initiate a change of context.",
+    "plain": "Simply moving focus onto a field or control must not unexpectedly open a new window, submit a form, or jump the user elsewhere.",
+    "workarounds": []
+  },
+  "3.2.2": {
+    "title": "On Input",
+    "level": "A",
+    "principle": "Understandable",
+    "description": "Changing the setting of any user-interface component does not automatically cause a change of context unless the user has been advised of the behavior beforehand.",
+    "plain": "Selecting an option or typing in a field must not trigger a surprising context change unless the user was warned first.",
+    "workarounds": []
+  },
+  "3.2.3": {
+    "title": "Consistent Navigation",
+    "level": "AA",
+    "principle": "Understandable",
+    "description": "Navigational mechanisms that are repeated on multiple web pages occur in the same relative order each time they are repeated, unless a change is initiated by the user.",
+    "plain": "Menus and navigation should stay in the same place and order across pages so users can rely on them.",
+    "workarounds": [
+      "Use browser bookmarks to navigate directly to frequently used sections, bypassing inconsistent navigation.",
+      "Use the browser's back button and history to retrace navigation paths when menus appear in unexpected positions."
+    ]
+  },
+  "3.2.4": {
+    "title": "Consistent Identification",
+    "level": "AA",
+    "principle": "Understandable",
+    "description": "Components that have the same functionality within a set of web pages are identified consistently.",
+    "plain": "The same control (like a search button) should be labeled and named the same way everywhere, so users recognize it.",
+    "workarounds": [
+      "When a control appears to have changed its label, use NVDA's Object Properties (Insert+Tab) to verify its accessible name.",
+      "Report inconsistently labeled controls to the vendor with screenshots of both instances."
+    ]
+  },
+  "3.3.1": {
+    "title": "Error Identification",
+    "level": "A",
+    "principle": "Understandable",
+    "description": "If an input error is automatically detected, the item in error is identified and the error is described to the user in text.",
+    "plain": "When a form entry is wrong, the specific field and the problem must be clearly described in text, not just shown with color.",
+    "workarounds": [
+      "After submitting a form, use NVDA's Browse Mode to read the page from the top — error messages are usually announced near the form fields.",
+      "Use JAWS's Forms Mode and navigate field by field after submission to hear any error messages.",
+      "Request the vendor use aria-describedby or aria-live to ensure error messages are announced automatically."
+    ]
+  },
+  "3.3.2": {
+    "title": "Labels or Instructions",
+    "level": "A",
+    "principle": "Understandable",
+    "description": "Labels or instructions are provided when content requires user input.",
+    "plain": "Every form field needs a clear visible label or instructions so users know what to enter.",
+    "workarounds": [
+      "Before filling a form, read all surrounding text carefully for instructions that may not be programmatically associated.",
+      "Use NVDA's Forms Mode (Enter key) then Tab to each field — some instructions may be adjacent but not associated.",
+      "Request the vendor use aria-label or aria-labelledby to explicitly associate all form labels with their fields."
+    ]
+  },
+  "3.3.3": {
+    "title": "Error Suggestion",
+    "level": "AA",
+    "principle": "Understandable",
+    "description": "If an input error is automatically detected and suggestions for correction are known, the suggestions are provided to the user, unless it would jeopardize the security or purpose of the content.",
+    "plain": "When the system knows how to fix an input error, it should suggest the correction (for example, a valid date format).",
+    "workarounds": [
+      "If the application does not suggest a correction, look for inline help text or tooltips near the error field.",
+      "Use the browser's built-in spell-check and form validation to catch errors before submitting.",
+      "Request the vendor add specific error suggestions using aria-describedby on error messages."
+    ]
+  },
+  "3.3.4": {
+    "title": "Error Prevention (Legal, Financial, Data)",
+    "level": "AA",
+    "principle": "Understandable",
+    "description": "For pages that cause legal commitments or financial transactions, that modify or delete user-controllable data, or that submit test responses, submissions are reversible, checked, or confirmed.",
+    "plain": "Before finalizing something important (a purchase, a legal form, deleting data), users must be able to review, correct, or undo it.",
+    "workarounds": [
+      "Before submitting any important form, take a screenshot or copy your input so you can reconstruct it if needed.",
+      "Check whether the application sends a confirmation email — that serves as a record of submission.",
+      "If the form has a review step, use it even if it appears optional.",
+      "Faculty should document submission steps for students in case data is lost."
+    ]
+  },
+  "3.3.8": {
+    "title": "Accessible Authentication (Minimum)",
+    "level": "AA",
+    "principle": "Understandable",
+    "description": "A cognitive function test (such as remembering a password) is not required for any step in an authentication process unless an alternative, a mechanism, object recognition, or personal-content recognition is available.",
+    "plain": "Sign-in should not force people to memorize or transcribe codes — it must allow methods like password managers, copy-paste, or biometrics.",
+    "workarounds": [
+      "If a CAPTCHA blocks login, look for an audio CAPTCHA alternative (usually a speaker icon on the CAPTCHA widget).",
+      "Request the vendor implement WCAG 2.2 compliant authentication that does not require cognitive function tests.",
+      "Use password manager autofill (Bitwarden, 1Password, browser built-in) to bypass typing-based authentication challenges.",
+      "Students unable to complete authentication challenges should contact Disability Services for an alternative login method."
+    ]
+  },
+  "4.1.1": {
+    "title": "Parsing",
+    "level": "A",
+    "principle": "Robust",
+    "description": "In content implemented using markup languages, elements have complete start and end tags, are nested according to specification, do not contain duplicate attributes, and any IDs are unique, except where the specifications allow these features. (Note: 4.1.1 is deprecated in WCAG 2.2 and is considered always satisfied for modern HTML.)",
+    "plain": "The underlying code should be well-formed — no broken tags or duplicate IDs — so browsers and assistive technology interpret it reliably.",
+    "workarounds": [
+      "This criterion is considered always satisfied under the WCAG 2.1 September 2023 errata update for modern browsers.",
+      "No specific workaround is required — modern browsers handle malformed HTML gracefully."
+    ]
+  },
+  "4.1.2": {
+    "title": "Name, Role, Value",
+    "level": "A",
+    "principle": "Robust",
+    "description": "For all user-interface components, the name and role can be programmatically determined; states, properties, and values that can be set by the user can be programmatically set; and notification of changes to these items is available to user agents, including assistive technologies.",
+    "plain": "Every control must expose its name, role, and state in code (often via ARIA) so screen readers can announce what it is and how it's set.",
+    "workarounds": [
+      "Use NVDA's Object Navigation (Insert+Numpad arrows) to interact with controls that are missing accessible names.",
+      "Use JAWS's Virtual Cursor to read element properties for unlabeled controls.",
+      "Install Accessibility Insights for Web (browser extension) to identify all controls missing name/role/value.",
+      "Report specific controls with missing ARIA attributes to the vendor — include the page URL and control description.",
+      "As a workaround, look for alternative ways to achieve the same action using keyboard-accessible standard controls."
+    ]
+  },
+  "4.1.3": {
+    "title": "Status Messages",
+    "level": "AA",
+    "principle": "Robust",
+    "description": "In content implemented using markup languages, status messages can be programmatically determined through role or properties such that they can be presented to the user by assistive technologies without receiving focus.",
+    "plain": "Status updates (like \"item added to cart\" or \"5 results found\") must be announced by a screen reader without moving focus away from the user's task.",
+    "workarounds": [
+      "After performing an action, manually navigate to the top of the page with Ctrl+Home and read downward to catch status messages.",
+      "Use NVDA's Browse Mode and read from the current position with the Down arrow to catch announcements.",
+      "Enable NVDA's 'Report changes to progress bars' in Preferences > Object Presentation to catch progress updates.",
+      "Refresh the page after an action to confirm whether the action was successful.",
+      "Request the vendor add aria-live='polite' regions to all status and notification areas."
+    ]
+  }
+}
