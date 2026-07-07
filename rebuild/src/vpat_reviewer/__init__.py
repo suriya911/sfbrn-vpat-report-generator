@@ -11,6 +11,7 @@ the version. Orchestration (`review()`) and the CLI arrive in Phase 6.
 
 from vpat_reviewer.domain.models import VPATCriterion, VPATDocument
 from vpat_reviewer.domain.policy import GradingPolicy, ScoreBand
+from vpat_reviewer.service import ReviewResult, analyze, render_result, review
 
 __version__ = "11.0.0"
 
@@ -19,5 +20,9 @@ __all__ = [
     "VPATDocument",
     "GradingPolicy",
     "ScoreBand",
+    "ReviewResult",
+    "analyze",
+    "review",
+    "render_result",
     "__version__",
 ]
