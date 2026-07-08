@@ -1,100 +1,96 @@
-# VPAT Reviewer v10 — Build & Release Guide
+# VPAT Reviewer — Build & Release Guide
 
-This guide is for you (the maintainer), not end users. End users only ever
-see `VPAT_Reviewer_Setup.exe` and `INSTALL_INSTRUCTIONS.txt`.
+This guide is for the maintainer, not end users. End users only ever see
+`VPAT_Reviewer.exe` (or the `VPAT_Reviewer_Setup.exe` installer) and
+`INSTALL_INSTRUCTIONS.txt`.
 
-## What changed in v10
+> Architecture, where code lives, and how to extend the app safely are
+> documented separately in **`CLAUDE.md`** and **`docs/`**. Read those before
+> changing code. This file is only about producing a shippable build.
 
-1. **Sample-format visual redesign** of `report_generator.py`:
-   running header (4pt blue top border, logo block, title, date), three-part
-   footer with true "Page X of Y" (two-pass NumberedCanvas), Executive
-   Summary compliance meter with progress bar and threshold language,
-   accent-bar callout boxes, redesigned barrier cards (italic quoted WCAG
-   criterion text → "What this means" → pill badges → shaded Vendor Remarks),
-   and four-column reference tables with pill badges. Only the approved
-   palette is used (`#1a4f8a`, `#2e6db5`, `#e8f0fb`, `#b5d4f4`, plus the five
-   status badge colors).
-2. **Option A scoring policy** (deliberate decision — do not regress):
-   v9 scoring is preserved (Not Applicable excluded from the denominator AND
-   the barrier count), but NA criteria now *appear* in Section 2 as
-   transparently documented known gaps, like the sample report. The scope
-   callout explains this to readers.
-3. **Settings system** (`settings_manager.py` + Settings dialog in
-   `run_app.py`): organization name/short name, reviewer name/title, contact,
-   threshold, and optional custom logo are stored in a local `settings.json`.
-   First launch shows a setup dialog, so anyone can use the app — not just
-   SFBRN. Defaults remain SFBRN / Jonathan Hale.
-4. **Post-generation PDF validation** (`validate_report`): file exists,
-   non-zero, opens, all required sections present, score present. The app
-   warns if validation flags anything.
-5. **Packaging workflow**: `build_exe.bat` (PyInstaller) + `installer.iss`
-   (Inno Setup) produce a single-click installer that creates the Desktop
-   folder structure and shortcuts with no technical questions.
+## What you produce
 
-**Unchanged on purpose:** `vpat_parser.py` and `wcag_reference.py` are
-byte-identical to v9 — every hard-won parser fix (merged DOCX tables, date
-handling, status-normalization order, 602.3 orphan gating, vendor scan
-window) is untouched.
-
-## Architecture note
-
-The master prompt suggested Electron + React + FastAPI "unless there is a
-strong technical reason to choose an equivalent approach." We kept the
-Python/Tkinter/ReportLab architecture deliberately: it preserves the
-regression-tested v9 parser, keeps the whole app in one language you are
-learning, and still satisfies every functional requirement (offline, no API
-keys, local storage, Desktop folders, single-click install, SFBRN branding,
-PDF validation).
-
-## Files in this release
-
-| File | Role | Changed in v10? |
+| Artifact | How | Who gets it |
 |---|---|---|
-| `run_app.py` | Tkinter GUI, pipeline, folders, naming | Yes (settings, validation) |
-| `report_generator.py` | ReportLab PDF engine | Yes (full visual redesign) |
-| `vpat_parser.py` | Parsing, scoring, impact | **No — do not touch** |
-| `wcag_reference.py` | WCAG 2.1 descriptions + plain language | No |
-| `settings_manager.py` | settings.json load/save | New |
-| `test_v10_regression.py` | pytest regression suite | New |
-| `build_exe.bat` | PyInstaller build | New |
-| `installer.iss` | Inno Setup installer | New |
-| `requirements.txt` | dependencies | New |
-| `INSTALL_INSTRUCTIONS.txt` | end-user install guide | New |
+| `dist/VPAT_Reviewer.exe` | `build_exe.bat` | The whole team — a single, self-contained file. No Python needed on their machine. |
+| `Output/VPAT_Reviewer_Setup.exe` | Inno Setup on `installer.iss` | Users who want a "real" install (Desktop folders + shortcut). Optional. |
 
-## Build steps (on your Windows machine)
+The `.exe` is a **onefile** PyInstaller build: everything (Python runtime,
+reportlab/pdfplumber/python-docx/pypdf, and `wcag.json`) is packed into one
+file. On first run it writes a `settings.json` **next to itself**, so keep the
+exe somewhere writable (Desktop, a user folder — not `C:\Program Files`). The
+Inno installer handles this correctly by installing to LocalAppData.
 
-1. **Copy the v10 files** into your `vpat_app\` source folder, replacing the
-   old `run_app.py` and `report_generator.py` and adding the new files.
-   Keep your existing `assets\SFBRN_Logo.png` where it is.
-2. **Run the regression tests first** (always, before any release):
+## Prerequisites (one time)
+
+- **Python 3.10+** on your PATH (`python --version`).
+- For the optional installer: **Inno Setup** (free, https://jrsoftware.org).
+
+Everything else (`pyinstaller`, the app's own dependencies) is installed for you
+by `build_exe.bat` via `pip install -e ".[build]"`.
+
+## Build steps
+
+1. **Run the tests first — always, before any release.** From the `rebuild`
+   folder:
    ```
-   cd vpat_app
-   pip install -r requirements.txt
-   python -m pytest test_v10_regression.py -q
+   pip install -e ".[dev]"
+   python -m pytest -q
    ```
-   All 8 tests must pass. They protect the CCPS 57% / Minitab 91% anchors,
-   the NA-exclusion scoring rule, status-normalization order, Option A
-   display behavior, and custom-settings identity. Also re-run your original
-   CCPS PDF and Minitab DOCX files through the app and confirm 57% / 91%.
-3. **Build the .exe**: double-click `build_exe.bat`. It installs
-   requirements, runs PyInstaller, and copies the logo. Output lands in
-   `dist\VPAT_Reviewer\`.
-4. **Build the installer**: install Inno Setup (free, jrsoftware.org) if you
-   don't have it, open `installer.iss`, press **Build → Compile**. Output:
-   `Output\VPAT_Reviewer_Setup.exe` — that single file is what you give to
-   other users, along with `INSTALL_INSTRUCTIONS.txt`.
-5. **Smoke-test the installer** on a clean profile: install, confirm the
-   Desktop folders and shortcut appear, complete the first-run setup dialog,
-   generate a report from a known VPAT, and confirm the PDF lands in
-   `Desktop\VPAT Reviewer Files\VPAT Summary Reports\`.
+   All tests must pass. They protect the scoring rules (Option A / NA excluded),
+   status normalization, the parser fixes, the WCAG dataset completeness, and
+   the editable grading policy. Also confirm the behavior anchor:
+   ```
+   python make_demo.py
+   ```
+   must print `Score: 72 | ... | Validation: OK`.
+
+2. **Build the single .exe:** double-click `build_exe.bat` (or run it from a
+   terminal). Output lands at `dist\VPAT_Reviewer.exe`. This one file is what
+   you share with the team.
+
+3. **Smoke-test the .exe** on a machine (or clean user profile) *without* a dev
+   environment:
+   - Double-click it — the GUI opens, and on a machine with no `settings.json`
+     the first-run setup dialog appears.
+   - Generate a report from a known VPAT and confirm the PDF is produced.
+   - Confirm it runs with networking disabled (the app is fully offline).
+
+4. **(Optional) Build the click-through installer:** open `installer.iss` in
+   Inno Setup, press **Build → Compile**. Output:
+   `Output\VPAT_Reviewer_Setup.exe`. Give users that single file plus
+   `INSTALL_INSTRUCTIONS.txt`. It installs to LocalAppData (no admin rights),
+   creates the Desktop folder structure, and adds a shortcut.
+
+## How the packaging works (so you can fix it)
+
+- **`vpat_reviewer.spec`** is the PyInstaller recipe. It does two things that a
+  bare `pyinstaller run_app.py` cannot:
+  1. Bundles `src/vpat_reviewer/reference/data/wcag.json` at its package path so
+     the frozen app's `importlib.resources` call still finds it.
+  2. Pulls in the dynamically-imported submodules of reportlab / pdfplumber /
+     pdfminer / pypdf / python-docx via `collect_submodules`.
+- **`run_app.py`** is the entry point PyInstaller freezes; it just calls
+  `vpat_reviewer.ui.gui.app:main`.
+- **Adding a data file?** Add it to `datas` in the spec.
+- **Runtime `ModuleNotFoundError` after building?** Add
+  `collect_submodules("<pkg>")` to `hiddenimports` in the spec.
+- The frozen app detects itself via `sys.frozen` and writes `settings.json`
+  next to the executable — see `config/settings.py::default_settings_path`.
+
+## Versioning
+
+- App version lives in `pyproject.toml` (`version = "11.0.0"`) and is mirrored
+  in `installer.iss` (`AppVersion`). Bump both together on a release.
 
 ## Release checklist
 
-- [ ] `pytest test_v10_regression.py` → 8 passed
-- [ ] CCPS PDF through the app → 57%, 3 barriers (1.4.3, 1.4.4, 2.4.7)
-- [ ] Minitab DOCX through the app → 91%, 1 barrier (3.3.4)
-- [ ] Report visually matches the approved sample (header, footer, meter,
-      cards, tables)
-- [ ] First-run setup dialog appears on a machine with no `settings.json`
-- [ ] Installer creates both Desktop subfolders
-- [ ] App runs with the network disabled
+- [ ] `python -m pytest -q` → all green
+- [ ] `python make_demo.py` → `Score: 72 | ... | Validation: OK`
+- [ ] `ruff check .` and `mypy` → clean
+- [ ] `build_exe.bat` → `dist\VPAT_Reviewer.exe` produced
+- [ ] Smoke test: exe launches, first-run dialog on a clean profile, report
+      generates, runs offline
+- [ ] `pyproject.toml` and `installer.iss` versions match
+- [ ] (If shipping the installer) Inno compile → `VPAT_Reviewer_Setup.exe`,
+      installs and creates both Desktop subfolders

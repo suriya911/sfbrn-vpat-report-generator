@@ -35,3 +35,7 @@ Thumbs.db
 # Demo/report PDFs are produced by make_demo.py / the app; regenerate, don't commit.
 demo_*.pdf
 *_VPAT_Report.pdf
+
+# PyInstaller build log and the self-test output are transient.
+build_log.txt
+vpat_selftest.json

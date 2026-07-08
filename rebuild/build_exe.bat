@@ -1,63 +1,45 @@
 @echo off
 REM ============================================================
-REM  SFBRN VPAT Reviewer v10 - Windows build script
+REM  SFBRN VPAT Reviewer - Windows build script
 REM
-REM  RECONSTRUCTED FILE. The original build_exe.bat was lost in the
-REM  file-name shuffle; this is rebuilt from BUILD_INSTRUCTIONS.md and
-REM  installer.iss, which require PyInstaller to emit:
-REM      dist\VPAT_Reviewer\VPAT_Reviewer.exe   (+ bundled assets\)
+REM  Produces a single, shareable executable:
+REM      dist\VPAT_Reviewer.exe
 REM
-REM  Usage: double-click this file, or run it from a command prompt.
-REM  It installs dependencies, runs PyInstaller, and copies the logo.
+REM  Just double-click this file. It installs the app and its build
+REM  tools into your Python environment, then runs PyInstaller using
+REM  vpat_reviewer.spec (which bundles wcag.json and all dependencies).
+REM
+REM  Requires: Python 3.10+ on PATH. Nothing else — the .exe it makes
+REM  is self-contained and runs on machines with no Python installed.
 REM ============================================================
 setlocal
 cd /d "%~dp0"
 
 echo.
-echo === [1/3] Installing dependencies ===
+echo === [1/2] Installing the app + build tools ===
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install -e ".[build]"
 if errorlevel 1 (
-    echo ERROR: dependency installation failed.
+    echo ERROR: install failed. Is Python 3.10+ on your PATH?
     pause
     exit /b 1
 )
 
 echo.
-echo === [2/3] Building VPAT_Reviewer.exe with PyInstaller ===
-REM  --windowed : GUI app, no console window
-REM  --onedir   : folder build (installer.iss bundles dist\VPAT_Reviewer\*)
-REM  --add-data : bundle the assets folder (logo) if it exists
-set ADDDATA=
-if exist "assets" set ADDDATA=--add-data "assets;assets"
-
-python -m PyInstaller run_app.py ^
-    --name VPAT_Reviewer ^
-    --windowed ^
-    --onedir ^
-    --noconfirm ^
-    --clean ^
-    %ADDDATA%
+echo === [2/2] Building VPAT_Reviewer.exe with PyInstaller ===
+python -m PyInstaller vpat_reviewer.spec --noconfirm --clean
 if errorlevel 1 (
-    echo ERROR: PyInstaller build failed.
+    echo ERROR: PyInstaller build failed. See the output above.
     pause
     exit /b 1
-)
-
-echo.
-echo === [3/3] Ensuring the logo is bundled ===
-if exist "assets\SFBRN_Logo.png" (
-    if not exist "dist\VPAT_Reviewer\assets" mkdir "dist\VPAT_Reviewer\assets"
-    copy /y "assets\SFBRN_Logo.png" "dist\VPAT_Reviewer\assets\SFBRN_Logo.png" >nul
-    echo Logo copied.
-) else (
-    echo NOTE: assets\SFBRN_Logo.png not found - the app will use its text badge fallback.
 )
 
 echo.
 echo === Build complete ===
-echo Output: dist\VPAT_Reviewer\VPAT_Reviewer.exe
-echo Next:   open installer.iss in Inno Setup and press Build ^> Compile
-echo         to produce Output\VPAT_Reviewer_Setup.exe
+echo Output: dist\VPAT_Reviewer.exe   (this single file is what you share)
+echo.
+echo Optional: to make a click-through installer that also creates the
+echo Desktop folders and a shortcut, open installer.iss in Inno Setup
+echo (free, https://jrsoftware.org) and press Build ^> Compile.
 pause
 endlocal

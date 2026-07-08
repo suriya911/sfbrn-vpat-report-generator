@@ -1,7 +1,11 @@
 ; ============================================================
-;  SFBRN VPAT Reviewer v10 - Inno Setup installer script
+;  SFBRN VPAT Reviewer - Inno Setup installer script
 ;  Open this file in Inno Setup (free: https://jrsoftware.org)
 ;  and click Build > Compile. Output: Output\VPAT_Reviewer_Setup.exe
+;
+;  This wraps the single dist\VPAT_Reviewer.exe (built by build_exe.bat)
+;  into a click-through installer. You can also just share the .exe
+;  directly — the installer only adds the Desktop folders + shortcut.
 ;
 ;  What the installer does (single click, no technical questions):
 ;   - Installs the app to the user's LocalAppData folder
@@ -14,7 +18,7 @@
 
 [Setup]
 AppName=VPAT Reviewer
-AppVersion=10.0
+AppVersion=11.0
 AppPublisher=San Francisco Bay Region Network (SFBRN)
 DefaultDirName={localappdata}\VPAT_Reviewer
 DefaultGroupName=VPAT Reviewer
@@ -27,9 +31,8 @@ SolidCompression=yes
 UninstallDisplayName=VPAT Reviewer
 
 [Files]
-; Everything PyInstaller produced, including the assets subfolder
-Source: "dist\VPAT_Reviewer\*"; DestDir: "{app}"; \
-    Flags: recursesubdirs createallsubdirs ignoreversion
+; The single self-contained executable PyInstaller produced (onefile build).
+Source: "dist\VPAT_Reviewer.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]
 ; Required Desktop folder structure (also re-verified at app startup)
