@@ -2,8 +2,10 @@
 import logging
 from pathlib import Path
 from datetime import date
-from vpat_parser import VPATData, VPATCriterion, compliance_score, get_aa_barriers, calculate_impact
-from report_generator import generate_report, validate_report
+from vpat_reviewer.domain.models import VPATData, VPATCriterion
+from vpat_reviewer.domain.scoring import compliance_score, get_barriers as get_aa_barriers
+from vpat_reviewer.domain.impact import calculate_impact
+from vpat_reviewer.reporting.reportlab_renderer import generate_report, validate_report
 
 logging.basicConfig(level=logging.INFO)
 

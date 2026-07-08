@@ -1,5 +1,3 @@
-import wcag_reference  # legacy shim (top-level module)
-
 from vpat_reviewer.reference import (
     REQUIRED_IDS,
     all_criteria,
@@ -47,10 +45,3 @@ def test_workarounds_and_title_helpers():
     assert isinstance(workarounds("1.1.1"), list)
     assert workarounds("9.9.9") == []
     assert title("2.4.7") == "Focus Visible"
-
-
-def test_legacy_shim_api():
-    assert wcag_reference.lookup("1.4.3")["description"]
-    ok, _ = wcag_reference.has_all_required()
-    assert ok
-    assert len(wcag_reference.WCAG_REFERENCE) >= 54

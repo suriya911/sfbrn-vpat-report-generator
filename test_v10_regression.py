@@ -25,11 +25,11 @@ Run with:   python -m pytest test_v10_regression.py -q
 import os
 import tempfile
 
-from vpat_parser import (
-    VPATData, VPATCriterion, normalize_status,
-    compliance_score, get_aa_barriers, calculate_impact,
-)
-from report_generator import generate_report, validate_report
+from vpat_reviewer.domain.impact import calculate_impact
+from vpat_reviewer.domain.models import VPATCriterion, VPATData
+from vpat_reviewer.domain.normalization import normalize_status
+from vpat_reviewer.domain.scoring import compliance_score, get_barriers as get_aa_barriers
+from vpat_reviewer.reporting.reportlab_renderer import generate_report, validate_report
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────────

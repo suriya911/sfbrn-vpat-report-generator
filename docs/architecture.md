@@ -106,7 +106,9 @@ The app started as a flat pile of scripts (`run_app.py`, `report_generator.py`,
 `vpat_parser.py`, `wcag_reference.py`, …) whose file *contents* had been
 shuffled and misnamed. It was reconstructed, then re-architected **incrementally
 (strangler-fig)** — at every phase the app stayed working and the behavior
-anchor (score 72) held. Root shims preserve the old import paths throughout.
+anchor (score 72) held. Backward-compat shims preserved the old import paths
+during the migration and were removed once nothing depended on them; today
+everything imports the package directly.
 
 | Phase | What landed |
 |---|---|

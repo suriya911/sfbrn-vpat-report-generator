@@ -149,8 +149,9 @@ them. `cli.py` and `ui/gui/` are the outermost adapters and depend on
 ├─ tests/                      ← mirrors the package (see §5)
 │  ├─ unit/  parsing/  reporting/  fixtures/
 │
-└─ (root shims: vpat_parser.py, report_generator.py, wcag_reference.py,
-    settings_manager.py, run_app.py — see §7)
+├─ run_app.py                  ← GUI launcher + PyInstaller entry point (see §7)
+├─ make_demo.py                ← the behavior anchor / sample generator
+└─ test_v10_regression.py     ← original end-to-end regression suite
 ```
 
 ★ = the "make it editable" surfaces the user specifically cares about.
@@ -231,16 +232,25 @@ Key `GradingPolicy` fields: `graded_level` ("A"/"AA"), `supported_statuses`,
 
 ---
 
-## 7. The root shims and the "legacy" modules
+## 7. The root scripts and the "legacy" modules
 
 This project was migrated incrementally (strangler-fig) from a flat pile of
-scripts into the package. Two artifacts of that remain — both intentional:
+scripts into the package. The backward-compat shims that migration used
+(`vpat_parser.py`, `report_generator.py`, `wcag_reference.py`,
+`settings_manager.py`) have since been **removed** — everything imports the
+package directly now. Three genuine scripts remain at the root:
 
-- **Root shims** (`vpat_parser.py`, `report_generator.py`, `wcag_reference.py`,
-  `settings_manager.py`, `run_app.py`): thin files at the repo root that just
-  re-export from the package. They keep old import paths and `python run_app.py`
-  working. `run_app.py` is also the PyInstaller entry point. Don't add logic
-  here; they delegate.
+- **`run_app.py`**: launches the GUI (`python run_app.py`) and is the
+  **PyInstaller entry point** the `.exe` is frozen from (see
+  `vpat_reviewer.spec`). Keep it thin — it just calls into the package (and
+  routes `--selftest`). **Do not delete it**; the build depends on it.
+- **`make_demo.py`**: builds a sample report and prints the behavior anchor
+  (`Score: 72 | … | Validation: OK`). It imports from the package directly.
+- **`test_v10_regression.py`**: the original end-to-end regression suite (also
+  runnable without pytest). Imports from the package directly.
+
+Two legacy-style *modules inside the package* are intentionally isolated:
+
 - **`reporting/reportlab_renderer.py`**: the original 83KB PDF layout engine.
   It's legacy-style (long, untyped) but it produces the approved report design,
   so it's **isolated behind the `ReportRenderer` port** and **excluded from ruff
