@@ -31,8 +31,8 @@ by `build_exe.bat` via `pip install -e ".[build]"`.
 
 ## Build steps
 
-1. **Run the tests first — always, before any release.** From the `rebuild`
-   folder:
+1. **Run the tests first — always, before any release.** From the project
+   root:
    ```
    pip install -e ".[dev]"
    python -m pytest -q

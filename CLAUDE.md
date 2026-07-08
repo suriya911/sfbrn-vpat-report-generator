@@ -93,7 +93,7 @@ them. `cli.py` and `ui/gui/` are the outermost adapters and depend on
 ## 4. Where everything lives
 
 ```
-rebuild/
+<project root>/
 ├─ CLAUDE.md               ← you are here
 ├─ BUILD_INSTRUCTIONS.md   ← how to produce the .exe / installer
 ├─ README.md               ← end-user / project overview
@@ -159,7 +159,7 @@ rebuild/
 
 ## 5. How to run everything
 
-From the `rebuild/` folder, with a dev install (`pip install -e ".[dev]"`):
+From the project root, with a dev install (`pip install -e ".[dev]"`):
 
 | Task | Command |
 |---|---|
