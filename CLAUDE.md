@@ -148,10 +148,10 @@ them. `cli.py` and `ui/gui/` are the outermost adapters and depend on
 │
 ├─ tests/                      ← mirrors the package (see §5)
 │  ├─ unit/  parsing/  reporting/  fixtures/
+│  └─ test_regression.py       ← end-to-end regression / anchor suite
 │
 ├─ run_app.py                  ← GUI launcher + PyInstaller entry point (see §7)
-├─ make_demo.py                ← the behavior anchor / sample generator
-└─ test_v10_regression.py     ← original end-to-end regression suite
+└─ make_demo.py                ← the behavior anchor / sample generator
 ```
 
 ★ = the "make it editable" surfaces the user specifically cares about.
@@ -238,7 +238,7 @@ This project was migrated incrementally (strangler-fig) from a flat pile of
 scripts into the package. The backward-compat shims that migration used
 (`vpat_parser.py`, `report_generator.py`, `wcag_reference.py`,
 `settings_manager.py`) have since been **removed** — everything imports the
-package directly now. Three genuine scripts remain at the root:
+package directly now. Two genuine scripts remain at the root:
 
 - **`run_app.py`**: launches the GUI (`python run_app.py`) and is the
   **PyInstaller entry point** the `.exe` is frozen from (see
@@ -246,8 +246,9 @@ package directly now. Three genuine scripts remain at the root:
   routes `--selftest`). **Do not delete it**; the build depends on it.
 - **`make_demo.py`**: builds a sample report and prints the behavior anchor
   (`Score: 72 | … | Validation: OK`). It imports from the package directly.
-- **`test_v10_regression.py`**: the original end-to-end regression suite (also
-  runnable without pytest). Imports from the package directly.
+
+(The end-to-end regression suite that used to sit at the root now lives at
+`tests/test_regression.py` — see §8.)
 
 Two legacy-style *modules inside the package* are intentionally isolated:
 
@@ -274,7 +275,7 @@ code to that standard.
 - **Unit tests** for the pure domain (`tests/unit/`) — scoring, impact, policy,
   normalization. Fast and exhaustive because the domain has no I/O.
 - **The behavior anchor** (`make_demo.py`, mirrored by
-  `test_v10_regression.py`) guards the end-to-end score.
+  `tests/test_regression.py`) guards the end-to-end score.
 - Tests pass `VPAT_SETTINGS_PATH` / explicit policies for determinism — never
   depend on a real user's `settings.json`.
 

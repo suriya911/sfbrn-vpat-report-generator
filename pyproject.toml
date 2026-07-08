@@ -42,9 +42,9 @@ packages = ["src/vpat_reviewer"]
 line-length = 100
 target-version = "py310"
 src = ["src", "tests"]
-# A few legacy-style scripts at the root are kept as-is (not linted).
+# run_app.py is a thin launcher / PyInstaller entry point; kept out of linting.
 extend-exclude = [
-    "run_app.py", "make_demo.py", "test_v10_regression.py",
+    "run_app.py",
     # The relocated ReportLab layout engine is legacy-style; isolated behind the
     # reporting port and scheduled for incremental cleanup. Not linted yet.
     "src/vpat_reviewer/reporting/reportlab_renderer.py",
@@ -80,5 +80,5 @@ ignore_errors = true
 [tool.pytest.ini_options]
 # src => the new package; "." => legacy flat modules still under strangler.
 pythonpath = ["src", "."]
-testpaths = ["tests", "test_v10_regression.py"]
+testpaths = ["tests"]
 addopts = "-q"
