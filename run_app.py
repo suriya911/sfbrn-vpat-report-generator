@@ -1,7 +1,27 @@
-# SFBRN VPAT Reviewer v10 — all processing is local; no API keys, no cloud.
-reportlab>=4.0        # PDF report generation
-pdfplumber>=0.10      # PDF VPAT text/table extraction
-python-docx>=1.1      # DOCX VPAT extraction
-pypdf>=4.0            # post-generation PDF validation
-# Build-time only:
-pyinstaller>=6.0      # packages the app into a Windows .exe
+"""Launch the VPAT Reviewer desktop GUI (and the packaged-app entry point).
+
+The GUI itself lives in the package at ``vpat_reviewer.ui.gui.app``. This thin
+launcher is what PyInstaller freezes (see ``vpat_reviewer.spec``) and what
+``python run_app.py`` runs during development.
+
+``--selftest`` runs headless build checks (does the bundled WCAG data load,
+etc.) and writes the result to JSON instead of opening the GUI — use it to
+verify a freshly built ``VPAT_Reviewer.exe``.
+"""
+
+import sys
+
+
+def main() -> None:
+    if "--selftest" in sys.argv:
+        from vpat_reviewer.diagnostics import run_selftest
+
+        raise SystemExit(run_selftest(sys.argv))
+
+    from vpat_reviewer.ui.gui.app import main as gui_main
+
+    gui_main()
+
+
+if __name__ == "__main__":
+    main()
