@@ -12,6 +12,26 @@ rulebook. Deeper design notes are in **`docs/`**; building the `.exe` is in
 
 ---
 
+## Version 2
+
+Improvements over the initial release:
+
+- **Text-fallback parser hardened.** Real vendor ACRs saved as plain text / HTML
+  now parse and score — handles level written as `(Level AA 2.1 only)` or
+  `(WCAG 2.1)`, conformance prefixed by a target column (`Web: Supports`), and
+  status either on the criterion's own line or several lines below it after
+  EN 301 549 cross-references. A criterion's WCAG level is now assigned
+  authoritatively from its ID, which also tells a real WCAG row apart from an
+  EN 301 549 reference that shares the `N.N.N` shape.
+- **Vendor detection fixed.** The vendor is now the *earliest-occurring* known
+  name in the header, so a product that merely mentions another vendor (e.g.
+  "works inside Microsoft Office") is no longer misattributed.
+- **Machine-readable output.** `review()` now writes a normalized `.json`
+  sidecar next to the PDF (product/vendor/standards, score, barriers, and every
+  parsed criterion) — a complete record of the parse → score → classify run.
+
+---
+
 ## The big picture: how the app is put together
 
 The same "assembly line" as always — a file goes in one end and a finished

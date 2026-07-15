@@ -97,10 +97,17 @@ def extract_meta(text: str) -> dict[str, str]:
     # Vendor — scan HEADER region (first 20%) for known company names only.
     if not meta.get("vendor_name"):
         header = text[: max(int(len(text) * 0.20), 800)]
+        # Pick the EARLIEST-occurring known vendor, not the first in list order —
+        # otherwise a product whose description mentions another vendor (e.g.
+        # "works inside Microsoft Office") is misattributed. The vendor's own name
+        # appears in the cover/header before any such incidental mention.
+        best_pos, best_vendor = None, None
         for vendor in KNOWN_VENDORS:
-            if re.search(r"\b" + re.escape(vendor) + r"\b", header, re.IGNORECASE):
-                meta["vendor_name"] = vendor
-                break
+            vm = re.search(r"\b" + re.escape(vendor) + r"\b", header, re.IGNORECASE)
+            if vm and (best_pos is None or vm.start() < best_pos):
+                best_pos, best_vendor = vm.start(), vendor
+        if best_vendor:
+            meta["vendor_name"] = best_vendor
 
     # Vendor from email domain (last resort).
     if not meta.get("vendor_name"):

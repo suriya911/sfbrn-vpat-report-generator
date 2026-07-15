@@ -11,7 +11,9 @@ values to override (tests do this for determinism).
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from vpat_reviewer.config import settings as settings_store
@@ -31,6 +33,7 @@ class ReviewResult:
     barriers: list[VPATCriterion]
     answers: dict[str, str] = field(default_factory=dict)
     output_path: str | None = None
+    json_path: str | None = None
 
     @property
     def warnings(self) -> list[str]:
@@ -84,6 +87,47 @@ def render_result(
     return result
 
 
+def to_dict(result: ReviewResult) -> dict[str, Any]:
+    """Serialize a review to the normalized JSON shape used by the test fixtures.
+
+    Mirrors ``tests/fixtures/txt/*.expected.json`` (product/vendor/standards, the
+    WCAG-AA score, the barrier IDs, and every parsed criterion) and adds the
+    suggested impact level so the JSON is a complete machine-readable record of
+    the parse -> score -> classify pipeline.
+    """
+    doc = result.document
+    return {
+        "product_name": doc.product_name,
+        "product_version": doc.product_version,
+        "vendor_name": doc.vendor_name,
+        "vendor_report_date_raw": doc.vendor_report_date_raw,
+        "standards_reviewed": doc.standards_reviewed,
+        "score": result.score["score"],
+        "supported": result.score["supported"],
+        "reviewable_total": result.score["total"],
+        "impact_level": result.impact.get("suggested_level", ""),
+        "barriers": [b.criterion_id for b in result.barriers],
+        "criteria": [
+            {
+                "id": c.criterion_id,
+                "level": c.level,
+                "status": c.normalized_status,
+                "section": c.section,
+            }
+            for c in doc.criteria
+        ],
+    }
+
+
+def write_json(result: ReviewResult, output_path: str) -> str:
+    """Write the normalized review JSON to ``output_path`` and return the path."""
+    Path(output_path).write_text(
+        json.dumps(to_dict(result), indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    result.json_path = output_path
+    return output_path
+
+
 def review(
     input_path: str,
     output_path: str,
@@ -96,6 +140,6 @@ def review(
 ) -> ReviewResult:
     """Analyze a VPAT and render a report to ``output_path``."""
     result = analyze(input_path, policy=policy, answers=answers)
-    return render_result(
-        result, output_path, settings=settings, logo_path=logo_path, renderer=renderer
-    )
+    render_result(result, output_path, settings=settings, logo_path=logo_path, renderer=renderer)
+    write_json(result, str(Path(output_path).with_suffix(".json")))
+    return result
