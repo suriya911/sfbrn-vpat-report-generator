@@ -71,15 +71,47 @@ _STATUS_COLOR: dict[str, colors.Color] = {
     "Not Evaluated": C_NEUTRAL,
 }
 
-#: Progressively tighter budgets: (max barriers, recommendation chars, font size).
-#: Level 0 is the intended look; the rest are fallbacks for documents with long
-#: criterion titles or a verbose AI recommendation.
-_TRIM_LEVELS: list[tuple[int, int, float]] = [
-    (5, 420, 9.0),
-    (5, 300, 8.5),
-    (4, 240, 8.5),
-    (3, 180, 8.0),
-    (2, 120, 7.5),
+#: Reviewer answer -> the phrasing the sheet prints. Wording tracks the full
+#: renderer's Impact Assessment table (and the GUI's own button labels) on
+#: purpose: the two reports are read side by side, and the same choice reading
+#: two ways looks like two different answers.
+#:
+#: An unrecognized value is humanized, never dropped -- see ``_answer``.
+_AUDIENCE_LABEL: dict[str, str] = {
+    "individual": "1 user (individual)",
+    "small_team": "2–20 users (small team)",
+    "campus_wide": "21+ users (campus-wide)",
+}
+_ACCESS_LABEL: dict[str, str] = {
+    "no_limit": "Does not limit access",
+    "limits_some": "Limits some access",
+    "denies_access": "Denies access to features",
+}
+_LEGAL_LABEL: dict[str, str] = {
+    "low": "Low legal exposure",
+    "medium": "Medium legal exposure",
+    "high": "High legal exposure",
+}
+_DEPLOY_LABEL: dict[str, str] = {
+    "individual": "Individual deployment",
+    "department": "Department deployment",
+    "campus_wide": "Campus-wide deployment",
+}
+
+#: Progressively tighter budgets: (max barriers, summary chars, recommendation
+#: chars, font size). Level 0 is the intended look; the rest are fallbacks for
+#: documents with long criterion titles or a verbose AI recommendation.
+#:
+#: **Trim text before type.** The levels drop characters faster than points, and
+#: the floor is 9pt: this is an accessibility report, and a legible sheet that
+#: says less beats a complete one nobody can read. 9pt is also where the ladder
+#: used to *start* -- the worst case here is the old intended look.
+_TRIM_LEVELS: list[tuple[int, int, int, float]] = [
+    (5, 460, 420, 11.0),
+    (5, 340, 300, 10.5),
+    (4, 260, 240, 10.0),
+    (3, 190, 180, 9.5),
+    (2, 130, 120, 9.0),
 ]
 
 MARGIN = 0.55 * inch
@@ -91,6 +123,26 @@ def _esc(text: object) -> str:
     from xml.sax.saxutils import escape
 
     return escape("" if text is None else str(text))
+
+
+def _clip(text: str, limit: int) -> str:
+    """Trim to a budget on a word boundary, marking that something was cut."""
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1].rsplit(" ", 1)[0] + "…"
+
+
+def _answer(answers: dict[str, str], key: str, labels: dict[str, str]) -> str:
+    """One reviewer choice, phrased for print.
+
+    An unknown value is humanized rather than dropped: the answer drove the
+    impact level either way, so hiding it would leave the sheet claiming a
+    rating it does not show the basis for.
+    """
+    raw = (answers or {}).get(key, "")
+    if not raw:
+        return ""
+    return labels.get(raw, raw.replace("_", " "))
 
 
 def _short_status(status: str) -> str:
@@ -149,7 +201,7 @@ class OnePageRenderer:
     # ── layout ────────────────────────────────────────────────────────────────
 
     def _build(self, inputs: ReportInputs, buf: io.BytesIO, level: int) -> int:
-        max_barriers, rec_chars, fs = _TRIM_LEVELS[level]
+        max_barriers, sum_chars, rec_chars, fs = _TRIM_LEVELS[level]
         cfg: dict[str, Any] = inputs.settings or {}
         doc_model = inputs.document
         score = inputs.score
@@ -176,7 +228,15 @@ class OnePageRenderer:
         story.append(Spacer(1, 8))
         story.append(self._verdict_block(inputs, fs))
         story.append(Spacer(1, 6))
+        basis = self._impact_basis(inputs)
+        if basis:
+            story.append(Paragraph(basis, cap))
+            story.append(Spacer(1, 3))
         story.append(Paragraph(self._counts_line(score), cap))
+        story.append(Spacer(1, 9))
+
+        story.append(Paragraph("SUMMARY", head))
+        story.append(Paragraph(self._summary(inputs, cfg, sum_chars), base))
         story.append(Spacer(1, 9))
 
         barriers = self._barriers(doc_model, max_barriers)
@@ -389,6 +449,92 @@ class OnePageRenderer:
         )
         return t
 
+    def _impact_basis(self, inputs: ReportInputs) -> str:
+        """The four reviewer answers behind the impact level shown above.
+
+        The level alone is unchallengeable: impact outranks the score in
+        ``classify_report`` (High never beats Need TAAP), and it comes from
+        reviewer judgment, not the document. Printing the level without its
+        inputs asks the reader to trust a verdict whose basis is off-page.
+
+        An explicit override is called out rather than shown as if it were the
+        computed rating -- a reviewer's decision is theirs to own on the sheet.
+        """
+        a = inputs.answers or {}
+        bits = [
+            _answer(a, "audience", _AUDIENCE_LABEL),
+            _answer(a, "access_impact", _ACCESS_LABEL),
+            _answer(a, "legal_exposure", _LEGAL_LABEL),
+            _answer(a, "deployment", _DEPLOY_LABEL),
+        ]
+        line = "  ·  ".join(_esc(b) for b in bits if b)
+        if not line:
+            return ""
+
+        text = f"<b>Impact basis:</b>  {line}"
+        suggested = str(inputs.impact.get("suggested_level") or "")
+        final = str(inputs.impact.get("final_level") or "")
+        if final and suggested and final != suggested:
+            text += (
+                f"  ·  set to <b>{_esc(final)}</b> by the reviewer (suggested {_esc(suggested)})"
+            )
+        return text
+
+    def _summary(self, inputs: ReportInputs, cfg: dict[str, Any], limit: int) -> str:
+        """The written read of the numbers above it — findings, never an action.
+
+        Deterministic: it says what the document and the score already say, so
+        the sheet still reads as a summary when Bedrock is off or unreachable.
+        The action belongs under RECOMMENDATION; keep the two from converging.
+
+        Ordered worst-news-first within the budget, because ``_clip`` truncates
+        the tail: the score and the barrier count survive every trim level, the
+        outdated-VPAT note is the first thing spent.
+        """
+        d = inputs.document
+        score = inputs.score
+        org = str(cfg.get("org_short") or "SFBRN")
+        product = d.product_name or "the product"
+
+        parts = [
+            f"{org} reviewed the vendor-submitted VPAT for {product} against WCAG 2.1 Level AA."
+        ]
+
+        pct = score.get("score")
+        supported = int(score.get("supported", 0) or 0)
+        reviewable = max(int(score.get("total", 0) or 0) - supported, 0)
+        if pct is None:
+            parts.append(
+                "The document yielded no scorable Level AA criteria, so no score is claimed."
+            )
+        else:
+            threshold = _threshold(cfg)
+            verb = "meeting" if int(pct) >= threshold else "below"
+            parts.append(
+                f"{supported} of {supported + reviewable} reviewable criteria are fully "
+                f"supported — a compliance score of {pct}%, {verb} the {org} "
+                f"{threshold}% threshold."
+            )
+
+        total_barriers = self._barrier_total(d)
+        if total_barriers:
+            parts.append(
+                f"{total_barriers} Level AA barrier(s) were identified; the most severe "
+                f"are listed below."
+            )
+        else:
+            parts.append("No Level AA barriers were identified.")
+
+        na = int(score.get("na_excluded", 0) or 0)
+        if na:
+            parts.append(f"{na} criteria were reported Not Applicable and excluded from the score.")
+        if d.is_outdated:
+            parts.append(
+                "The vendor report is more than 12 months older than this review, so the claims "
+                "may not reflect the current product; request an updated VPAT."
+            )
+        return _esc(_clip(" ".join(parts), limit))
+
     def _recommendation(self, inputs: ReportInputs, limit: int) -> str:
         """What the reader should do next -- an action, never a finding.
 
@@ -407,9 +553,7 @@ class OnePageRenderer:
                 text = str(rationale[0])
         if not text:
             text = "Review the full report before making a procurement decision."
-        if len(text) > limit:
-            text = text[: limit - 1].rsplit(" ", 1)[0] + "…"
-        return _esc(text)
+        return _esc(_clip(text, limit))
 
     def _footer_note(self, cfg: dict[str, Any]) -> str:
         org = _esc(cfg.get("org_short") or "SFBRN")
@@ -429,9 +573,21 @@ _DEFAULT_RECOMMENDATION: dict[str, str] = {
     "Needs Manual Review": (
         "Do not decide on the VPAT alone. Manual testing is required before approval."
     ),
-    "Need TAAP": ("Escalate for a Technology Accessibility Action Plan before deployment."),
+    "Need TAAP": ("Escalate for a Temporary Alternative Access Plan before approval."),
     "Deny": "Do not deploy. Barriers block access to required functionality.",
 }
+
+
+def _threshold(cfg: dict[str, Any]) -> int:
+    """The settings threshold, or the documented default if it is unusable.
+
+    Mirrors reportlab_renderer's coercion: a hand-edited settings.json is the
+    normal case here, so a string or a typo must not take the report down.
+    """
+    try:
+        return int(cfg.get("threshold", 90))
+    except (TypeError, ValueError):
+        return 90
 
 
 def _sort_key(criterion_id: str) -> tuple[int, ...]:
