@@ -1,0 +1,55 @@
+# gpt-oss-20b (openai.gpt-oss-20b-1:0)
+# 6.97s in=9516 out=1375 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.85,
+  "risk_level": "High",
+  "reason": "The VPAT contains a large number of Level A and AA criteria marked as \"Partially Supports\" across core accessibility domains (keyboard navigation, focus order, screen reader compatibility, contrast, alt text, form labeling, status messages). No criteria are marked \"Does Not Support\", but the breadth and severity of the partial supports indicate significant barriers that prevent full compliance. The product version is missing, and there is no evidence of a remediation roadmap or resolution dates. These factors collectively necessitate a formal accessibility action plan.",
+  "regulatory_basis": {
+    "ada_relevance": "Partial compliance with ADA Section 508 and WCAG 2.1 AA; significant gaps in keyboard and screen reader support violate ADA accessibility expectations.",
+    "section_508_relevance": "Many Section 508 success criteria (e.g., 2.1.1, 2.4.3, 4.1.2) are partially met, indicating non‑compliance with the 2017 revision.",
+    "wcag_relevance": "WCAG 2.1 AA criteria such as 1.4.3, 1.4.4, 2.4.6, 2.4.7, 4.1.3 are partially supported, falling short of the required AA level."
+  },
+  "signals_found": [
+    "1.1.1 Non-text Content – partially supports with multiple alt text issues",
+    "2.1.1 Keyboard – partially supports with numerous focus and navigation gaps",
+    "2.4.3 Focus Order – partially supports with many focus order violations",
+    "1.4.3 Contrast – partially supports with many low‑contrast elements",
+    "1.4.4 Resize text – partially supports with content cropping at 200%",
+    "1.4.5 Images of Text – partially supports with image‑based text",
+    "1.4.10 Reflow – partially supports with horizontal scrollbars at 320px",
+    "1.4.11 Non-text Contrast – partially supports with low contrast UI elements",
+    "1.4.12 Text Spacing – partially supports with ellipses after spacing",
+    "4.1.2 Name, Role, Value – partially supports with missing names/roles",
+    "4.1.3 Status Messages – partially supports with many unannounced messages",
+    "2.5.7 Dragging Movements – partially supports with missing keyboard alternatives",
+    "2.4.6 Headings and Labels – partially supports with non‑descriptive labels",
+    "2.4.7 Focus Visible – partially supports with invisible focus indicators",
+    "Product version missing",
+    "No remediation roadmap or resolution dates provided"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard navigation is incomplete, preventing users from completing core workflows.",
+    "Focus order violations disrupt logical navigation for screen reader users.",
+    "Contrast deficiencies expose users with visual impairments to readability issues.",
+    "Missing or incorrect alt text and form labels hinder screen reader comprehension.",
+    "Status messages and error notifications are often not announced, reducing usability.",
+    "Dragging movements lack keyboard alternatives, limiting accessibility for users with limited manipulation."
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not specified.",
+    "Evaluation scope and specific pages tested are not fully documented.",
+    "No remediation plan or target dates are provided.",
+    "No evidence of a formal accessibility action plan.",
+    "No explicit testing dates for each criterion."
+  ],
+  "recommendation": "Develop and implement a comprehensive accessibility action plan that addresses all identified partial supports, prioritizing keyboard, focus, contrast, and labeling issues. Update the VPAT with the product version, testing dates, and a clear remediation roadmap. Conduct a re‑evaluation after remediation to confirm compliance with WCAG 2.1 AA and Section 508.",
+  "next_steps": [
+    "Assign a dedicated accessibility lead to oversee remediation.",
+    "Schedule a full accessibility audit focusing on the identified core barriers.",
+    "Document remediation actions and update the VPAT accordingly.",
+    "Re‑evaluate the product after remediation and update the VPAT with new compliance status."
+  ],
+  "needs_human_review": true
+}

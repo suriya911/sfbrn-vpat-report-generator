@@ -1,0 +1,45 @@
+# Nemotron Nano 12B (nvidia.nemotron-nano-12b-v2)
+# 3.34s in=9935 out=590 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "Multiple Level A and AA criteria marked as 'Partially Supports' or 'Does Not Support', including critical barriers in keyboard access, focus order, screen reader compatibility, and contrast. Remarks confirm unresolved accessibility gaps.",
+  "regulatory_basis": {
+    "ada_relevance": "Fails to meet ADA requirements for accessible web content due to keyboard navigation barriers and lack of proper alternative text.",
+    "section_508_relevance": "Does not comply with Section 508 standards for keyboard accessibility, color contrast, and screen reader support.",
+    "wcag_relevance": "Fails WCAG 2.1 AA requirements for multiple criteria including 1.4.3, 2.1.1, 2.4.3, and 1.4.10."
+  },
+  "signals_found": [
+    "1.4.3 (Contrast Minimum) - Partially Supports with multiple exceptions",
+    "2.1.1 (Keyboard) - Partially Supports with focus issues",
+    "2.4.3 (Focus Order) - Partially Supports with navigation problems",
+    "4.1.2 (Name, Role, Value) - Partially Supports",
+    "1.4.10 (Reflow) - Partially Supports with layout issues",
+    "1.4.11 (Non-text Contrast) - Partially Supports",
+    "1.4.12 (Text Spacing) - Partially Supports"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps in multiple components",
+    "Incorrect focus order disrupting navigation",
+    "Insufficient color contrast for text and UI elements",
+    "Screen reader compatibility issues with labels and buttons",
+    "Text spacing causing content truncation"
+  ],
+  "missing_or_unclear_information": [
+    "Product version not specified",
+    "Testing scope limited to desktop browsers only",
+    "No evaluation date provided",
+    "No mention of mobile device testing"
+  ],
+  "recommendation": "Implement accessibility fixes for all Level A and AA criteria marked as 'Partially Supports', particularly addressing keyboard navigation, focus order, and color contrast issues. Provide detailed remediation roadmap with timelines.",
+  "next_steps": [
+    "Conduct comprehensive manual testing with screen readers",
+    "Fix keyboard navigation issues in all components",
+    "Improve color contrast for all text and UI elements",
+    "Add proper labels and alternative text for all non-text content",
+    "Validate focus order and visible focus indicators"
+  ],
+  "needs_human_review": true
+}

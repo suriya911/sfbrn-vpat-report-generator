@@ -1,0 +1,55 @@
+# Claude Opus 4.8 (us.anthropic.claude-opus-4-8)
+# latency=27.2s in=14890 out=2260 cost=$0.13095 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.9,
+  "risk_level": "High",
+  "reason": "The VPAT documents widespread 'Partially Supports' entries across virtually every core accessibility area at both Level A and Level AA, with numerous concrete defects. Level A barriers include keyboard access (2.1.1 - multiple non-focusable controls), keyboard traps (2.1.2 - focus trapped in Copy Event and Shopping Cart fields), focus order (2.4.3 - focus lost/misplaced in many workflows), forms/labels (3.3.2), error identification (3.3.1), name/role/value (4.1.2), and non-text content/alt text (1.1.1). Level AA barriers include contrast minimum (1.4.3), reflow (1.4.10 - dual scrollbars, cut-off content, page not scrollable at 320px), non-text contrast (1.4.11), text spacing (1.4.12), headings/labels (2.4.6), focus visible (2.4.7), dragging without keyboard alternative (2.5.7), and status messages (4.1.3 - error/status messages not announced by screen reader). Although no single criterion is marked 'Does Not Support', the decision rules direct classification as 'Need TAAP' when there are widespread 'Partially Supports' entries across core areas such as keyboard access, focus order, forms, screen reader support, contrast, and name/role/value. Documented barriers include effective keyboard traps and controls not reachable by keyboard, which can block core LMS workflows. Overall reviewable compliance is only ~44%.",
+  "regulatory_basis": {
+    "ada_relevance": "As an enterprise learning platform used by organizations and potentially employees/public, documented barriers to keyboard and screen reader users create effective access barriers relevant to ADA effective-communication and equal-access expectations.",
+    "section_508_relevance": "Product claims Section 508 (Revised 2017) conformance, but Functional Performance Criteria 302.1 (Without Vision), 302.2 (With Limited Vision), 302.3 (Without Perception of Color), 302.7 (Limited Manipulation), and 302.9 (Cognitive) are all only 'Partially Supports', indicating incomplete 508 conformance across multiple functional areas.",
+    "wcag_relevance": "Multiple WCAG 2.0/2.1/2.2 Level A criteria (1.1.1, 1.3.1, 1.3.2, 1.4.1, 2.1.1, 2.1.2, 2.4.2, 2.4.3, 2.4.4, 2.5.3, 3.2.2, 3.3.1, 3.3.2, 4.1.2) and Level AA criteria (1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3) are 'Partially Supports', spanning nearly all core success-criteria groups."
+  },
+  "signals_found": [
+    "Keyboard traps documented (2.1.2: Copy Event and Shopping Cart focus trapped)",
+    "Multiple controls not keyboard-focusable (2.1.1)",
+    "Focus order and focus loss issues across many workflows (2.4.3)",
+    "Focus indicators not visible on multiple controls (2.4.7)",
+    "Contrast minimum failures on multiple UI elements (1.4.3)",
+    "Reflow failures at 320px including page that cannot be scrolled (1.4.10)",
+    "Status messages/errors not announced to screen readers (4.1.3, 3.3.1)",
+    "Form labels missing for multiple edit fields (3.3.2)",
+    "Name/Role/Value gaps (4.1.2) and Info & Relationships issues (1.3.1)",
+    "Dragging movements without keyboard alternative (2.5.7)",
+    "Alt text and non-text content defects (1.1.1)",
+    "Only ~44% of reviewable criteria supported (8 of 18)",
+    "508 Functional Performance Criteria multiple 'Partially Supports'"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps in Copy Event and Shopping Cart/Checkout fields may block completion of core workflows",
+    "Multiple interactive controls (comboboxes, calendar, pagination, list boxes) not reachable/operable via keyboard",
+    "Screen reader users not receiving status/error messages, undermining forms and dynamic content usability",
+    "Focus order loss and focus jumping after common actions (search, checkbox toggles, dialogs)",
+    "Contrast, reflow, text-spacing, and non-text contrast failures affecting low-vision users",
+    "Missing/incorrect labels affecting form completion and screen reader comprehension"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is blank",
+    "Product name field appears truncated ('Core App). This is')",
+    "No remediation roadmap or target resolution dates provided",
+    "Testing limited to a single browser (Chrome/Windows) and single screen reader (JAWS); no VoiceOver, NVDA, or mobile testing",
+    "Several remarks appear truncated (e.g., 1.3.2, 3.3.1, 4.1.2, 302.7) leaving some exceptions unspecified",
+    "Evaluation date given but formal test scope/pages inventory not fully enumerated"
+  ],
+  "recommendation": "Classify as Need TAAP. The product should not be accepted as-is; a formal Technical Accessibility Action Plan with prioritized remediation of Level A keyboard traps, keyboard access, focus management, form labeling, and screen reader status/error announcements is required, followed by Level AA contrast and reflow fixes and re-testing.",
+  "next_steps": [
+    "Require vendor to supply the missing product version and complete/untruncated product name",
+    "Request a prioritized remediation roadmap with target dates, focusing first on Level A keyboard traps (2.1.2) and keyboard access (2.1.1)",
+    "Request expanded AT testing (NVDA, VoiceOver, additional browsers, mobile) and full evaluation scope",
+    "Verify whether keyboard/focus barriers block critical LMS workflows (enrollment, training completion, admin tasks) via human/manual testing",
+    "Obtain corrected/complete remarks for truncated criteria (1.3.2, 3.3.1, 4.1.2, 302.7)",
+    "Schedule re-evaluation after remediation before approval"
+  ],
+  "needs_human_review": true
+}

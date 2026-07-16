@@ -1,0 +1,165 @@
+# Ministral 3B (mistral.ministral-3-3b-instruct)
+# 7.71s in=9923 out=3133 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "Critical",
+  "reason": "
+The VPAT/ACR demonstrates **widespread Level A and AA accessibility barriers** that significantly impair core workflows for users with disabilities. Key issues include:
+1. **Critical Keyboard Access Failures**: Multiple "Partially Supports" entries under 2.1.1 (Keyboard), 2.1.2 (No Keyboard Trap), and 2.4.3 (Focus Order) indicate **keyboard navigation traps, missing focusable elements, and focus loss**, blocking core interactions (e.g., dropdown menus, form submissions, and navigation).
+2. **Severe Screen Reader & Semantic Issues**: "Partially Supports" under 1.1.1 (Non-text Content), 1.3.1 (Info & Relationships), 4.1.2 (Name/Role/Value), and 4.1.3 (Status Messages) reveal **misleading labels, missing ARIA attributes, and inaccessible form controls** that prevent users from understanding content structure or completing tasks.
+3. **Critical AA Violations**: Multiple Level AA failures (1.4.3 Contrast, 1.4.4 Resize Text, 1.4.5 Images of Text, 1.4.10 Reflow, 2.4.6 Headings/Labels, 2.4.7 Focus Visible, 2.5.7 Dragging Movements, 4.1.3 Status Messages) create **barriers for users with low vision, cognitive disabilities, or motor impairments**, with examples like **contrast failures, cropped content at 200% zoom, and missing focus indicators**.
+4. **ADA/Section 508 Alignment**: The 508 FPC remarks explicitly note **blockers for users without vision, limited vision, and limited manipulation**, with specific failures in **text alternatives, focus management, and error identification**—core ADA requirements.
+5. **Widespread Core Workflow Disruption**: The "Without Vision" and "With Limited Vision" 508 remarks highlight that **key features (e.g., tables, forms, navigation) are unusable without assistive tech**, violating ADA’s prohibition of exclusionary design.
+6. **No Remediation Roadmap**: The absence of a resolution timeline or mitigation plan for these barriers (e.g., "Partially Supports" entries with no resolution) suggests **unaddressed systemic risks**.
+
+The **score of 44% (of reviewable criteria)** and the **18 AA barriers** (out of 24 total) confirm a **high-risk, non-compliant state** requiring immediate TAAP (Technical Assistance and Action Plan) to address these barriers before deployment or continued use by disabled users.",
+
+"regulatory_basis": {
+  "ada_relevance": "High – Core violations under ADA Title III (prohibition of exclusionary design) for users with disabilities, including those relying on screen readers, keyboard navigation, or low-vision assistive tech. The 508 FPC remarks explicitly reference ADA obligations for users with vision, limited vision, and limited manipulation.",
+  "section_508_relevance": "High – Multiple 508 violations (e.g., 1.1.1, 1.3.1, 2.1.1, 4.1.2, 602.x) directly map to Section 508’s accessibility requirements for electronic information. The 508 FPC remarks detail **blockers for users with disabilities** across sensory, cognitive, and motor domains.",
+  "wcag_relevance": "High – **Level A and AA failures** across critical areas (e.g., keyboard, focus, contrast, reflow) violate WCAG 2.x/2.1/2.2. The 24 AA barriers (out of 24) and 18 Level A failures (out of 18) demonstrate **non-compliance with WCAG’s accessibility standards** for users with disabilities."
+},
+"signals_found": [
+  {
+    "type": "Level A Violation",
+    "criteria": ["1.1.1 (Non-text Content)", "1.3.1 (Info & Relationships)", "2.1.1 (Keyboard)", "2.1.2 (No Keyboard Trap)", "2.4.3 (Focus Order)", "2.4.4 (Link Purpose)", "2.5.3 (Label in Name)", "3.3.1 (Error Identification)", "3.3.2 (Labels/Instructions)", "4.1.2 (Name/Role/Value)"],
+    "examples": [
+      "Empty alt text for 'Welcome' image",
+      "Sortable tables announced multiple times",
+      "Missing focusable 'Next/Previous' buttons",
+      "Keyboard traps in 'Copy Event' and 'Shopping Cart'",
+      "Non-descriptive labels for 'Title' field",
+      "Error messages not announced by screen readers"
+    ]
+  },
+  {
+    "type": "Level AA Violation",
+    "criteria": ["1.4.3 (Contrast)", "1.4.4 (Resize Text)", "1.4.5 (Images of Text)", "1.4.10 (Reflow)", "1.4.11 (Non-text Contrast)", "2.4.6 (Headings/Labels)", "2.4.7 (Focus Visible)", "2.5.7 (Dragging Movements)", "4.1.3 (Status Messages)"],
+    "examples": [
+      "Contrast failures for 'View Transcript' (white text on yellow)",
+      "Content cropped at 200% zoom",
+      "Missing focus indicators for 'Translate' buttons",
+      "Dual scrollbars at 320px width",
+      "Error messages not announced (e.g., 'Please select catalog criteria')"
+    ]
+  },
+  {
+    "type": "ADA/Section 508 Blockers",
+    "criteria": ["508 FPC Remarks: 'Without Vision', 'With Limited Vision', 'With Limited Manipulation']",
+    "examples": [
+      "Core workflows (e.g., forms, navigation) **cannot be completed by keyboard or screen reader**",
+      "Users with **limited vision** face **contrast, reflow, and text spacing barriers**",
+      "Users with **limited manipulation** are blocked by **missing keyboard focusable elements**"
+    ]
+  },
+  {
+    "type": "Documentation Gaps",
+    "criteria": ["Missing product version", "No resolution timeline for 'Partially Supports' entries", "Lack of assistive technology testing scope details"]
+  }
+],
+"major_accessibility_risks": [
+  {
+    "area": "Keyboard Access",
+    "description": "Multiple 'Partially Supports' under 2.1.1, 2.1.2, and 2.4.3 indicate **keyboard navigation traps, missing focusable elements, and focus loss**, blocking core interactions (e.g., dropdown menus, form submissions). Example: 'View Customisable Fields' lacks focusable 'Next/Previous' buttons.",
+    "impact": "Critical – Users with motor impairments or limited dexterity cannot navigate or complete tasks via keyboard alone."
+  },
+  {
+    "area": "Screen Reader Compatibility",
+    "description": "Failures under 1.1.1, 1.3.1, 4.1.2, and 4.1.3 reveal **misleading labels, missing ARIA attributes, and inaccessible form controls**, preventing users from understanding content structure or completing tasks. Example: 'Remove' buttons announced without context.",
+    "impact": "Critical – Users relying on screen readers cannot interact with tables, forms, or navigation."
+  },
+  {
+    "area": "Contrast and Reflow",
+    "description": "Level AA failures under 1.4.3, 1.4.4, 1.4.10, and 1.4.11 create barriers for users with low vision, cognitive disabilities, or limited manipulation. Example: 'Welcome' page fails contrast for multiple links, and content cropped at 200% zoom.",
+    "impact": "Critical – Users with low vision or limited cognitive ability cannot read or navigate the platform."
+  },
+  {
+    "area": "Error Identification",
+    "description": "Partially Supports under 3.3.1 and 4.1.3 indicate **error messages are not announced by screen readers**, violating WCAG AA and ADA obligations. Example: 'Please select catalog criteria' error message not announced.",
+    "impact": "Critical – Users cannot identify or correct input errors, violating ADA’s prohibition of exclusionary design."
+  },
+  {
+    "area": "Focus Management",
+    "description": "Failures under 2.4.3 and 2.4.7 reveal **invisible focus indicators, focus loss, and focus traps**, blocking keyboard navigation. Example: 'Translate' buttons lack visible focus indicators.",
+    "impact": "Critical – Users with motor impairments or limited vision cannot navigate or interact with the platform."
+  }
+],
+"missing_or_unclear_information": [
+  {
+    "area": "Product Version",
+    "description": "No specified product version in the VPAT, making it impossible to correlate fixes with released updates."
+  },
+  {
+    "area": "Remediation Roadmap",
+    "description": "No timeline or resolution plan for 'Partially Supports' entries (e.g., 1.1.1, 2.1.1, 3.3.2)."
+  },
+  {
+    "area": "Testing Scope",
+    "description": "Lack of details on **assistive technology testing methods** (e.g., JAWS, NVDA) and **user population coverage** (e.g., users with cognitive disabilities, limited vision)."
+  },
+  {
+    "area": "Assistive Technology Coverage",
+    "description": "No evidence of testing with **alternative input methods** (e.g., switch controls, eye-tracking) or **low-vision assistive tech** (e.g., ZoomText)."
+  },
+  {
+    "area": "Documentation Gaps",
+    "description": "No support documentation (e.g., accessibility FAQs, training materials) or non-electronic formats (e.g., braille, large-print) for users with disabilities."
+  }
+],
+"recommendation": "
+Immediate TAAP (Technical Assistance and Action Plan) is required to address these barriers before deployment or continued use by disabled users. Key actions include:
+1. **Remediate Core Failures**:
+   - Fix **keyboard traps** (e.g., 'Copy Event', 'Shopping Cart') under 2.1.1/2.1.2.
+   - Add **visible focus indicators** for all interactive elements (2.4.7).
+   - Ensure **programmatic labels** for all form controls (4.1.2) and **error messages** (4.1.3).
+   - Address **contrast failures** (1.4.3) and **text spacing issues** (1.4.4) for all text and UI elements.
+   - Remove **images of text** (1.4.5) and ensure **proper reflow** (1.4.10) at 320px width.
+
+2. **Enhance Assistive Technology Support**:
+   - Test with **JAWS, NVDA, and other screen readers** to validate 1.1.1, 1.3.1, and 4.1.2.
+   - Ensure **keyboard-only navigation** for all core workflows (2.1.1).
+   - Add **ARIA attributes** (e.g., `aria-label`, `aria-describedby`) for missing labels and context.
+
+3. **Implement Accessibility Testing**:
+   - Conduct **automated (axe, WAVE) and manual (JAWS, NVDA) testing** with users representing diverse disabilities.
+   - Validate **zoom and reflow** at 200% and 320px width with assistive tech.
+   - Test **error identification** (3.3.1) and **status messages** (4.1.3) with screen readers.
+
+4. **Document Remediation Plan**:
+   - Provide a **timeline for fixes** (e.g., 30-day sprints) and **responsible teams**.
+   - Update the VPAT with **new test results** after remediation.
+
+5. **User Training and Support**:
+   - Develop **accessibility training** for developers and support staff.
+   - Provide **accessibility FAQs** and **support documentation** (e.g., support documentation in non-electronic formats).
+",
+"next_steps": [
+  {
+    "step": "Convene a cross-functional accessibility team (developers, QA, UX designers) to prioritize fixes based on the 508 FPC and WCAG AA barriers.",
+    "action": "Map each barrier to a specific developer/QA task with a deadline (e.g., 14-day sprints).",
+    "tools": "Jira, Trello, or similar project management tool."
+  },
+  {
+    "step": "Conduct **manual accessibility testing** with users representing diverse disabilities (e.g., blind users, users with low vision, users with motor impairments).",
+    "action": "Validate fixes and document findings in the VPAT update.",
+    "tools": "JAWS, NVDA, screen-sharing tools."
+  },
+  {
+    "step": "Update the VPAT with **new test results** after remediation, including a **new evaluation date** and **scope expansion** (e.g., testing with alternative input methods).",
+    "action": "Submit corrected VPAT to stakeholders with a **remediation confirmation**.
+  },
+  {
+    "step": "Develop and distribute **accessibility support documentation** (e.g., FAQs, training materials, non-electronic formats).",
+    "action": "Ensure compliance with 602.x (Section 508) and WCAG AA."
+  },
+  {
+    "step": "Schedule a **follow-up accessibility review** 3–6 months post-remediation to validate long-term compliance.",
+    "action": "Conduct **automated and manual testing** with assistive tech to ensure sustained accessibility."
+  }
+],
+"needs_human_review": true
+}
+```

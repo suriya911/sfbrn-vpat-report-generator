@@ -1,0 +1,43 @@
+# Llama 4 Scout (us.meta.llama4-scout-17b-instruct-v1:0)
+# latency=5.0s in=9485 out=599 cost=$0.00201 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 1.0,
+  "risk_level": "Critical",
+  "reason": "The VPAT/ACR document indicates significant accessibility gaps, including multiple 'Partially Supports' and 'Not Applicable' entries at Level A and AA, particularly in core accessibility areas such as keyboard access, focus order, screen reader compatibility, name/role/value, form labels, error messages, color contrast, and captions.",
+  "regulatory_basis": {
+    "ada_relevance": "The VPAT/ACR document has implications for ADA accessibility expectations, given the numerous Level A and AA issues identified, particularly those related to keyboard access, focus order, and screen reader compatibility.",
+    "section_508_relevance": "The document's evaluation was partially based on Section 508 requirements, and several 508-specific criteria were marked as 'Partially Supports', indicating potential compliance issues.",
+    "wcag_relevance": "The VPAT/ACR primarily assesses WCAG 2.0 and 2.1 Level A and AA criteria. The document shows multiple instances of 'Partially Supports' for critical WCAG success criteria, suggesting a high risk of non-compliance."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' at Level A and AA, especially in keyboard access, focus order, and screen reader support.",
+    "Insufficient color contrast and text spacing.",
+    "Issues with name, role, value, and labels.",
+    "Error messages not announced by screen readers.",
+    "Limited keyboard accessibility in certain areas."
+  ],
+  "major_accessibility_risks": [
+    "Keyboard accessibility issues (2.1.1, 2.1.2, 2.4.3).",
+    "Screen reader compatibility problems (1.1.1, 1.3.1, 4.1.2).",
+    "Color contrast issues (1.4.1, 1.4.3, 1.4.11).",
+    "Inadequate focus order and visible focus (2.4.3, 2.4.7).",
+    "Form label and error message issues (3.3.1, 3.3.2)."
+  ],
+  "missing_or_unclear_information": [
+    "Product version number not provided.",
+    "Evaluation date not specified.",
+    "Testing scope and methods partially unclear.",
+    "Remarks for several criteria are vague or mention known gaps."
+  ],
+  "recommendation": "A formal remediation plan and accessibility action plan are needed to address the identified accessibility barriers.",
+  "next_steps": [
+    "Detailed manual review of the VPAT/ACR content.",
+    "Remediation of identified accessibility issues.",
+    "Re-evaluation to ensure compliance with Level A and AA criteria."
+  ],
+  "needs_human_review": true
+}
+```

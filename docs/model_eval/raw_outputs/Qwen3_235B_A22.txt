@@ -1,0 +1,48 @@
+# Qwen3 235B A22 (qwen.qwen3-235b-a22b-2507-v1:0)
+# 10.15s in=9701 out=1160 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT documents widespread 'Partially Supports' across critical Level A and Level AA criteria, including keyboard access (2.1.1), focus order (2.4.3), screen reader compatibility (1.1.1, 1.3.1), color contrast (1.4.3), reflow (1.4.10), and status messages (4.1.3). These issues impact core accessibility areas and multiple user workflows. There are no 'Does Not Support' entries, but the volume and severity of partial support—especially in foundational areas like keyboard navigation, focus visibility, and content conveyance to assistive technologies—indicate significant barriers. The score of 44% supported (of reviewable criteria) confirms high risk.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA requires digital platforms to be accessible to people with disabilities; documented barriers in keyboard navigation, screen reader compatibility, and color contrast may violate ADA Title III expectations.",
+    "section_508_relevance": "Section 508 mandates federal agencies procure accessible IT; the product fails to meet several 508 refresh requirements (e.g., 302.1 Without Vision, 302.2 With Limited Vision) due to unresolved accessibility gaps.",
+    "wcag_relevance": "Multiple Level A and Level AA WCAG 2.1/2.2 criteria are only partially met, including 1.1.1, 1.3.1, 1.4.3, 1.4.10, 2.1.1, 2.4.3, 2.4.7, 3.3.1, 3.3.2, 4.1.2, and 4.1.3—core to accessible web experience."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' entries for Level A criteria: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 2.1.1, 2.1.2, 2.4.2, 2.4.3, 2.4.4, 2.5.3, 3.2.2, 3.3.1, 3.3.2, 4.1.2",
+    "Multiple 'Partially Supports' entries for Level AA criteria: 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3",
+    "Critical accessibility areas affected: keyboard navigation, focus order, screen reader compatibility, color contrast, reflow, text spacing, error identification, labels, and status messages",
+    "Section 508 functional performance criteria (FPC) marked 'Partially Supports' for Without Vision, With Limited Vision, Without Perception of Color, With Limited Manipulation, and With Limited Cognitive Abilities",
+    "Evaluation methods listed but lack detail on scope, sample pages, or assistive technology versions",
+    "Product version is missing, reducing confidence in reproducibility",
+    "Score of 44% supported (of reviewable criteria) indicates significant accessibility gaps"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps documented in 2.1.2 (e.g., Copy Event, Shopping Cart)",
+    "Missing or incorrect alternative text for images and controls (1.1.1)",
+    "Insufficient form labels and instructions (3.3.2), impacting screen reader users",
+    "Poor color contrast in links, buttons, and focus indicators (1.4.3, 1.4.11)",
+    "Content not fully accessible at 200% zoom or narrow viewports (1.4.4, 1.4.10)",
+    "Status messages not announced to screen readers (4.1.3), creating confusion during interactions",
+    "Focus order issues causing disorientation (2.4.3)",
+    "Dragging functionality without keyboard alternative (2.5.7)"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not specified",
+    "Evaluation scope not clearly defined (which pages or features were tested)",
+    "No mention of testing with multiple screen readers or browser combinations",
+    "Remediation roadmap or timeline not provided",
+    "Some remarks are cut off or incomplete (e.g., 1.3.2, 3.3.1)"
+  ],
+  "recommendation": "A formal accessibility remediation plan (TAAP) is required to address the systemic and widespread accessibility gaps. Immediate focus should be on keyboard accessibility, screen reader compatibility, color contrast, and programmatic exposure of content and state.",
+  "next_steps": [
+    "Require vendor to provide a detailed Accessibility Remediation Plan (TAAP) with milestones and timelines",
+    "Request updated VPAT with full product version, evaluation scope, and testing methodology",
+    "Conduct independent accessibility audit focusing on core workflows",
+    "Engage vendor to clarify unresolved issues and provide evidence of fixes"
+  ],
+  "needs_human_review": true
+}

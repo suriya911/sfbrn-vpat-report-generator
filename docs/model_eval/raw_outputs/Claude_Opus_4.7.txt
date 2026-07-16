@@ -1,0 +1,55 @@
+# Claude Opus 4.7 (us.anthropic.claude-opus-4-7)
+# latency=23.6s in=14895 out=2054 cost=$0.12582 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT documents widespread 'Partially Supports' entries across nearly every core accessibility area at both Level A and Level AA. Critical issues include keyboard access failures (2.1.1 with multiple components not focusable), keyboard traps (2.1.2 - focus trapped in Description and Shopping Cart fields), focus order problems (2.4.3), focus visibility issues (2.4.7), name/role/value gaps (4.1.2), status message failures (4.1.3), color contrast failures (1.4.3 with multiple instances), reflow issues (1.4.10), and form label deficiencies (3.3.2). The compliance score is only 44% of reviewable criteria, and no remediation roadmap or resolution dates are provided. While no criteria are marked 'Does Not Support', the breadth and severity of 'Partially Supports' entries across core accessibility areas constitutes significant barriers requiring a formal accessibility action plan.",
+  "regulatory_basis": {
+    "ada_relevance": "As an enterprise LMS used broadly (including potentially by public entities and employers), documented keyboard traps, missing labels, and screen reader barriers may impede equal access for users with disabilities, creating ADA Title II/III exposure.",
+    "section_508_relevance": "Multiple 508 Functional Performance Criteria (302.1 Without Vision, 302.2 With Limited Vision, 302.3 Without Perception of Color, 302.7 With Limited Manipulation, 302.9 Cognitive) are only 'Partially Supports', indicating the product does not fully meet Revised Section 508 standards for federal procurement.",
+    "wcag_relevance": "Numerous WCAG 2.1/2.2 Level A and AA criteria are 'Partially Supports', including 1.1.1, 1.3.1, 1.4.1, 1.4.3, 1.4.10, 2.1.1, 2.1.2, 2.4.3, 2.4.6, 2.4.7, 3.3.1, 3.3.2, 4.1.2, and 4.1.3 — spanning nearly all core WCAG principles."
+  },
+  "signals_found": [
+    "10 barriers identified including 1.4.3 Contrast, 1.4.10 Reflow, 2.4.6 Headings and Labels, 2.4.7 Focus Visible, 2.5.7 Dragging, and 4.1.3 Status Messages",
+    "Keyboard trap documented (2.1.2) in Copy Event and Shopping Cart Preferences",
+    "Multiple keyboard-inaccessible components in 2.1.1",
+    "Extensive focus order defects (2.4.3)",
+    "Multiple color contrast failures on interactive elements (1.4.3)",
+    "Screen reader gaps for status messages (4.1.3), name/role/value (4.1.2), and error identification (3.3.1)",
+    "Reflow failures at 320px with horizontal scrollbars and content overlap (1.4.10)",
+    "44% compliance score across reviewable AA criteria",
+    "No remediation plan, target dates, or roadmap provided",
+    "Product version is missing"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps that prevent users from moving focus away from certain controls (Level A 2.1.2)",
+    "Multiple components not reachable or operable via keyboard (Level A 2.1.1) — blocks core workflows for keyboard-only and AT users",
+    "Screen reader users cannot perceive status messages, errors, or search results in multiple workflows (4.1.3, 3.3.1)",
+    "Focus indicators missing/obscured on key buttons (2.4.7)",
+    "Color contrast failures across Welcome, Copy Event, Certification Management, and other pages (1.4.3)",
+    "Reflow at 320px causes truncation, overlap, and inaccessible content (1.4.10)",
+    "Form labels missing on multiple edit fields and comboboxes (3.3.2)",
+    "Drag-only interactions without keyboard alternative in Curricula Admin (2.5.7)"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not specified",
+    "No mobile screen reader testing (only JAWS on Chrome/Windows documented)",
+    "No remediation timeline, target resolution dates, or accessibility roadmap",
+    "Some remarks are truncated mid-sentence (e.g., 1.3.2, 3.3.1, 4.1.2), leaving the full scope of exceptions unclear",
+    "Testing scope (specific modules/pages evaluated vs. not) is not clearly enumerated",
+    "No mention of user testing with people with disabilities"
+  ],
+  "recommendation": "Do not approve for procurement or deployment without a formal Technical Accessibility Action Plan (TAAP). The vendor should provide a documented remediation roadmap with prioritized fixes for keyboard traps, keyboard access, focus management, screen reader announcements, color contrast, and reflow before this product is used in workflows requiring accessibility compliance.",
+  "next_steps": [
+    "Request a formal remediation roadmap with target dates for each 'Partially Supports' criterion",
+    "Require vendor to provide the specific product version tested and the pages/modules in scope",
+    "Prioritize immediate fixes for the two keyboard traps (2.1.2) and inaccessible keyboard components (2.1.1) as blocking issues",
+    "Request an updated VPAT after remediation of Level A barriers",
+    "Conduct independent verification testing focusing on end-to-end workflows (enrollment, transcript, certification, admin) with JAWS/NVDA and keyboard-only",
+    "Evaluate whether an equally effective alternate access plan is required in the interim",
+    "Engage vendor accessibility contact (accessibility-feedback@csod.com) for a remediation commitment"
+  ],
+  "needs_human_review": true
+}

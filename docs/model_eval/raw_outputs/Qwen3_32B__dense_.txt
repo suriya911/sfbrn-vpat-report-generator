@@ -1,0 +1,43 @@
+# Qwen3 32B (dense) (qwen.qwen3-32b-v1:0)
+# 3.84s in=9705 out=580 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.9,
+  "risk_level": "High",
+  "reason": "The VPAT contains multiple Level A and AA criteria marked as 'Partially Supports', including critical areas like keyboard access, focus order, screen reader compatibility, contrast, and status messages. These issues may significantly impact users relying on assistive technologies. The remarks also indicate unresolved defects and accessibility gaps.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA requires digital accessibility for individuals with disabilities. The presence of keyboard and screen reader issues may violate ADA expectations.",
+    "section_508_relevance": "Section 508 requires compliance with WCAG 2.1 AA standards. The product fails to fully meet these requirements in several key areas.",
+    "wcag_relevance": "The product fails to fully support multiple Level A and AA WCAG success criteria, including 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, and 4.1.3."
+  },
+  "signals_found": [
+    "Multiple Level A and AA criteria marked as 'Partially Supports'",
+    "Keyboard access issues in several components",
+    "Focus order and visibility issues",
+    "Contrast and reflow issues impacting readability",
+    "Screen reader compatibility issues with labels and status messages",
+    "Unresolved defects and accessibility gaps mentioned in remarks"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard navigation is not fully supported in several areas",
+    "Screen reader users may miss critical information due to missing or incorrect labels and status messages",
+    "Color contrast and reflow issues may prevent users with visual impairments from accessing content",
+    "Focus order issues may confuse users relying on keyboard navigation"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing",
+    "Some remarks are vague or lack resolution dates",
+    "No remediation roadmap is provided"
+  ],
+  "recommendation": "A formal TAAP (Technology Accessibility and Procurement) review is required to address the accessibility gaps identified in the VPAT. A detailed remediation plan should be developed to resolve keyboard navigation, screen reader compatibility, and contrast issues.",
+  "next_steps": [
+    "Engage with the vendor to obtain a remediation plan",
+    "Conduct a manual accessibility review of the product",
+    "Verify keyboard navigation and screen reader compatibility in core workflows",
+    "Ensure contrast and reflow issues are resolved"
+  ],
+  "needs_human_review": true
+}
+```

@@ -1,0 +1,52 @@
+# Nova 2 Lite (us.amazon.nova-2-lite-v1:0)
+# latency=6.5s in=9466 out=748 cost=$0.00075 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.9,
+  "risk_level": "High",
+  "reason": "The VPAT shows significant accessibility barriers across multiple WCAG Level A and AA criteria. There are numerous 'Partially Supports' entries for core accessibility areas including keyboard access, focus order, screen reader compatibility, form labels, error identification, and contrast. Several critical failures are documented such as keyboard traps, insufficient color contrast, improper focus order, missing form labels, and non-announced error/status messages. The compliance score is only 44% against reviewable criteria, indicating widespread accessibility gaps that would prevent users with disabilities from accessing core functionality.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA Title II and III require digital content to be accessible to people with disabilities, including full keyboard access, screen reader compatibility, and sufficient color contrast.",
+    "section_508_relevance": "Section 508 requires federal agencies and vendors to ensure electronic and information technology is accessible, covering similar requirements to WCAG 2.0 Level A/AA.",
+    "wcag_relevance": "WCAG success criteria at Level A and AA represent minimum standards for web accessibility. The VPAT documents failures against multiple critical criteria."
+  },
+  "signals_found": [
+    "44% compliance score with significant barriers noted",
+    "Multiple 'Partially Supports' entries for core areas: keyboard access (2.1.1, 2.1.2), focus order (2.4.3), screen reader support (1.1.1, 1.3.1, 4.1.2), form labels (3.3.2), error identification (3.3.1, 4.1.3), contrast (1.4.3)",
+    "Documented keyboard traps and focus issues",
+    "Insufficient color contrast identified",
+    "Missing or non-announced error/status messages",
+    "Improper heading structure and link context",
+    "Non-applicable or incomplete documentation sections"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard access failures block users who cannot use a mouse",
+    "Screen reader compatibility issues prevent blind users from navigating and understanding content",
+    "Insufficient color contrast affects users with low vision",
+    "Missing form labels create barriers for screen reader users",
+    "Non-announced error messages prevent users from understanding input problems",
+    "Improper focus order creates confusion during keyboard navigation"
+  ],
+  "missing_or_unclear_information": [
+    "Product version not specified",
+    "Incomplete testing scope details",
+    "No remediation roadmap or resolution dates provided",
+    "Vague remarks for some criteria without specific examples or locations",
+    "Missing evidence of assistive technology testing beyond JAWS"
+  ],
+  "recommendation": "This product presents a high accessibility risk and cannot proceed without substantial remediation. A formal Accessibility Action Plan (TAAP) is required to address the documented barriers.",
+  "next_steps": [
+    "Develop a comprehensive Accessibility Action Plan addressing all Level A and AA failures",
+    "Conduct thorough accessibility testing with multiple screen readers (JAWS, NVDA, VoiceOver) and keyboard-only navigation",
+    "Implement proper keyboard navigation and focus management",
+    "Fix all color contrast issues to meet WCAG 2.1 AA requirements",
+    "Add missing form labels and error announcements",
+    "Improve heading structure and link context",
+    "Provide detailed testing methodology and results",
+    "Re-evaluate against WCAG 2.1 AA after remediation"
+  ],
+  "needs_human_review": true
+}
+```

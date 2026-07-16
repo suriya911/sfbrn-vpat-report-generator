@@ -1,0 +1,3 @@
+# MiniMax M2 (minimax.minimax-m2)
+# 32.4s in=9443 out=4000 err=None
+

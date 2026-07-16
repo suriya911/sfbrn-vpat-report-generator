@@ -1,0 +1,42 @@
+# Gemma 3 4B (google.gemma-3-4b-it)
+# latency=4.5s in=10774 out=945 cost=$0.00063 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT indicates significant accessibility barriers across multiple WCAG 2.2 AA criteria, including keyboard access, focus order, color contrast, and error identification. Several ‘Partially Supports’ entries are documented, particularly regarding keyboard navigation, focus order, and contrast ratios. The presence of ‘Does Not Support’ entries for these core areas, combined with the lack of detailed remarks and testing scope, necessitates a thorough accessibility assessment and a formal remediation plan. The reliance on automated tools and manual testing without sufficient detail raises concerns about the completeness of the evaluation.",
+  "regulatory_basis": {
+    "ada_relevance": "High - Significant accessibility gaps impact usability for individuals with disabilities under ADA guidelines.",
+    "section_508_relevance": "High - Multiple ‘Does Not Support’ entries directly violate Section 508 requirements.",
+    "wcag_relevance": "High - Numerous WCAG 2.2 AA violations are identified."
+  },
+  "signals_found": [
+    "‘Partially Supports’ entries for multiple WCAG 2.2 AA criteria (e.g., 2.1.1, 2.1.2, 2.1.4, 2.4.3, 2.4.4, 2.4.6, 2.4.7, 2.5.7, 2.5.8, 2.4.11, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 1.4.1, 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12)",
+    "‘Does Not Support’ entries for 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 2.5.8, 2.4.11, 3.3.1, 3.3.2, 3.3.3, 3.3.4",
+    "Vague remarks regarding accessibility issues (e.g., ‘Most images…contain relevant alternative text’ without specifying exceptions or remediation steps)",
+    "Limited testing scope (mention of ‘Desktop browsers: Chrome (Windows)’ and ‘Desktop screen readers: JAWS’ – lacks detail on other assistive technologies and user groups)",
+    "Lack of a clear remediation roadmap or resolution date"
+  ],
+  "major_accessibility_risks": [
+    "Significant keyboard navigation issues impacting usability for users of screen readers and other assistive technologies.",
+    "Inconsistent focus order leading to confusion and difficulty navigating the interface.",
+    "Insufficient color contrast making the interface difficult to read for users with low vision.",
+    "Lack of clear error messages and suggestions for correction hindering user experience."
+  ],
+  "missing_or_unclear_information": [
+    "Detailed testing methodology and scope (e.g., specific assistive technologies tested, user groups involved, testing environment).",
+    "Specific steps taken to address the identified accessibility issues.",
+    "A clear remediation roadmap with timelines and responsible parties."
+  ],
+  "recommendation": "Conduct a comprehensive accessibility audit using a variety of assistive technologies and user testing. Develop a detailed remediation plan addressing all identified ‘Does Not Support’ and ‘Partially Supports’ criteria. Prioritize keyboard accessibility, focus order, color contrast, and error identification.",
+  "next_steps": [
+    "Perform thorough accessibility testing with screen readers (JAWS, NVDA, VoiceOver), keyboard-only navigation, and other assistive technologies.",
+    "Conduct user testing with individuals with disabilities to validate the effectiveness of remediation efforts.",
+    "Develop a detailed accessibility remediation plan with specific tasks, timelines, and responsible parties.",
+    "Update the VPAT to accurately reflect the product’s accessibility status."
+  ],
+  "needs_human_review": true
+}
+```

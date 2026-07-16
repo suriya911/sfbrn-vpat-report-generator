@@ -1,0 +1,3 @@
+# Command R+ (cohere.command-r-plus-v1:0)
+# latency=0.2s in=0 out=0 cost=$None err=An error occurred (ResourceNotFoundException) when calling the Converse operation: Access denied. This Model is marked by provider as Legacy and you have not been actively using the model in the last 30 days. Please upgrade to an active model on Amazon Bedrock
+

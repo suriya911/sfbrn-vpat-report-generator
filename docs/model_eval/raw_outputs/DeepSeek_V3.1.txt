@@ -1,0 +1,48 @@
+# DeepSeek V3.1 (deepseek.v3-v1:0)
+# latency=5.0s in=9690 out=681 cost=$0.00676 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.85,
+  "risk_level": "High",
+  "reason": "The VPAT shows widespread 'Partially Supports' entries across core accessibility areas including keyboard access, focus order, screen reader compatibility, form labels, contrast, and status messages. Multiple Level A and AA criteria have significant accessibility barriers that impact fundamental user interactions.",
+  "regulatory_basis": {
+    "ada_relevance": "Multiple ADA compliance issues identified including keyboard traps, insufficient screen reader support, missing form labels, and contrast violations that create barriers for users with disabilities",
+    "section_508_relevance": "Fails multiple Section 508 functional performance criteria including Without Vision (302.1), With Limited Vision (302.2), and With Limited Manipulation (302.7) due to keyboard and screen reader accessibility issues",
+    "wcag_relevance": "Numerous WCAG 2.0/2.1/2.2 Level A and AA failures including 1.1.1, 1.3.1, 2.1.1, 2.1.2, 2.4.3, 1.4.3, 1.4.4, 4.1.3 affecting core accessibility requirements"
+  },
+  "signals_found": [
+    "Keyboard traps identified in multiple components (2.1.2)",
+    "Missing keyboard focus on critical controls including calendar navigation, combo boxes, and pagination (2.1.1)",
+    "Incorrect focus order that breaks meaningful sequence (2.4.3)",
+    "Multiple contrast failures affecting text readability (1.4.3)",
+    "Screen reader announcements missing for status messages and error notifications (4.1.3)",
+    "Missing visible labels for form fields throughout application (3.3.2)",
+    "Incorrect alternative text for meaningful images and controls (1.1.1)",
+    "Reflow issues causing content cutoff at 320px width (1.4.10)"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard accessibility gaps preventing completion of core workflows",
+    "Screen reader incompatibility with missing status messages and incorrect announcements",
+    "Form labeling deficiencies creating barriers for users with cognitive disabilities",
+    "Multiple contrast violations affecting low vision users",
+    "Focus management issues disrupting navigation flow"
+  ],
+  "missing_or_unclear_information": [
+    "Product version not specified",
+    "Testing scope details incomplete",
+    "Remediation roadmap or resolution dates not provided",
+    "Limited assistive technology testing (only JAWS on Windows/Chrome)"
+  ],
+  "recommendation": "Immediate development of a formal Targeted Accessibility Action Plan (TAAP) addressing keyboard navigation, screen reader compatibility, form accessibility, and visual design issues. Comprehensive testing with multiple screen readers and assistive technologies required.",
+  "next_steps": [
+    "Request product version and complete testing methodology details",
+    "Require formal remediation plan with timelines for critical issues",
+    "Conduct independent accessibility audit to validate findings",
+    "Implement ongoing monitoring of accessibility compliance",
+    "Establish user testing with people with disabilities"
+  ],
+  "needs_human_review": true
+}
+```

@@ -1,0 +1,138 @@
+# Ministral 14B 3.0 (mistral.ministral-3-14b-instruct)
+# 13.22s in=9923 out=3042 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.99,
+  "risk_level": "High",
+  "reason": "The VPAT/ACR document contains **widespread 'Partially Supports' entries across core accessibility areas**, including **keyboard access (2.1.1, 2.1.2), screen reader compatibility (1.1.1, 1.3.1, 4.1.2), name/role/value (4.1.2), forms and labels (3.3.2), contrast (1.4.3, 1.4.11), reflow (1.4.10), text spacing (1.4.12), focus visibility (2.4.7), and status messages (4.1.3)**. These issues are **not minor or scoped** but instead represent **significant barriers** to accessibility for users relying on assistive technologies. The **score of 44% (8/18 reviewable criteria)** and the **impact level marked as 'Medium'** further underscore the severity of the gaps. The remarks explicitly document **core workflow failures** (e.g., keyboard traps, missing focus indicators, inaccessible forms, and unannounced status messages), which align with the 'Need TAAP' criteria for **formal remediation**.",
+  "regulatory_basis": {
+    "ada_relevance": "The VPAT/ACR indicates **non-compliance with ADA Title II/III expectations** due to **widespread 'Partially Supports' entries** in core areas like keyboard navigation, screen reader support, and form accessibility. These gaps create **denial of equal access** for users with disabilities, triggering ADA obligations for remediation.",
+    "section_508_relevance": "The document fails to meet **Section 508 (Revised 2017) requirements** for **functional performance criteria (302.1–302.9)**, particularly for users **without vision (302.1), with limited vision (302.2), without color perception (302.3), and with limited manipulation (302.7)**. The **'Partially Supports'** status in these areas indicates **non-compliance** with federal procurement and accessibility mandates.",
+    "wcag_relevance": "The VPAT/ACR **does not meet WCAG 2.1/2.2 Level AA compliance** due to **multiple 'Partially Supports' entries in Level A and AA criteria**, including **1.1.1 (Non-text Content), 1.3.1 (Info and Relationships), 1.4.3 (Contrast), 2.1.1 (Keyboard), 2.4.3 (Focus Order), 2.4.6 (Headings and Labels), 2.4.7 (Focus Visible), 2.5.7 (Dragging Movements), and 4.1.3 (Status Messages)**. These failures **block core workflows** and violate **WCAG 2.1/2.2 AA success criteria**, requiring a **Technical Assistance Agreement Plan (TAAP)** for remediation."
+  },
+  "signals_found": [
+    {
+      "type": "Core_Accessibility_Failure",
+      "criteria": ["1.1.1", "1.3.1", "2.1.1", "2.4.3", "4.1.2", "4.1.3"],
+      "description": "Widespread 'Partially Supports' in **non-text content, info relationships, keyboard access, focus order, name/role/value, and status messages**, with **explicit examples of screen reader failures, keyboard traps, and unannounced UI changes**."
+    },
+    {
+      "type": "Contrast_and_Visual_Accessibility",
+      "criteria": ["1.4.3", "1.4.11", "1.4.10", "1.4.12"],
+      "description": "**Multiple contrast failures (1.4.3)** for text and UI components, **reflow issues (1.4.10)** causing dual scrollbars and truncated content, and **text spacing failures (1.4.12)** leading to content overlap. These directly impact users with **low vision and cognitive disabilities**."
+    },
+    {
+      "type": "Keyboard_Accessibility",
+      "criteria": ["2.1.1", "2.1.2", "2.4.3", "2.5.7"],
+      "description": "**Keyboard navigation is broken in critical workflows** (e.g., 'Create New Group' link not focusable, calendar missing keyboard support, drag-and-drop without alternative). **Keyboard traps (2.1.2)** and **focus order issues (2.4.3)** prevent completion of tasks by keyboard-only users."
+    },
+    {
+      "type": "Screen_Reader_Inaccessibility",
+      "criteria": ["1.1.1", "1.3.1", "4.1.2", "4.1.3"],
+      "description": "**Screen readers fail to announce critical UI elements** (e.g., pie charts, buttons, status messages, error states). **Alternative text is missing or misleading** (e.g., 'Hollow square bullet' for warning signs), and **focusable decorative elements** are announced, creating confusion."
+    },
+    {
+      "type": "Forms_and_Inputs",
+      "criteria": ["3.3.2", "2.5.3", "1.3.5"],
+      "description": "**Forms lack visible labels, permanent instructions, or associated error messages**. Example: 'Title' edit field has no visible label, and **error messages are not announced by screen readers**, violating **3.3.2 (Labels or Instructions)** and **4.1.3 (Status Messages)**."
+    },
+    {
+      "type": "Section_508_Functional_Performance",
+      "criteria": ["302.1", "302.2", "302.3", "302.7", "302.9"],
+      "description": "**Section 508 FPC criteria are partially met but include critical gaps** for users **without vision (302.1), with limited vision (302.2), without color perception (302.3), and with limited manipulation (302.7)**. These failures **prevent equal access** under federal procurement rules."
+    }
+  ],
+  "major_accessibility_risks": [
+    {
+      "risk": "Keyboard-Inaccessible Workflows",
+      "impact": "Users cannot complete **core tasks** (e.g., creating groups, navigating calendars, managing assignments) without a mouse, violating **WCAG 2.1/2.2 AA (2.1.1, 2.1.2, 2.4.3)** and **ADA/Section 508**.",
+      "evidence": [
+        "2.1.1: 'Create New Group' link not focusable with tab key",
+        "2.1.2: Focus trapped on 'Description' edit field in 'Copy Event'",
+        "2.4.3: Focus lost after activating 'pencil icon' in 'View customisable fields'"
+      ]
+    },
+    {
+      "risk": "Screen Reader Failures",
+      "impact": "**Blind and low-vision users cannot reliably navigate or understand UI elements**, violating **WCAG 1.1.1, 1.3.1, 4.1.2, and 4.1.3**.",
+      "evidence": [
+        "1.1.1: 'Warning yellow sign' announced as 'Hollow square bullet'",
+        "1.3.1: 'Sortable table elements announced multiple times'",
+        "4.1.2: 'Pie chart region not focused or announced'",
+        "4.1.3: 'Error messages not announced by screen reader'"
+      ]
+    },
+    {
+      "risk": "Contrast and Visual Accessibility",
+      "impact": "**Users with low vision cannot read text or interact with UI components** due to **contrast failures (1.4.3) and reflow issues (1.4.10)**.",
+      "evidence": [
+        "1.4.3: 'White link text on colored backgrounds fails contrast' (e.g., 'View Transcript' on yellow)",
+        "1.4.10: 'Dual scrollbars appear at 320px width' (Certification Bulk Removal Tool)",
+        "1.4.11: 'Focus indicator on 'Save' button fails contrast'"
+      ]
+    },
+    {
+      "risk": "Forms and Input Inaccessibility",
+      "impact": "**Users with cognitive disabilities cannot complete forms** due to **missing labels (3.3.2), unannounced errors (4.1.3), and unclear instructions**.",
+      "evidence": [
+        "3.3.2: 'No permanent visible label for 'Title' edit field'",
+        "4.1.3: 'Error message not announced after adding a user'",
+        "3.3.1: 'Meaning of asterisk not announced'"
+      ]
+    },
+    {
+      "risk": "Section 508 Non-Compliance",
+      "impact": "**Federal procurement and ADA obligations are not met** due to **functional performance failures (302.1–302.3, 302.7)**.",
+      "evidence": [
+        "302.1: 'Content difficult to use without vision due to text alternatives, semantics, and keyboard issues'",
+        "302.2: 'Color contrast, reflow, and text spacing issues affect limited vision users'",
+        "302.7: 'Keyboard accessibility generally supported but exceptions exist (e.g., drag-and-drop without alternative)'"
+      ]
+    }
+  ],
+  "missing_or_unclear_information": [
+    {
+      "item": "Product Version",
+      "impact": "The VPAT/ACR **does not specify the product version**, making it impossible to **correlate findings with a specific release or patch**. This is critical for **remediation prioritization** and **regulatory compliance tracking**."
+    },
+    {
+      "item": "Testing Scope",
+      "impact": "The **evaluation methods** mention **Chrome (Windows) and JAWS**, but **no details are provided on**:
+      - **Browser/OS coverage** (e.g., Safari, Firefox, macOS, mobile),
+      - **Screen reader coverage** (e.g., NVDA, VoiceOver),
+      - **Manual testing depth** (e.g., sample size, user testing inclusion),
+      - **Automated tool limitations** (e.g., Axe/WAVE false positives/negatives).
+      This **limits confidence in the VPAT’s completeness**."
+    },
+    {
+      "item": "Remediation Roadmap",
+      "impact": "While the **impact level is marked as 'Medium'**, there is **no explicit remediation timeline or action plan** in the VPAT. This is **required for 'Need TAAP' classification** to demonstrate **proactive compliance efforts**."
+    },
+    {
+      "item": "Assistive Technology Testing Evidence",
+      "impact": "The VPAT claims **keyboard and JAWS testing**, but **no specific examples of assistive technology (AT) testing logs, session recordings, or user feedback** are provided. This **weakens the credibility of the 'Partially Supports' claims**."
+    }
+  ],
+  "recommendation": "The **Cornerstone Learning Management and Core Platform** requires a **formal Technical Assistance Agreement Plan (TAAP)** to address **widespread Level A and AA failures** that **block core workflows** for users with disabilities. The TAAP must include:
+  1. **Prioritized remediation** of **keyboard access (2.1.1, 2.1.2), screen reader compatibility (1.1.1, 1.3.1, 4.1.2), contrast (1.4.3), and forms (3.3.2, 4.1.3)**.
+  2. **Expanded assistive technology testing** (e.g., NVDA, VoiceOver, mobile browsers) to **validate fixes**.
+  3. **A clear timeline** for resolving **'Partially Supports' entries**, with **quarterly progress reports**.
+  4. **User testing with individuals with disabilities** to **confirm accessibility improvements**.
+  5. **Documentation updates** to include **product version, testing scope, and remediation status** in future VPATs.",
+  "next_steps": [
+    "1. **Engage an accessibility consultant** to **audit the VPAT findings** and **prioritize remediation** based on **impact and regulatory risk**.",
+    "2. **Develop a TAAP** with **specific milestones** for resolving **Level A/AA failures**, including **keyboard, screen reader, contrast, and forms issues**.",
+    "3. **Conduct expanded AT testing** (e.g., NVDA, VoiceOver, mobile) to **validate fixes** before re-evaluating compliance.",
+    "4. **Update the VPAT** to include:
+      - **Product version and testing scope**,
+      - **Remediation timeline and responsible parties**,
+      - **Evidence of user testing with disabilities**,
+      - **Clear 'Supports' status for resolved issues**.",
+    "5. **Submit the TAAP to legal/procurement teams** for **approval and stakeholder alignment**.",
+    "6. **Monitor progress** via **quarterly accessibility reports** and **re-testing** against WCAG 2.1/2.2 AA."
+  ],
+  "needs_human_review": true
+}
+```

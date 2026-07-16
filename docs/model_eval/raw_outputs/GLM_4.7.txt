@@ -1,0 +1,47 @@
+# GLM 4.7 (zai.glm-4.7)
+# 14.75s in=9592 out=732 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT reveals widespread 'Partially Supports' statuses across critical Level A and AA criteria, specifically impacting keyboard accessibility, focus management, screen reader compatibility, and color contrast. The documented exceptions indicate significant barriers to core workflows (e.g., keyboard traps, missing focus indicators, inaccessible form labels, and low contrast text) that prevent full and equal access for users with disabilities. The compliance score of 44% and the sheer volume of specific exceptions necessitate a formal remediation plan.",
+  "regulatory_basis": {
+    "ada_relevance": "The documented barriers to keyboard access and screen reader use likely constitute discrimination under the ADA by denying effective communication.",
+    "section_508_relevance": "Multiple Section 508 'Functional Performance Criteria' (302.1 Without Vision, 302.2 With Limited Vision) are marked as 'Partially Supports' due to failures in WCAG technical standards.",
+    "wcag_relevance": "Failures in WCAG 2.1 Level A (Keyboard, No Keyboard Trap, Focus Order, Error Identification) and Level AA (Contrast, Reflow, Status Messages) prevent conformance claims."
+  },
+  "signals_found": [
+    "44% compliance score for reviewable criteria",
+    "Multiple Level A criteria marked 'Partially Supports' (Keyboard, No Keyboard Trap, Focus Order, Labels)",
+    "Multiple Level AA criteria marked 'Partially Supports' (Contrast, Reflow, Resize Text)",
+    "Documented keyboard traps preventing navigation",
+    "Missing visible focus indicators on interactive elements",
+    "Form fields lacking visible labels or programmatic associations",
+    "Color contrast failures for text and focus indicators",
+    "Reflow failures causing content loss or horizontal scrolling at 320px width",
+    "Status messages not announced to screen readers"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard Trap: Focus is trapped in 'Copy event' and 'Shopping Cart' fields, blocking navigation.",
+    "Keyboard Access: Critical controls (calendar, comboboxes, pagination) are not focusable.",
+    "Focus Order: Focus moves unpredictably or is lost after interactions, disrupting navigation.",
+    "Screen Reader Support: Missing labels, incorrect roles, and unannounced status messages prevent effective use.",
+    "Visual Accessibility: Text and focus indicators fail contrast requirements; content is lost on resize/reflow."
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing ('product_version': '').",
+    "Evaluation scope is broad ('Cornerstone Learning Management and Core Platform') but specific pages tested are not clearly defined in the summary.",
+    "No remediation timeline or roadmap provided for the extensive list of exceptions."
+  ],
+  "recommendation": "Do not approve for procurement or deployment without a formal Accessibility Action Plan (TAAP). The vendor must address the critical Level A keyboard and focus barriers immediately, followed by the Level AA visual and cognitive support issues.",
+  "next_steps": [
+    "Request a detailed remediation roadmap with specific dates for fixing the 'Partially Supports' entries.",
+    "Verify if the keyboard traps and focus issues are 'P1' blockers in the vendor's internal tracking.",
+    "Request the specific product version tested to ensure alignment with the deployment target.",
+    "Conduct manual accessibility testing to validate the severity of the documented exceptions."
+  ],
+  "needs_human_review": true
+}
+```

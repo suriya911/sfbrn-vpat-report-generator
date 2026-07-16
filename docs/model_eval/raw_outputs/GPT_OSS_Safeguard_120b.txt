@@ -1,0 +1,42 @@
+# GPT OSS Safeguard 120b (openai.gpt-oss-safeguard-120b)
+# 39.36s in=9516 out=1511 err=None
+
+{
+  "category": "Needs Manual Review",
+  "confidence": 0.86,
+  "risk_level": "High",
+  "reason": "The VPAT shows numerous Level A and AA criteria marked as \"Partially Supports\" across core accessibility areas (keyboard navigation, focus order, alt text, contrast, reflow, text spacing, status messages, name/role/value, etc.). No criteria are marked \"Does Not Support\", but the volume of partial support entries (well beyond the 1‑3 threshold for Minor Changes) and the presence of many specific exceptions indicate substantial accessibility gaps. Additionally, the product version is missing, and the overall compliance score is only 44% with a stated \"High accessibility risk\". These factors warrant a detailed manual review before any risk classification can be finalized.",
+  "regulatory_basis": {
+    "ada_relevance": "The partial support of many Level A and AA WCAG criteria suggests that the product may not meet ADA requirements for effective communication, keyboard operability, and perceivable content.",
+    "section_508_relevance": "The VPAT references Section 508 (Revised 2017) and includes numerous partial support findings, indicating that the product likely does not fully comply with Section 508 functional performance criteria.",
+    "wcag_relevance": "Multiple WCAG 2.x Level A and AA success criteria are marked as Partially Supports, highlighting gaps in contrast, reflow, focus order, alt text, and error handling."
+  },
+  "signals_found": [
+    "Many Partially Supports entries for Level A criteria (e.g., 1.1.1 Non‑text Content, 2.1.1 Keyboard, 2.1.2 No Keyboard Trap, 2.4.3 Focus Order).",
+    "Numerous Partially Supports entries for Level AA criteria (e.g., 1.4.3 Contrast, 1.4.10 Reflow, 1.4.11 Non‑text Contrast, 2.4.7 Focus Visible).",
+    "Specific examples of accessibility failures in remarks (missing alt text, focus traps, insufficient contrast, missing labels).",
+    "Overall compliance score of 44% with a message indicating \"High accessibility risk\".",
+    "Missing product version information and limited scope details."
+  ],
+  "major_accessibility_risks": [
+    "Keyboard navigation gaps and focus traps that can block task completion.",
+    "Insufficient color contrast and reflow issues affecting users with limited vision.",
+    "Inconsistent or missing alt text and labeling, impacting screen reader users.",
+    "Status messages and error messages not announced to assistive technologies."
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not provided.",
+    "No explicit remediation roadmap or target dates for the identified partial support issues.",
+    "Limited detail on testing scope (e.g., which pages or modules were evaluated).",
+    "No clear statement of whether any criteria were evaluated as \"Not Evaluated\" beyond the listed entries."
+  ],
+  "recommendation": "Conduct a thorough manual accessibility review focusing on the identified partial support areas. Prioritize remediation of keyboard accessibility, focus management, contrast, alt text, and status/message announcements. Develop a remediation plan with target dates and re‑evaluate using both automated tools and assistive technology testing.",
+  "next_steps": [
+    "Assign a remediation owner and timeline for each partially supported criterion.",
+    "Perform targeted user testing with screen readers (JAWS, NVDA) and keyboard‑only navigation.",
+    "Validate contrast ratios with a color contrast analyzer and adjust UI components accordingly.",
+    "Update the VPAT with corrected status entries (Supports/Does Not Support) and provide a clear remediation roadmap.",
+    "Re‑run the VPAT evaluation after remediation to achieve a higher compliance score."
+  ],
+  "needs_human_review": true
+}

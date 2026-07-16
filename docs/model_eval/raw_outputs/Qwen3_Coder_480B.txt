@@ -1,0 +1,47 @@
+# Qwen3 Coder 480B (qwen.qwen3-coder-480b-a35b-v1:0)
+# 6.44s in=9701 out=704 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT indicates widespread 'Partially Supports' entries across core accessibility areas including keyboard access, focus order, screen reader compatibility, color contrast, reflow, and status messages. Multiple Level A and AA criteria show consistent accessibility barriers that impact usability for people with disabilities. These issues affect core workflows and are not isolated or minor in nature. A formal remediation plan is necessary to address the documented accessibility gaps.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA requires places of public accommodation and employers to ensure effective communication and equal access. The numerous 'Partially Supports' findings indicate potential barriers to equal access for users with disabilities, raising ADA compliance concerns.",
+    "section_508_relevance": "The VPAT shows multiple failures to meet Section 508 functional performance criteria, particularly for users without vision, with limited vision, and with limited manipulation. These directly map to Section 508's core accessibility requirements.",
+    "wcag_relevance": "There are extensive 'Partially Supports' entries across WCAG Level A and AA criteria, including critical areas like 2.1.1 Keyboard, 2.4.3 Focus Order, 1.4.3 Contrast, 1.4.10 Reflow, and 4.1.3 Status Messages. These indicate systemic accessibility issues that violate WCAG conformance expectations."
+  },
+  "signals_found": [
+    "27 out of 55 WCAG criteria marked as 'Partially Supports'",
+    "Multiple core accessibility areas affected including keyboard navigation, focus management, screen reader support, and visual design",
+    "Numerous exceptions listed under each 'Partially Supports' criterion indicating real-world usability barriers",
+    "Specific failures in color contrast affecting multiple UI elements",
+    "Reflow issues causing horizontal scrolling and content truncation at mobile widths",
+    "Missing or inadequate focus indicators in key interactive components",
+    "Status messages not properly announced to assistive technologies",
+    "Incomplete or missing labels affecting form usability"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps preventing users from navigating away from certain controls",
+    "Loss of focus during interactions disrupting keyboard and screen reader workflows",
+    "Insufficient color contrast making content unreadable for low vision users",
+    "Reflow issues creating horizontal scrolling and hidden content on mobile devices",
+    "Missing or incorrect alternative text for meaningful images",
+    "Inaccessible custom fields and form controls without proper labeling",
+    "Status messages not announced to screen reader users"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not specified",
+    "Evaluation methods lack detail about testing procedures and sample sizes",
+    "No clear remediation timeline or roadmap provided",
+    "Some remarks are generic and lack specific technical details"
+  ],
+  "recommendation": "Require the vendor to develop and submit a comprehensive Technical Accessibility Action Plan (TAAP) that addresses all identified accessibility barriers with specific remediation steps, timelines, and validation methods.",
+  "next_steps": [
+    "Request detailed technical remediation plan from vendor",
+    "Schedule follow-up accessibility audit after remediation",
+    "Verify fixes through independent testing",
+    "Establish accessibility monitoring process for future updates"
+  ],
+  "needs_human_review": true
+}

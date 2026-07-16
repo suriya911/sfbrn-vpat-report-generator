@@ -1,0 +1,45 @@
+# Qwen3 Coder 30B (qwen.qwen3-coder-30b-a3b-v1:0)
+# 3.16s in=9701 out=759 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT indicates significant accessibility barriers at Level AA criteria, with multiple 'Partially Supports' entries across critical areas such as keyboard access (2.1.1), focus order (2.4.3), contrast (1.4.3), reflow (1.4.10), and status messages (4.1.3). There are also 'Partially Supports' entries for core WCAG A criteria like non-text content (1.1.1) and info and relationships (1.3.1). These issues create substantial barriers for users relying on assistive technologies and keyboard navigation, indicating a high-risk situation requiring a formal accessibility action plan.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA Title III requires equal access to services and programs offered online, which includes meeting WCAG 2.1 AA standards for digital platforms.",
+    "section_508_relevance": "Section 508 requires federal agencies and contractors to ensure electronic and information technology is accessible to people with disabilities, aligned with WCAG 2.1 AA conformance.",
+    "wcag_relevance": "The document shows numerous failures to meet WCAG 2.1 AA success criteria, particularly in areas of keyboard accessibility, focus management, and content presentation."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' entries for Level AA criteria including 1.4.3 (Contrast), 1.4.10 (Reflow), 2.1.1 (Keyboard), 2.4.3 (Focus Order), 4.1.3 (Status Messages)",
+    "Several 'Partially Supports' entries for Level A criteria including 1.1.1 (Non-text Content), 1.3.1 (Info and Relationships), 2.4.2 (Page Titled)",
+    "Specific barriers noted in keyboard navigation, focus visibility, and screen reader compatibility",
+    "Documented contrast failures affecting readability",
+    "Issues with reflow and text spacing at small viewport sizes"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard navigation issues preventing full interaction with UI components",
+    "Screen reader compatibility problems with labels, focus order, and status updates",
+    "Insufficient color contrast causing readability issues for users with low vision",
+    "Content reflow problems at small screen sizes affecting usability",
+    "Missing or incorrect alternative text for images and non-text content"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not specified",
+    "Evaluation date is listed as January 27th 2026 (future date, possibly a placeholder)",
+    "Testing scope is not clearly defined beyond browser/screen reader combinations",
+    "No remediation roadmap or timeline provided for identified issues",
+    "No mention of testing with additional assistive technologies beyond JAWS"
+  ],
+  "recommendation": "This software should not be deployed until a comprehensive accessibility remediation plan is developed and implemented. A formal accessibility action plan must address all Level AA barriers and ensure full compliance with WCAG 2.1 AA and Section 508 requirements.",
+  "next_steps": [
+    "Develop a detailed accessibility remediation roadmap",
+    "Conduct additional testing with multiple assistive technologies",
+    "Implement fixes for keyboard navigation barriers",
+    "Address all contrast and reflow issues",
+    "Provide clear documentation of testing methodology and scope",
+    "Establish a timeline for remediation completion"
+  ],
+  "needs_human_review": true
+}
