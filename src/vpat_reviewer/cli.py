@@ -126,7 +126,13 @@ def _cmd_review(args: argparse.Namespace) -> int:
         print("Nothing to report — no criteria were parsed.", file=sys.stderr)
         return EXIT_UNPARSEABLE
     output = args.output or _default_output(args.input)
-    service.render_result(result, output, logo_path=args.logo or "")
+    # --style overrides the saved setting for this run only; it is layered onto a
+    # copy of the settings so nothing is written back to settings.json.
+    render_settings = None
+    if args.style:
+        render_settings = dict(settings.load_settings())
+        render_settings["report_style"] = args.style.replace("-", "_")
+    service.render_result(result, output, logo_path=args.logo or "", settings=render_settings)
     if not args.no_json:
         service.write_json(result, args.json_out or str(Path(output).with_suffix(".json")))
     _emit(result, args.json)
@@ -224,6 +230,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_review.add_argument(
         "--no-json", action="store_true", help="Do not write the JSON record beside the report."
+    )
+    p_review.add_argument(
+        "--style",
+        choices=["full", "one-page"],
+        help="Report style for this run, overriding the saved report_style setting.",
     )
     _add_impact_flags(p_review)
     p_review.set_defaults(func=_cmd_review)

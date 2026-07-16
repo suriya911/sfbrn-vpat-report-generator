@@ -40,6 +40,9 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     "threshold": 90,
     "logo_path": "",
     "report_title": "VPAT Accessibility Compliance — Summary Report",
+    # Which renderer Generate Report uses: "full" (~26 pages of evidence) or
+    # "one_page" (the decision sheet). See reporting.renderer_for.
+    "report_style": "full",
     # Amazon Bedrock AI review (outer adapter). On by default: the shipped app
     # asks Bedrock for the verdict. use_ai=False falls back to the deterministic
     # classifier and keeps the app fully offline. Env vars override these at

@@ -32,7 +32,7 @@ from vpat_reviewer.domain.models import VPATCriterion, VPATDocument
 from vpat_reviewer.domain.policy import GradingPolicy
 from vpat_reviewer.domain.scoring import ScoreInfo, compliance_score, get_barriers
 from vpat_reviewer.parsing import parse_vpat
-from vpat_reviewer.reporting import ReportInputs, ReportLabRenderer, ReportRenderer
+from vpat_reviewer.reporting import ReportInputs, ReportRenderer, renderer_for
 
 
 @dataclass
@@ -45,6 +45,13 @@ class ReviewResult:
     output_path: str | None = None
     json_path: str | None = None
     assessment: RiskAssessment | None = None
+    #: The verdict and action as plain strings, for renderers. Deliberately not
+    #: the RiskAssessment itself: reporting/ must not depend on ai/, and the
+    #: verdict may equally come from the offline classifier. Set by the caller
+    #: that decides it, so a plain CLI analyze leaves these empty and any
+    #: renderer showing them must handle "".
+    verdict: str = ""
+    recommendation: str = ""
 
     @property
     def warnings(self) -> list[str]:
@@ -84,7 +91,8 @@ def render_result(
     """Render an existing analysis to a report file."""
     if settings is None:
         settings = settings_store.load_settings()
-    renderer = renderer or ReportLabRenderer()
+    # An explicit renderer wins; otherwise honor the user's report_style.
+    renderer = renderer or renderer_for(settings)
     inputs = ReportInputs(
         document=result.document,
         score=dict(result.score),
@@ -92,6 +100,8 @@ def render_result(
         answers=result.answers,
         logo_path=logo_path,
         settings=settings,
+        verdict=result.verdict,
+        recommendation=result.recommendation,
     )
     renderer.render(inputs, output_path)
     result.output_path = output_path
