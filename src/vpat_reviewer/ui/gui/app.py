@@ -595,26 +595,23 @@ class VPATReviewerApp(tk.Tk):
             pass
 
     def _build_workflow(self, parent):
-        # Pin the Generate action to the bottom so the primary button (and status)
-        # is always visible — even on short/laptop screens — instead of falling
-        # below the fold. Only the Upload + Questions cards scroll, and only when
-        # they overflow (auto-hiding bar). Mirrors the summary panel's layout.
-        pin = tk.Frame(parent, bg=BG_APP)
-        pin.pack(side="bottom", fill="x")
-        self._card(pin, 3, "Generate Report", self._build_generate_card).pack(
-            fill="x", padx=20, pady=(6, 14)
-        )
-
-        canvas, body = self._scrollable(parent, bg=BG_APP)
+        # The workflow is STATIC — the three cards never scroll; they stay put
+        # with even spacing between them. (No canvas/scrollbar here, so the mouse
+        # wheel does nothing over the left pane; only the right summary scrolls.)
+        body = tk.Frame(parent, bg=BG_APP)
+        body.pack(side="top", fill="both", expand=True)
         self.body = body
-        pad = {"padx": 20, "pady": (10, 2)}
 
-        self._card(body, 1, "Upload VPAT Document", self._build_upload_card).pack(fill="x", **pad)
-        self._card(body, 2, "Impact Assessment Questions", self._build_questions_card).pack(
-            fill="x", **pad
+        # Equal 16px gaps: top of card1, between each pair, matched top+bottom.
+        self._card(body, 1, "Upload VPAT Document", self._build_upload_card).pack(
+            fill="x", padx=20, pady=(16, 8)
         )
-        # Trailing spacer so the last scrolling card isn't flush against the pin.
-        tk.Frame(body, bg=BG_APP, height=8).pack(fill="x")
+        self._card(body, 2, "Impact Assessment Questions", self._build_questions_card).pack(
+            fill="x", padx=20, pady=8
+        )
+        self._card(body, 3, "Generate Report", self._build_generate_card).pack(
+            fill="x", padx=20, pady=8
+        )
 
     def _card(self, parent, num, title: str, builder_fn) -> tk.Frame:
         """A modern white card: hairline border, number chip + title header."""
@@ -1244,13 +1241,9 @@ class VPATReviewerApp(tk.Tk):
                     "# Prompt sent to Amazon Bedrock\n" + header + prompt_text,
                     encoding="utf-8",
                 )
-            if response_text:
-                (responses_dir / f"{stem}.txt").write_text(
-                    "# Response from Amazon Bedrock\n" + header + response_text,
-                    encoding="utf-8",
-                )
 
-            # Parsed sidecar for quick verification (verdict/impact at a glance).
+            # Single response file: metadata + parsed fields + the raw reply, all
+            # in one JSON (no separate .txt, so nothing is written twice).
             record = {
                 "timestamp": stamp,
                 "model_id": model,
@@ -1268,6 +1261,7 @@ class VPATReviewerApp(tk.Tk):
                         "recommendations": ai.recommendations,
                     }
                 )
+            record["raw_response"] = response_text
             (responses_dir / f"{stem}.json").write_text(
                 json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
             )
