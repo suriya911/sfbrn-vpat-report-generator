@@ -14,6 +14,7 @@ from tkinter import messagebox
 from vpat_reviewer.config import policy_form, settings
 from vpat_reviewer.domain.normalization import CANONICAL_STATUSES
 from vpat_reviewer.domain.policy import GradingPolicy
+from vpat_reviewer.ui.gui.widgets import make_scrollable, size_scrollable_dialog
 
 
 class GradingPolicyDialog(tk.Toplevel):
@@ -22,7 +23,7 @@ class GradingPolicyDialog(tk.Toplevel):
     def __init__(self, parent: tk.Misc) -> None:
         super().__init__(parent)
         self.title("Edit Grading Policy")
-        self.resizable(False, False)
+        self.resizable(True, True)
         self.transient(parent)  # type: ignore[arg-type]
         self.grab_set()
         self._policy = settings.load_policy()
@@ -30,36 +31,55 @@ class GradingPolicyDialog(tk.Toplevel):
 
     def _build(self) -> None:
         pad = {"padx": 8, "pady": 3}
+
+        # Pinned footer: pack first with side="bottom" so Save / Reset / Close are
+        # never pushed off-screen by the fields above (which now scroll when the
+        # dialog is taller than the screen, e.g. under display scaling or zoom).
+        footer = tk.Frame(self)
+        footer.pack(side="bottom", fill="x")
+        btns = tk.Frame(footer)
+        btns.pack(pady=10)
+        tk.Button(btns, text="Save", command=self._save).pack(side="left", padx=6)
+        tk.Button(btns, text="Reset to Defaults", command=self._reset).pack(side="left", padx=6)
+        tk.Button(btns, text="Close", command=self.destroy).pack(side="left", padx=6)
+
+        # Scrollable field area above the footer. Register the canvas in the main
+        # window's wheel-scroll set so the mouse wheel scrolls it too.
+        canvases = getattr(self._root(), "_canvases", set())
+        canvas, body = make_scrollable(self, canvases, bg=str(self.cget("bg")))
+
         row = 0
         tk.Label(
-            self,
+            body,
             text="How VPATs are graded. Saved to settings and used by new reports.",
             wraplength=470,
             justify="left",
         ).grid(row=row, column=0, columnspan=3, **pad)
         row += 1
 
-        tk.Label(self, text="WCAG level graded:").grid(row=row, column=0, sticky="e", **pad)
+        tk.Label(body, text="WCAG level graded:").grid(row=row, column=0, sticky="e", **pad)
         self._level = tk.StringVar(value=self._policy.graded_level)
-        tk.OptionMenu(self, self._level, "A", "AA").grid(row=row, column=1, sticky="w", **pad)
+        tk.OptionMenu(body, self._level, "A", "AA").grid(row=row, column=1, sticky="w", **pad)
         row += 1
 
-        tk.Label(self, text="Compliance threshold (%):").grid(row=row, column=0, sticky="e", **pad)
+        tk.Label(body, text="Compliance threshold (%):").grid(row=row, column=0, sticky="e", **pad)
         self._threshold = tk.StringVar(value=str(self._policy.compliance_threshold))
-        tk.Entry(self, textvariable=self._threshold, width=8).grid(
+        tk.Entry(body, textvariable=self._threshold, width=8).grid(
             row=row, column=1, sticky="w", **pad
         )
         row += 1
 
-        self._supported = self._status_checkboxes(row, "Count as a pass:", self._policy.supported_statuses)
+        self._supported = self._status_checkboxes(
+            body, row, "Count as a pass:", self._policy.supported_statuses
+        )
         row += 1
         self._excluded = self._status_checkboxes(
-            row, "Excluded from denominator:", self._policy.excluded_statuses
+            body, row, "Excluded from denominator:", self._policy.excluded_statuses
         )
         row += 1
 
-        tk.Label(self, text="Score bands (min / label):").grid(row=row, column=0, sticky="ne", **pad)
-        band_frame = tk.Frame(self)
+        tk.Label(body, text="Score bands (min / label):").grid(row=row, column=0, sticky="ne", **pad)
+        band_frame = tk.Frame(body)
         band_frame.grid(row=row, column=1, columnspan=2, sticky="w", **pad)
         self._bands: list[tuple[tk.StringVar, tk.StringVar, str]] = []
         for b in self._policy.score_bands:
@@ -70,19 +90,14 @@ class GradingPolicyDialog(tk.Toplevel):
             tk.Entry(fr, textvariable=mn, width=5).pack(side="left")
             tk.Entry(fr, textvariable=lbl, width=24).pack(side="left", padx=4)
             self._bands.append((mn, lbl, b.message))
-        row += 1
 
-        btns = tk.Frame(self)
-        btns.grid(row=row, column=0, columnspan=3, pady=10)
-        tk.Button(btns, text="Save", command=self._save).pack(side="left", padx=6)
-        tk.Button(btns, text="Reset to Defaults", command=self._reset).pack(side="left", padx=6)
-        tk.Button(btns, text="Close", command=self.destroy).pack(side="left", padx=6)
+        size_scrollable_dialog(self, canvas, body, footer)
 
     def _status_checkboxes(
-        self, row: int, label: str, selected: tuple[str, ...]
+        self, parent: tk.Misc, row: int, label: str, selected: tuple[str, ...]
     ) -> dict[str, tk.BooleanVar]:
-        tk.Label(self, text=label).grid(row=row, column=0, sticky="ne", padx=8, pady=3)
-        frame = tk.Frame(self)
+        tk.Label(parent, text=label).grid(row=row, column=0, sticky="ne", padx=8, pady=3)
+        frame = tk.Frame(parent)
         frame.grid(row=row, column=1, columnspan=2, sticky="w", padx=8, pady=3)
         vars_: dict[str, tk.BooleanVar] = {}
         for status in CANONICAL_STATUSES:

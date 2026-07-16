@@ -1,12 +1,18 @@
 """Status normalization — maps the many ways vendors phrase a conformance
 status onto the five canonical statuses used throughout the app.
 
-Relocated verbatim from the v10 parser; behavior is unchanged. The map is data,
-so new vendor phrasings are added here (or, later, via settings) rather than by
-editing branching logic.
+The map is data, so new vendor phrasings are added here (or, later, via
+settings) rather than by editing branching logic.
+
+Some vendors (Google's ACRs) answer a criterion once per reporting target:
+"Web: Partially Supports" and "Authoring Tool: Supports" in the same cell.
+``split_components`` recognizes that shape, and ``normalize_status`` folds it
+to a single canonical status by worst-wins (see ``_SEVERITY``).
 """
 
 from __future__ import annotations
+
+import re
 
 # Canonical statuses the rest of the system reasons about.
 SUPPORTS = "Supports"
@@ -64,6 +70,63 @@ _STATUS_MAP: dict[str, str] = {
 }
 
 
+# The reporting targets the ITI VPAT template answers per criterion. This is a
+# deliberately CLOSED list: segmentation only ever fires on these names, so a
+# remarks sentence that happens to contain a colon ("Clarification: ...") can
+# never be read as a conformance value. Multi-word names come first so the
+# alternation prefers "Support Docs" over a shorter accidental match.
+_COMPONENT_NAMES = (
+    "Authoring Tool",
+    "Electronic Docs",
+    "Support Docs",
+    "Product Docs",
+    "Documentation",
+    "Docs",
+    "Web",
+    "Software",
+    "Hardware",
+    "Open",
+    "Closed",
+    "Both",
+)
+
+# One component prefix, e.g. "Web:", "Authoring Tool:", "Web (partial):".
+COMPONENT_PREFIX_PATTERN = (
+    r"(?:" + "|".join(name.replace(" ", r"\s*") for name in _COMPONENT_NAMES) + r")"
+    r"(?:\s*\([^)]*\))?\s*:\s*"
+)
+_COMPONENT_SPLIT_RE = re.compile(r"\b" + COMPONENT_PREFIX_PATTERN, re.IGNORECASE)
+
+# Worst-wins severity, ascending. Not Evaluated outranks Supports: a component
+# whose conformance is unknown means the row cannot honestly claim "Supports".
+# Not Applicable ranks lowest: it is excluded from grading because the feature
+# is absent, a rationale that stops applying the moment another component
+# answers -- so a mixed NA row takes the answering component's status.
+_SEVERITY = (
+    NOT_APPLICABLE,
+    SUPPORTS,
+    NOT_EVALUATED,
+    PARTIALLY_SUPPORTS,
+    DOES_NOT_SUPPORT,
+)
+
+
+def split_components(raw: str) -> list[str] | None:
+    """Split a multi-component status into its per-component answers.
+
+    "Web: Partially Supports Authoring Tool: Supports" ->
+    ["Partially Supports", "Supports"]. Returns ``None`` unless the string
+    *starts* with a known component prefix and contains at least two of them —
+    single-prefix values ("Web: Supports") keep their existing handling.
+    """
+    text = raw.strip()
+    marks = list(_COMPONENT_SPLIT_RE.finditer(text))
+    if len(marks) < 2 or marks[0].start() != 0:
+        return None
+    ends = [m.start() for m in marks[1:]] + [len(text)]
+    return [text[m.end() : end].strip() for m, end in zip(marks, ends, strict=True)]
+
+
 def normalize_status(raw: str) -> str:
     """Normalize a raw vendor status string to one of ``CANONICAL_STATUSES``.
 
@@ -73,6 +136,23 @@ def normalize_status(raw: str) -> str:
     """
     if not raw:
         return "Not Evaluated"
+
+    # Multi-component answers fold to worst-wins -- but only when every
+    # segment is a status we recognize exactly. One unreadable segment sends
+    # the whole string to the fuzzy path below, which can never do worse than
+    # "Not Evaluated".
+    segments = split_components(raw)
+    if segments is not None:
+        statuses: list[str] = []
+        for segment in segments:
+            hit = _STATUS_MAP.get(segment.strip().lower())
+            if hit is None:
+                statuses = []
+                break
+            statuses.append(hit)
+        if statuses:
+            return max(statuses, key=_SEVERITY.index)
+
     c = raw.strip().lower()
     if c in _STATUS_MAP:
         return _STATUS_MAP[c]

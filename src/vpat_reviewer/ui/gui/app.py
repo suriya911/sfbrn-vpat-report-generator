@@ -8,6 +8,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import threading
 import tkinter as tk
 from datetime import date, datetime
@@ -30,6 +31,7 @@ from vpat_reviewer.parsing import parse_vpat
 from vpat_reviewer.reporting import ReportInputs, renderer_for
 from vpat_reviewer.service import ReviewResult, assess_result, build_assessment_request
 from vpat_reviewer.ui.gui.policy_dialog import GradingPolicyDialog
+from vpat_reviewer.ui.gui.widgets import make_scrollable, size_scrollable_dialog, work_area
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -213,12 +215,61 @@ class SettingsDialog(tk.Toplevel):
         super().__init__(parent)
         self.title("VPAT Reviewer — Setup" if first_run else "Settings")
         self.configure(bg=BG_CARD)
-        self.resizable(False, False)
+        self.resizable(True, True)
         self.transient(parent)
         self.grab_set()
         self.saved = False
 
         current = settings_manager.load_settings()
+
+        # Pinned footer: pack first with side="bottom" so the action buttons
+        # always reserve their space and are never pushed off-screen by the
+        # fields above (which now scroll on a short or scaled display).
+        btn_row = tk.Frame(self, bg=BG_CARD)
+        btn_row.pack(side="bottom", fill="x")
+        btns = tk.Frame(btn_row, bg=BG_CARD)
+        btns.pack(pady=12)
+        tk.Button(
+            btns,
+            text="Save Settings",
+            font=(FONT, 9, "bold"),
+            bg=C_BTN_PRI,
+            fg=FG_WHITE,
+            relief="flat",
+            padx=16,
+            pady=6,
+            cursor="hand2",
+            command=self._save,
+        ).pack(side="left", padx=6)
+        tk.Button(
+            btns,
+            text="Grading Policy…",
+            font=(FONT, 9),
+            bg=BG_SECTION,
+            fg=FG_NAVY,
+            relief="flat",
+            padx=16,
+            pady=6,
+            cursor="hand2",
+            command=self._open_grading,
+        ).pack(side="left", padx=6)
+        if not first_run:
+            tk.Button(
+                btns,
+                text="Cancel",
+                font=(FONT, 9),
+                bg=BG_SECTION,
+                fg=FG_NAVY,
+                relief="flat",
+                padx=16,
+                pady=6,
+                cursor="hand2",
+                command=self.destroy,
+            ).pack(side="left", padx=6)
+
+        # Scrollable field area above the footer.
+        canvas, body = make_scrollable(self, getattr(self._root(), "_canvases", set()), bg=BG_CARD)
+
         intro = (
             "Welcome! Answer a few questions so your reports show the "
             "right organization and reviewer. You can change these any "
@@ -227,7 +278,7 @@ class SettingsDialog(tk.Toplevel):
             else "Update the reviewer and organization details used on generated reports."
         )
         tk.Label(
-            self,
+            body,
             text=intro,
             font=(FONT, 9),
             bg=BG_CARD,
@@ -239,11 +290,11 @@ class SettingsDialog(tk.Toplevel):
         self._vars = {}
         row = 1
         for key, label in settings_manager.FIELD_LABELS:
-            tk.Label(self, text=label + ":", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY).grid(
+            tk.Label(body, text=label + ":", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY).grid(
                 row=row, column=0, padx=(16, 6), pady=4, sticky="e"
             )
             var = tk.StringVar(value=str(current.get(key, "")))
-            tk.Entry(self, textvariable=var, font=(FONT, 9), width=38).grid(
+            tk.Entry(body, textvariable=var, font=(FONT, 9), width=38).grid(
                 row=row, column=1, padx=(0, 16), pady=4, sticky="w"
             )
             self._vars[key] = var
@@ -252,9 +303,9 @@ class SettingsDialog(tk.Toplevel):
         # Report style. Not in FIELD_LABELS: that drives free-text entries, and
         # this is a closed choice of two renderers (see reporting.renderer_for).
         tk.Label(
-            self, text="Report style:", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY
+            body, text="Report style:", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY
         ).grid(row=row, column=0, padx=(16, 6), pady=4, sticky="ne")
-        style_row = tk.Frame(self, bg=BG_CARD)
+        style_row = tk.Frame(body, bg=BG_CARD)
         style_row.grid(row=row, column=1, padx=(0, 16), pady=4, sticky="w")
         self._vars["report_style"] = tk.StringVar(
             value=str(current.get("report_style", "full") or "full")
@@ -280,9 +331,9 @@ class SettingsDialog(tk.Toplevel):
 
         # Optional custom logo
         tk.Label(
-            self, text="Custom logo (optional):", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY
+            body, text="Custom logo (optional):", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY
         ).grid(row=row, column=0, padx=(16, 6), pady=4, sticky="e")
-        logo_row = tk.Frame(self, bg=BG_CARD)
+        logo_row = tk.Frame(body, bg=BG_CARD)
         logo_row.grid(row=row, column=1, padx=(0, 16), pady=4, sticky="w")
         self._vars["logo_path"] = tk.StringVar(value=str(current.get("logo_path", "")))
         tk.Entry(logo_row, textvariable=self._vars["logo_path"], font=(FONT, 8), width=28).pack(
@@ -293,53 +344,14 @@ class SettingsDialog(tk.Toplevel):
         ).pack(side="left", padx=4)
         row += 1
         tk.Label(
-            self,
+            body,
             text="Leave logo blank to use the bundled default.",
             font=(FONT, 8),
             bg=BG_CARD,
             fg=FG_CAPTION,
         ).grid(row=row, column=1, padx=(0, 16), sticky="w")
-        row += 1
 
-        btn_row = tk.Frame(self, bg=BG_CARD)
-        btn_row.grid(row=row, column=0, columnspan=2, pady=(12, 14))
-        tk.Button(
-            btn_row,
-            text="Save Settings",
-            font=(FONT, 9, "bold"),
-            bg=C_BTN_PRI,
-            fg=FG_WHITE,
-            relief="flat",
-            padx=16,
-            pady=6,
-            cursor="hand2",
-            command=self._save,
-        ).pack(side="left", padx=6)
-        tk.Button(
-            btn_row,
-            text="Grading Policy…",
-            font=(FONT, 9),
-            bg=BG_SECTION,
-            fg=FG_NAVY,
-            relief="flat",
-            padx=16,
-            pady=6,
-            cursor="hand2",
-            command=self._open_grading,
-        ).pack(side="left", padx=6)
-        if not first_run:
-            tk.Button(
-                btn_row,
-                text="Cancel",
-                font=(FONT, 9),
-                bg=BG_SECTION,
-                fg=FG_NAVY,
-                relief="flat",
-                padx=16,
-                pady=6,
-                cursor="hand2",
-                command=self.destroy,
-            ).pack(side="left", padx=6)
+        size_scrollable_dialog(self, canvas, body, btn_row)
 
     def _open_grading(self):
         """Open the editable grading-policy editor (score bands, thresholds, statuses)."""
@@ -384,14 +396,22 @@ class VPATReviewerApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("SFBRN VPAT Reviewer")
-        self.geometry("1460x1000")
-        self.minsize(1120, 740)
         self.configure(bg=BG_APP)
         self.resizable(True, True)
 
-        # UI-zoom (scalable): multiplies Tk's point→pixel scaling.
-        self._base_scaling = float(self.tk.call("tk", "scaling"))
-        self._zoom = 1.0
+        # Match Tk's point→pixel scaling to the real monitor DPI so text is crisp
+        # and correctly sized once the process is DPI-aware (see
+        # _enable_dpi_awareness in main()). `tk scaling` is an absolute factor,
+        # so setting it explicitly is deterministic regardless of Tk's own guess.
+        dpi = self.winfo_fpixels("1i")
+        self._dpi_scale = dpi / 96.0  # OS scale factor: 1.0 @100%, 1.5 @150%, …
+        self.tk.call("tk", "scaling", dpi / 72.0)
+
+        # Fit the window to the actual usable screen and set a floor that never
+        # exceeds it. This is the root-cause fix for buttons being cut off: the
+        # old fixed 1460×1000 / minsize 1120×740 overflowed scaled displays (and
+        # a 1366×768 laptop couldn't even hold the 740px minimum at 100%).
+        self._fit_to_work_area()
 
         # State
         self.vpat_path = tk.StringVar(value="")
@@ -421,7 +441,7 @@ class VPATReviewerApp(tk.Tk):
         self._init_style()
         self._build_ui()
         self._ensure_dirs()
-        self._bind_shortcuts()
+        self._bind_scroll()
 
         if first_run:
             self.after(200, self._first_run_setup)
@@ -494,20 +514,44 @@ class VPATReviewerApp(tk.Tk):
             self.ai_responses_dir = Path(".")
             self.category_dirs = _ensure_category_dirs(self.reports_dir)
 
-    # ── Zoom / scalability ───────────────────────────────────────────────────────
+    # ── Display sizing / DPI ─────────────────────────────────────────────────────
 
-    def _bind_shortcuts(self):
-        self.bind("<Control-plus>", lambda e: self._set_zoom(self._zoom + 0.1))
-        self.bind("<Control-equal>", lambda e: self._set_zoom(self._zoom + 0.1))
-        self.bind("<Control-minus>", lambda e: self._set_zoom(self._zoom - 0.1))
-        self.bind("<Control-0>", lambda e: self._set_zoom(1.0))
+    def _px(self, n: int) -> int:
+        """Scale a raw-pixel dimension by the display's DPI factor.
+
+        Point-sized fonts grow with `tk scaling`, but frames sized in raw pixels
+        (with `pack_propagate(False)`) do not — so without this they'd clip the
+        larger text on a scaled display. Use it for those fixed-height frames.
+        """
+        return int(round(n * self._dpi_scale))
+
+    def _fit_to_work_area(self) -> None:
+        """Size and centre the window within the usable screen (taskbar excluded).
+
+        Scales the base size by the DPI factor so it keeps its logical size on a
+        high-DPI display, then clamps both the size and the minimum to the work
+        area — so the window never exceeds the screen and can always be shrunk to
+        fit, with the scroll regions handling anything that no longer fits.
+        """
+        left, top, area_w, area_h = work_area(self, margin=self._px(48))
+
+        w = min(int(1460 * self._dpi_scale), area_w)
+        h = min(int(1000 * self._dpi_scale), area_h)
+        # The minimum is deliberately NOT scaled up: with the panes and dialogs
+        # now scrollable, a modest floor lets the window shrink to fit small or
+        # heavily scaled screens. Clamp so it can never exceed the work area.
+        self.minsize(min(1120, area_w), min(740, area_h))
+
+        x = left + max(0, (area_w - w) // 2)
+        y = top + max(0, (area_h - h) // 2)
+        self.geometry(f"{w}x{h}+{x}+{y}")
+
+    # ── Mouse-wheel scrolling ────────────────────────────────────────────────────
+
+    def _bind_scroll(self):
+        # One interpreter-global binding scrolls whichever registered canvas the
+        # pointer is over (the workflow pane, the summary list, and the dialogs).
         self.bind_all("<MouseWheel>", self._on_wheel)
-
-    def _set_zoom(self, factor: float):
-        self._zoom = max(0.7, min(1.8, round(factor, 2)))
-        self.tk.call("tk", "scaling", self._base_scaling * self._zoom)
-        if hasattr(self, "lbl_zoom"):
-            self.lbl_zoom.config(text=f"{int(self._zoom * 100)}%")
 
     def _on_wheel(self, event):
         # Scroll whichever managed canvas the pointer is over. Walk up from the
@@ -522,32 +566,10 @@ class VPATReviewerApp(tk.Tk):
     def _scrollable(self, parent, bg=BG_APP):
         """A vertically scrollable region: returns (canvas, inner_frame).
 
-        The scrollbar auto-hides — it only appears when the content is taller
-        than the viewport, so a panel that fits shows no scrollbar at all.
+        Thin wrapper over the shared ``make_scrollable`` (also used by the
+        dialogs) that registers the canvas in this window's wheel-scroll set.
         """
-        canvas = tk.Canvas(parent, bg=bg, highlightthickness=0)
-        vsb = ttk.Scrollbar(
-            parent, orient="vertical", command=canvas.yview, style="Slim.Vertical.TScrollbar"
-        )
-        canvas.pack(side="left", fill="both", expand=True)
-
-        def _autohide(first, last):
-            # Content fits when the whole 0..1 range is visible → hide the bar.
-            if float(first) <= 0.0 and float(last) >= 1.0:
-                if vsb.winfo_ismapped():
-                    vsb.pack_forget()
-            elif not vsb.winfo_ismapped():
-                vsb.pack(side="right", fill="y", before=canvas)
-            vsb.set(first, last)
-
-        canvas.configure(yscrollcommand=_autohide)
-
-        inner = tk.Frame(canvas, bg=bg)
-        win = canvas.create_window((0, 0), window=inner, anchor="nw")
-        inner.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.bind("<Configure>", lambda e: canvas.itemconfig(win, width=e.width))
-        self._canvases.add(canvas)
-        return canvas, inner
+        return make_scrollable(parent, self._canvases, bg)
 
     # ── UI construction ────────────────────────────────────────────────────────
 
@@ -556,7 +578,7 @@ class VPATReviewerApp(tk.Tk):
         self._build_body()
 
     def _build_header(self):
-        hdr = tk.Frame(self, bg=BG_HEADER, height=66)
+        hdr = tk.Frame(self, bg=BG_HEADER, height=self._px(66))
         hdr.pack(fill="x")
         hdr.pack_propagate(False)
 
@@ -586,10 +608,6 @@ class VPATReviewerApp(tk.Tk):
         self._hdr_btn(hdr, "Open Reports Folder", self._open_reports_folder).pack(
             side="right", padx=4, pady=16
         )
-
-        # Zoom readout (Ctrl +/- / 0)
-        self.lbl_zoom = tk.Label(hdr, text="100%", font=(FONT, 8), bg=BG_HEADER, fg="#6f93b5")
-        self.lbl_zoom.pack(side="right", padx=(4, 8), pady=20)
 
         # Thin accent underline for a crisper edge.
         tk.Frame(self, bg=ACCENT, height=2).pack(fill="x")
@@ -640,17 +658,20 @@ class VPATReviewerApp(tk.Tk):
 
     def _init_sash(self, paned):
         try:
+            # Flush the fit-to-screen geometry first so winfo_width() reflects the
+            # real window size before we place the sash at ~62% of it.
+            self.update_idletasks()
             paned.sash_place(0, int(self.winfo_width() * 0.62), 1)
         except Exception:
             pass
 
     def _build_workflow(self, parent):
-        # The workflow is STATIC — the three cards never scroll; they stay put
-        # with even spacing between them. (No canvas/scrollbar here, so the mouse
-        # wheel does nothing over the left pane; only the right summary scrolls.)
-        body = tk.Frame(parent, bg=BG_APP)
-        body.pack(side="top", fill="both", expand=True)
-        self.body = body
+        # The three workflow cards live in a vertically scrollable region so the
+        # bottom "Generate Report" / "Save Report As…" buttons stay reachable even
+        # when the window is short or zoomed in. The scrollbar auto-hides when the
+        # cards fit, so on a normal-sized window this looks exactly as before and
+        # the mouse wheel simply does nothing until there's overflow to scroll.
+        _canvas, body = self._scrollable(parent, bg=BG_APP)
 
         # Equal 16px gaps: top of card1, between each pair, matched top+bottom.
         self._card(body, 1, "Upload VPAT Document", self._build_upload_card).pack(
@@ -688,7 +709,7 @@ class VPATReviewerApp(tk.Tk):
 
     def _build_upload_card(self, parent):
         drop = tk.Frame(
-            parent, bg=BG_SECTION, height=88, highlightbackground=BORDER, highlightthickness=1
+            parent, bg=BG_SECTION, height=self._px(88), highlightbackground=BORDER, highlightthickness=1
         )
         drop.pack(fill="x", padx=18, pady=(14, 8))
         drop.pack_propagate(False)
@@ -878,7 +899,7 @@ class VPATReviewerApp(tk.Tk):
     # ── Summary side panel ───────────────────────────────────────────────────────
 
     def _build_summary_panel(self, parent):
-        bar = tk.Frame(parent, bg=BG_HEADER, height=40)
+        bar = tk.Frame(parent, bg=BG_HEADER, height=self._px(40))
         bar.pack(fill="x")
         bar.pack_propagate(False)
         tk.Label(
@@ -889,39 +910,28 @@ class VPATReviewerApp(tk.Tk):
         holder = tk.Frame(parent, bg=BG_PANEL)
         holder.pack(fill="both", expand=True)
 
-        # Three regions: fixed top + fixed bottom pin; only the barrier list
-        # (middle) scrolls. Pack bottom first so it always reserves its space.
+        # The action buttons (and any TAAP/Deny notice) pin to the bottom — pack
+        # them first with side="bottom" so they always reserve their space. All
+        # the summary content — verdict, tiles, facts, score message, and the
+        # barrier list — lives in one scroll region above, so nothing is ever cut
+        # off on a short or scaled window. The scrollbar auto-hides when it fits.
         self.sum_bottom = tk.Frame(holder, bg=BG_PANEL)
         self.sum_bottom.pack(side="bottom", fill="x")
-        self.sum_top = tk.Frame(holder, bg=BG_PANEL)
-        self.sum_top.pack(side="top", fill="x")
-
-        self.sum_mid = tk.Frame(holder, bg=BG_PANEL)
-        self.sum_mid.pack(side="top", fill="both", expand=True)
-        self.bar_heading = tk.Label(
-            self.sum_mid, text="", font=(FONT, 8, "bold"), bg=BG_PANEL, fg=FG_CAPTION, anchor="w"
-        )
-        self.bar_heading.pack(fill="x", padx=18, pady=(6, 2))
-        # Canvas (panel-coloured) fills the region; the white card lives *inside*
-        # the scroll area sized to its content. Few barriers → the card hugs them
-        # and the rest is plain panel (no empty white box, no scrollbar). Many
-        # barriers → the card is taller than the viewport → it scrolls and the
-        # auto-hide scrollbar appears.
-        self.bar_canvas, scroll_inner = self._scrollable(self.sum_mid, bg=BG_PANEL)
-        self.bar_list = tk.Frame(
-            scroll_inner, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
-        )
-        self.bar_list.pack(fill="x", padx=16, pady=(0, 10), anchor="n")
+        self.sum_canvas, self.sum_content = self._scrollable(holder, bg=BG_PANEL)
 
         self._render_summary_placeholder()
 
-    def _render_summary_placeholder(self):
-        for region in (self.sum_top, self.sum_bottom, self.bar_list):
+    def _clear_summary(self):
+        """Empty the scroll content and the pinned footer, and reset the scroll
+        position, before rendering a fresh summary or the placeholder."""
+        for region in (self.sum_content, self.sum_bottom):
             for w in region.winfo_children():
                 w.destroy()
-        self.bar_heading.config(text="")
-        self.bar_list.pack_forget()  # no empty card before the first review
-        wrap = tk.Frame(self.sum_top, bg=BG_PANEL)
+        self.sum_canvas.yview_moveto(0)
+
+    def _render_summary_placeholder(self):
+        self._clear_summary()
+        wrap = tk.Frame(self.sum_content, bg=BG_PANEL)
         wrap.pack(fill="x", padx=20, pady=26)
         tk.Label(wrap, text="\U0001f4cb", font=(FONT, 32), bg=BG_PANEL, fg="#9fb3c8").pack(
             pady=(0, 10)
@@ -942,9 +952,9 @@ class VPATReviewerApp(tk.Tk):
         ).pack(pady=(6, 18))
 
         legend = tk.Frame(
-            self.sum_top, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
+            self.sum_content, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
         )
-        legend.pack(fill="x", padx=16)
+        legend.pack(fill="x", padx=16, pady=(0, 16))
         tk.Label(
             legend, text="VERDICT CATEGORIES", font=(FONT, 8, "bold"), bg=BG_CARD, fg=FG_CAPTION
         ).pack(anchor="w", padx=12, pady=(10, 4))
@@ -989,10 +999,7 @@ class VPATReviewerApp(tk.Tk):
         return "Deterministic rules"
 
     def _populate_summary(self):
-        for region in (self.sum_top, self.sum_bottom, self.bar_list):
-            for w in region.winfo_children():
-                w.destroy()
-        self.bar_canvas.yview_moveto(0)
+        self._clear_summary()
 
         data = self.vpat_data
         score = self.score_info.get("score")
@@ -1003,8 +1010,8 @@ class VPATReviewerApp(tk.Tk):
             self.category, CATEGORY_META["Needs Manual Review"]
         )
 
-        # (1) Verdict banner  (fixed — top region)
-        banner = tk.Frame(self.sum_top, bg=color)
+        # (1) Verdict banner
+        banner = tk.Frame(self.sum_content, bg=color)
         banner.pack(fill="x", padx=16, pady=(16, 10))
         tk.Label(banner, text=glyph, font=(FONT, 24, "bold"), bg=color, fg=FG_WHITE).pack(
             side="left", padx=(14, 8), pady=12
@@ -1030,8 +1037,8 @@ class VPATReviewerApp(tk.Tk):
             anchor="w",
         ).pack(fill="x", pady=(2, 0))
 
-        # (2) Stat tiles  (fixed)
-        tiles = tk.Frame(self.sum_top, bg=BG_PANEL)
+        # (2) Stat tiles
+        tiles = tk.Frame(self.sum_content, bg=BG_PANEL)
         tiles.pack(fill="x", padx=16, pady=(0, 10))
         score_str = f"{score}%" if score is not None else "N/A"
         score_color = C_GREEN if (score or 0) >= 75 else (C_ORANGE if (score or 0) >= 50 else C_RED)
@@ -1044,7 +1051,9 @@ class VPATReviewerApp(tk.Tk):
             for c in data.criteria
             if c.level == "AA" and c.normalized_status not in ("Supports", "Not Applicable")
         ]
-        facts = tk.Frame(self.sum_top, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1)
+        facts = tk.Frame(
+            self.sum_content, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
+        )
         facts.pack(fill="x", padx=16, pady=(0, 10))
         rows = [
             ("Product", data.product_name or "—"),
@@ -1077,7 +1086,7 @@ class VPATReviewerApp(tk.Tk):
         # (4) Score message
         msg = (self.score_info.get("message") or "").strip()
         if msg:
-            mb = tk.Frame(self.sum_top, bg=ACCENT_SFT)
+            mb = tk.Frame(self.sum_content, bg=ACCENT_SFT)
             mb.pack(fill="x", padx=16, pady=(0, 10))
             tk.Label(
                 mb,
@@ -1089,10 +1098,19 @@ class VPATReviewerApp(tk.Tk):
                 justify="left",
             ).pack(anchor="w", padx=12, pady=9)
 
-        # (5) All barriers — the ONLY scrolling region (middle)
-        self.bar_heading.config(text=f"BARRIERS  ({len(aa_barriers)})")
-        self.bar_list.pack(fill="x", padx=16, pady=(0, 10), anchor="n")  # re-show card
-        blist = self.bar_list
+        # (5) All barriers — part of the single scroll column
+        tk.Label(
+            self.sum_content,
+            text=f"BARRIERS  ({len(aa_barriers)})",
+            font=(FONT, 8, "bold"),
+            bg=BG_PANEL,
+            fg=FG_CAPTION,
+            anchor="w",
+        ).pack(fill="x", padx=18, pady=(6, 2))
+        blist = tk.Frame(
+            self.sum_content, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
+        )
+        blist.pack(fill="x", padx=16, pady=(0, 10), anchor="n")
         if not aa_barriers:
             tk.Label(
                 blist, text="No WCAG AA barriers found. ✓", font=(FONT, 9), bg=BG_CARD, fg=C_GREEN
@@ -1555,8 +1573,43 @@ class VPATReviewerApp(tk.Tk):
 # ── Entry point ────────────────────────────────────────────────────────────────
 
 
+def _enable_dpi_awareness() -> None:
+    """Tell Windows this process renders at native pixels, so it stops
+    bitmap-stretching the window on displays scaled above 100% (the cause of the
+    blurry, oversized window whose bottom buttons fall off the screen).
+
+    Must run *before* the first Tk window is created — hence it lives here in
+    ``main()`` and not in ``VPATReviewerApp.__init__`` (``super().__init__()``
+    already builds the root, which is too late). No-op on non-Windows; best-effort
+    on older Windows, trying the newest API first and falling back.
+    """
+    if sys.platform != "win32":
+        return
+    import ctypes
+
+    # Each call raises on an OS too old to have it (AttributeError: symbol
+    # missing) or if awareness was already set, e.g. by a manifest (OSError).
+    try:
+        # Per-Monitor-v2 (Win 10 1607+): crisp, per-monitor DPI. The context value
+        # is pointer-sized, so pass it as c_void_p rather than a truncated int.
+        ctypes.windll.user32.SetProcessDpiAwarenessContext(ctypes.c_void_p(-4))
+        return
+    except (AttributeError, OSError):
+        pass
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)  # per-monitor (Win 8.1+)
+        return
+    except (AttributeError, OSError):
+        pass
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()  # system DPI (Vista+)
+    except (AttributeError, OSError):
+        pass
+
+
 def main() -> None:
     """Launch the desktop GUI."""
+    _enable_dpi_awareness()
     app = VPATReviewerApp()
     app.mainloop()
 

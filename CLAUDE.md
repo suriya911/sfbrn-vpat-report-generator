@@ -206,8 +206,9 @@ Two consequences of that arrow worth knowing before you trip on them:
 │  │  └─ policy_form.py        ← UI-agnostic policy editing + validation ★
 │  │
 │  └─ ui/gui/                  ← Tkinter desktop app (outermost adapter)
-│     ├─ app.py                ← the window, the pipeline, main()
-│     └─ policy_dialog.py      ← the grading-policy editor dialog
+│     ├─ app.py                ← the window, the pipeline, main() (DPI-aware in main())
+│     ├─ policy_dialog.py      ← the grading-policy editor dialog
+│     └─ widgets.py            ← shared DPI/fit/scroll helpers (see §7c)
 │
 ├─ tests/                      ← mirrors the package (see §5)
 │  ├─ unit/  parsing/  reporting/  fixtures/
@@ -423,6 +424,23 @@ from what the corpus reports, not from guesswork.
   *inside* "Not Applicab2le" in iCIMS. `extraction/pdf.py::_overlay_fonts` drops
   it by geometry (overlay text has no horizontally-adjacent same-font
   neighbours), not by font name.
+- **One cell can answer per component.** Google's ACRs stack several statuses in
+  one Conformance Level cell — `Web: Partially Supports` over `Authoring Tool:
+  Supports` — so requiring the whole cell to be a single status left **37 of 56
+  Google Classroom criteria "Not Evaluated"**. `_cell_status` accepts such a cell
+  only when it starts with a *known* component prefix and **every** segment is
+  itself a status (`domain/normalization.py::split_components`; the row's status
+  folds worst-wins, NA only if all components say NA). The prefix vocabulary is
+  deliberately closed — generalize it to `\w+:` and a review guide's
+  "Clarification: …" cells become conformance values.
+- **PDFs split the first letter off words.** Sample-VPAT's text layer reads
+  "P artially Supports" / "S upports". The strict cell match merely failed, but
+  the same-line text fallback then matched the ` Supports` **tail inside
+  "P artially Supports"** and recorded the *opposite* of what the vendor wrote —
+  the exact "confidently wrong" outcome this file exists to prevent.
+  `heal_kerning_splits` rejoins a split only when the glued token is a word from
+  the closed status vocabulary, so it can repair "P artially" but can never touch
+  prose or fuse "Not Applicable" into one word.
 - **A row with no evidence is not a finding.** `parse_508_fpc` used to synthesize
   all nine `302.x` rows on *every* document, including files that were not VPATs.
   Report only what the document states.
@@ -514,6 +532,61 @@ Every one of these is a bug that shipped.
   policy decision nobody has made.
 - **`_persist_ai_io` writes the full VPAT payload in plaintext to the Desktop**
   every run — a payload that is also transmitted to AWS.
+
+## 7c. Working on window sizing / display scaling — read this before you touch it
+
+The app must fit and stay usable on any screen and any Windows display-scaling
+setting (125% / 150% / 200%). The symptom that drove this work: on a scaled
+display the action buttons were cut off with no way to reach them. The pieces
+live in `ui/gui/widgets.py` (shared helpers), `app.py`, and `policy_dialog.py`.
+
+### Hard-won lessons — do not undo these
+
+- **DPI awareness must be set before the first Tk window exists.** It lives in
+  `app.py::_enable_dpi_awareness`, called as the first line of `main()` — *not*
+  in `__init__`, where `super().__init__()` has already created the root (too
+  late). Without it Windows bitmap-stretches the fixed-pixel window past the
+  screen edge on scaled displays. It's a best-effort ctypes cascade, guarded to
+  a no-op off Windows.
+- **`tk scaling` grows point-sized fonts, never pixel-sized boxes.** `__init__`
+  sets `tk scaling` from the real monitor DPI (`winfo_fpixels("1i")/72`), so
+  fonts render correctly — but frames sized in raw pixels with
+  `pack_propagate(False)` do **not** grow and will clip the larger text. The
+  three fixed-height frames (header, upload drop-zone, summary bar) are scaled
+  with `self._px()` for exactly this reason. Anything else pixel-sized relies on
+  the scroll regions to absorb overflow.
+- **The window must always fit the screen.** `_fit_to_work_area` sizes and
+  centres the window inside the taskbar-excluded work area (`widgets.work_area`,
+  via `SPI_GETWORKAREA`) and **clamps `minsize` to it** — the old
+  `minsize(1120,740)` overflowed a 1366×768 laptop even at 100%. Don't restore a
+  hard-coded geometry/minsize.
+- **The left workflow pane scrolls; don't make it static again.** It reuses the
+  auto-hiding `_scrollable`/`make_scrollable` (the same helper the right summary
+  uses), so the bottom Generate/Save buttons stay reachable when the window is
+  short. The scrollbar hides when the cards fit, so a normal window looks
+  unchanged.
+- **Dialogs pin their buttons, then scroll.** Both `SettingsDialog` and
+  `GradingPolicyDialog` pack the button footer **first** with `side="bottom"`
+  (so it always reserves its space) and put the fields in a scroll region above
+  it. Reverse that order and the expanding canvas pushes the buttons off-screen —
+  the exact bug being fixed. `widgets.size_scrollable_dialog` caps the dialog to
+  the work area so tall content scrolls instead of overflowing.
+- **Dialog scroll canvases register in the *main window's* wheel set.** They pass
+  `self._root()._canvases` to `make_scrollable`; the app's interpreter-global
+  `bind_all("<MouseWheel>")` then scrolls them. Never add a second `bind_all` —
+  it clobbers the app's on the shared interpreter. Each canvas removes itself
+  from the set on `<Destroy>` so the wheel handler never touches a dead widget.
+
+### Things to know
+
+- Verifying this is inherently manual (the GUI is excluded from ruff/mypy and has
+  no automated tests). Beyond the gates, drive it: run at 100% and at 150%
+  scaling, resize small, and open both dialogs — confirm no button is ever cut
+  off. `run_app.py --selftest` does *not* cover layout; it only checks the
+  bundled data loads.
+- Once DPI-aware, moving the window to a monitor with a *different* scale won't
+  re-scale the Tk fonts (bitmaps stay crisp). Per-monitor live re-scaling is out
+  of scope.
 
 ## 7. The root scripts and the "legacy" modules
 
