@@ -12,11 +12,13 @@ or just run ``build_exe.bat``, which installs the deps first.
 Why a .spec file (and not a one-line ``pyinstaller run_app.py``): two things
 need explicit help that command-line flags handle poorly:
 
-1. **The WCAG reference data.** ``reference/data/wcag.json`` is loaded at
-   runtime via ``importlib.resources`` (see ``reference/loader.py``). It is
-   *data*, not code, so PyInstaller won't pick it up automatically — we bundle
-   it here, preserving its package-relative path so ``importlib.resources``
-   still finds it inside the frozen app.
+1. **The WCAG reference data and the review rubric.**
+   ``reference/data/wcag.json`` (see ``reference/loader.py``) and
+   ``ai/data/risk_review_prompt.md`` (see ``ai/prompt.py``) are both loaded at
+   runtime via ``importlib.resources``. They are *data*, not code, so PyInstaller
+   won't pick them up automatically — we bundle them here, preserving their
+   package-relative paths so ``importlib.resources`` still finds them inside the
+   frozen app. Drop either entry and the exe loses that feature *silently*.
 2. **Dynamically-imported third-party code.** reportlab / pdfplumber / pypdf /
    python-docx import many submodules lazily; ``collect_submodules`` pulls them
    all in so nothing is missing at runtime.
@@ -29,10 +31,14 @@ to ``datas`` below the same way. If a new dependency fails at runtime with a
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 # ── Bundled data files (source_on_disk, destination_inside_app) ───────────────
-# The explicit wcag.json entry is the reliable one; collect_data_files is a
+# The explicit entries are the reliable ones; collect_data_files is a
 # belt-and-suspenders sweep for anything else non-.py under the package.
 datas = [
     ("src/vpat_reviewer/reference/data/wcag.json", "vpat_reviewer/reference/data"),
+    (
+        "src/vpat_reviewer/ai/data/risk_review_prompt.md",
+        "vpat_reviewer/ai/data",
+    ),
 ]
 datas += collect_data_files("vpat_reviewer")
 

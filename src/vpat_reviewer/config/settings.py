@@ -4,11 +4,17 @@ Everything the user can edit lives in a single ``settings.json``:
 
 * Identity fields (org name, reviewer, threshold, logo, report title) at the top
   level — the same schema the v10 GUI already reads.
+* The Amazon Bedrock review settings, also at the top level.
 * The editable grading policy under a ``"grading"`` key.
 
 Saves are non-destructive: writing identity fields preserves the grading policy
 and vice-versa, so neither editor can clobber the other. The legacy
 ``settings_manager`` module delegates here, so there is exactly one store.
+
+**No key here may ever hold a credential.** ``settings.json`` is tracked in git
+and the frozen app writes it beside the exe, so anything stored here is
+published. There is deliberately no field a token could go in, and
+``BedrockConfig`` ignores one if you add it by hand. See ``ai/bedrock.py``.
 """
 
 from __future__ import annotations
@@ -34,18 +40,23 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     "threshold": 90,
     "logo_path": "",
     "report_title": "VPAT Accessibility Compliance — Summary Report",
-    # Amazon Bedrock AI review (outer adapter). use_ai=False keeps the app fully
-    # offline (deterministic scoring only). Env vars override these at runtime:
-    # VPAT_BEDROCK_REGION / VPAT_BEDROCK_MODEL_ID / VPAT_BEDROCK_PROFILE.
+    # Amazon Bedrock AI review (outer adapter). On by default: the shipped app
+    # asks Bedrock for the verdict. use_ai=False falls back to the deterministic
+    # classifier and keeps the app fully offline. Env vars override these at
+    # runtime: VPAT_BEDROCK_REGION / VPAT_BEDROCK_MODEL_ID / VPAT_BEDROCK_PROFILE.
+    #
+    # There is no credential key here, and that is deliberate — see the module
+    # docstring. The bearer token comes from env AWS_BEARER_TOKEN_BEDROCK or
+    # VPAT_BEDROCK_API_KEY, from a gitignored `bedrock_api_key.txt` beside this
+    # file, or use an AWS profile via bedrock_profile (a profile *name* is not a
+    # secret). `bedrock_model_id` duplicates ai/bedrock.py::DEFAULT_MODEL_ID
+    # because config cannot import ai; a test pins them together.
     "use_ai": True,
     "bedrock_region": "us-west-2",
     "bedrock_model_id": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
     "bedrock_profile": "",
-    # Bedrock API key (bearer token). Preferred for sharing across a team: set it
-    # here, in env AWS_BEARER_TOKEN_BEDROCK, or drop a `bedrock_api_key.txt` file
-    # next to settings.json. Takes precedence over bedrock_profile.
-    "bedrock_api_key": "",
-    "bedrock_api_key_file": "",
+    "bedrock_max_tokens": 4096,
+    "bedrock_temperature": 0.2,
 }
 
 FIELD_LABELS: list[tuple[str, str]] = [

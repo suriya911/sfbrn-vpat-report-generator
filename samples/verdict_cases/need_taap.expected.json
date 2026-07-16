@@ -276,6 +276,7 @@
   ],
   "warnings": [],
   "output_path": null,
+  "assessment": null,
   "recommended_answers": {
     "audience": "campus_wide",
     "access_impact": "limits_some",

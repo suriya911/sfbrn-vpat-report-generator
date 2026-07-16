@@ -2,13 +2,53 @@
 
 A Windows desktop app that reads a vendor's VPAT document (PDF, Word, or
 text) and produces a branded, professionally styled **VPAT Accessibility
-Compliance — Summary Report** as a PDF. Everything runs on your own
-computer: no internet, no accounts, no API keys, nothing leaves the machine.
+Compliance — Summary Report** as a PDF, with a verdict: **Good to Go**,
+**Minor Issue**, **Needs Manual Review**, **Need TAAP**, or **Deny**.
+
+### Does anything leave my machine?
+
+**Yes — by default the verdict comes from an AI model on Amazon Web Services.**
+Read this before reviewing anything confidential.
+
+- The app sends AWS the **parsed contents of the VPAT** — product and vendor
+  names, every criterion, the vendor's own remarks, and the score. It does not
+  send the original file.
+- It runs on **every report**, automatically. There is no prompt asking first.
+- A copy of exactly what was sent, and what came back, is saved unencrypted in
+  `Desktop\VPAT Reviewer Files\AI Prompts\` and `\AI Responses\`.
+
+**To keep the app fully offline**, set `"use_ai": false` in `settings.json`. The
+app then produces the same report with the verdict decided by built-in rules, and
+nothing leaves your computer. That is also what happens automatically whenever
+AWS can't be reached — the report is still produced, and the summary panel tells
+you which decided: **Verdict by: Amazon Bedrock** or **Deterministic rules**.
+
+Everything else — reading the document, scoring it, drawing the PDF — has always
+run on your own computer and still does.
 
 This README is the friendly overview. If you're going to **change the code**
 (or you're an AI doing so), read **`CLAUDE.md`** next — it's the map and the
 rulebook. Deeper design notes are in **`docs/`**; building the `.exe` is in
 **`BUILD_INSTRUCTIONS.md`**.
+
+---
+
+## Setting up the AI review
+
+The app needs AWS Bedrock credentials. **Never put a key in `settings.json`** —
+that file is tracked in git and sits next to the exe, so anything in it is
+effectively public. Use one of:
+
+| How | Where |
+|---|---|
+| Environment variable | `AWS_BEARER_TOKEN_BEDROCK` (or `VPAT_BEDROCK_API_KEY`) |
+| Shared key file | `bedrock_api_key.txt` next to `settings.json` (gitignored) |
+| Named AWS profile | `"bedrock_profile": "your-profile"` in `settings.json` |
+| Anything boto3 finds | instance role, `~/.aws/credentials`, … |
+
+The model and region are `"bedrock_model_id"` / `"bedrock_region"` in
+`settings.json`, or `VPAT_BEDROCK_MODEL_ID` / `VPAT_BEDROCK_REGION`. They are
+**not** in the Settings dialog — edit the file or set the variable.
 
 ---
 
@@ -75,9 +115,10 @@ is a strong technical reason to choose an equivalent approach."* There is one:
 - **It protects working code.** The reader already contains many hard-won fixes
   for messy real-world VPATs (merged Word tables, weird date formats, vendor
   typos in status words). Rebuilding from scratch would reintroduce solved bugs.
-- **It meets every requirement:** fully offline, no API keys, local-only storage,
-  the Desktop folder structure, single-click install, SFBRN branding, all report
-  sections, and PDF validation.
+- **It meets every requirement:** local-only storage, the Desktop folder
+  structure, single-click install, SFBRN branding, all report sections, and PDF
+  validation — plus an offline mode (`"use_ai": false`) that still produces a
+  full report with a verdict when the cloud is unavailable or unwanted.
 
 The *goals* of the brief are met; only the toolkit differs, for good reasons.
 
