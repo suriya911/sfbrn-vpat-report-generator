@@ -1347,7 +1347,11 @@ class VPATReviewerApp(tk.Tk):
 
         self.after(0, lambda: self._set_progress(30, "Analysing WCAG criteria…"))
 
-        score_info = compliance_score(data)
+        # Grade with the saved policy, as service.analyze() does; without it every
+        # call below silently falls back to GradingPolicy.default() and edits to
+        # the grading settings never reach the GUI's score, barriers, or impact.
+        policy = settings_manager.load_policy()
+        score_info = compliance_score(data, policy)
         self.score_info = score_info
 
         self.after(0, lambda: self._set_progress(50, "Calculating impact level…"))
@@ -1358,8 +1362,8 @@ class VPATReviewerApp(tk.Tk):
             "legal_exposure": self.var_legal.get(),
             "deployment": self.var_deploy.get(),
         }
-        barriers = get_aa_barriers(data)
-        impact_info = calculate_impact(answers, barriers, score_info)
+        barriers = get_aa_barriers(data, policy)
+        impact_info = calculate_impact(answers, barriers, score_info, policy)
 
         # Apply override
         override = self.var_override.get()
