@@ -21,7 +21,7 @@ from vpat_reviewer.domain.impact import calculate_impact
 from vpat_reviewer.domain.scoring import compliance_score
 from vpat_reviewer.domain.scoring import get_barriers as get_aa_barriers
 from vpat_reviewer.parsing import parse_vpat
-from vpat_reviewer.reporting.reportlab_renderer import generate_report, validate_report
+from vpat_reviewer.reporting import ReportInputs, renderer_for
 from vpat_reviewer.service import ReviewResult
 from vpat_reviewer.ui.gui.policy_dialog import GradingPolicyDialog
 
@@ -230,6 +230,35 @@ class SettingsDialog(tk.Toplevel):
             self._vars[key] = var
             row += 1
 
+        # Report style. Not in FIELD_LABELS: that drives free-text entries, and
+        # this is a closed choice of two renderers (see reporting.renderer_for).
+        tk.Label(
+            self, text="Report style:", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY
+        ).grid(row=row, column=0, padx=(16, 6), pady=4, sticky="ne")
+        style_row = tk.Frame(self, bg=BG_CARD)
+        style_row.grid(row=row, column=1, padx=(0, 16), pady=4, sticky="w")
+        self._vars["report_style"] = tk.StringVar(
+            value=str(current.get("report_style", "full") or "full")
+        )
+        for value, label in (
+            ("full", "Full report — every criterion, vendor remarks, WCAG rollup"),
+            ("one_page", "One-page summary — verdict, score, top barriers, action"),
+        ):
+            tk.Radiobutton(
+                style_row,
+                text=label,
+                value=value,
+                variable=self._vars["report_style"],
+                font=(FONT, 8),
+                bg=BG_CARD,
+                fg=FG_NAVY,
+                activebackground=BG_CARD,
+                selectcolor=BG_CARD,
+                anchor="w",
+                cursor="hand2",
+            ).pack(anchor="w")
+        row += 1
+
         # Optional custom logo
         tk.Label(
             self, text="Custom logo (optional):", font=(FONT, 9, "bold"), bg=BG_CARD, fg=FG_NAVY
@@ -353,6 +382,7 @@ class VPATReviewerApp(tk.Tk):
         self.report_path = None
         self.category = None
         self.ai_review = None
+        self.ai_recommendation = ""
         self.category_dirs = {}
         self._processing = False
         self._canvases: set = set()  # scrollable canvases (for the mouse wheel)
@@ -1307,6 +1337,7 @@ class VPATReviewerApp(tk.Tk):
         # any Bedrock/creds failure, so a report is always produced).
         good_cut = int(self.settings.get("threshold", 90) or 90)
         self.ai_review = None
+        self.ai_recommendation = ""  # reset per run: never carry a prior doc's advice
         used_ai = False
         # Correlate the saved prompt/response with the report by a shared stem.
         _stem_name = (_safe_filename(data.product_name or "Product")[:50]).strip() or "Product"
@@ -1341,6 +1372,10 @@ class VPATReviewerApp(tk.Tk):
                         ai_reasons.append(
                             "Recommendations: " + "; ".join(ai.recommendations)
                         )
+                        # The one-pager prints this on its own under
+                        # RECOMMENDATION, where the rationale prose would not do:
+                        # a decision sheet needs the action, not the finding.
+                        self.ai_recommendation = ai.recommendations[0]
                     if ai_reasons:
                         impact_info["rationale"] = ai_reasons
                     used_ai = True
@@ -1405,20 +1440,29 @@ class VPATReviewerApp(tk.Tk):
                     logo_path = str(lp)
                     break
 
-        generate_report(
-            vpat_data=data,
-            score_info=score_info,
-            impact_info=impact_info,
-            reviewer_answers=answers,
-            output_path=str(out_path),
-            logo_path=logo_path,
-            settings=self.settings,
+        # Route through the ReportRenderer port so the Settings "Report style"
+        # toggle picks the renderer (full report vs one-page decision sheet).
+        renderer = renderer_for(self.settings)
+        renderer.render(
+            ReportInputs(
+                document=data,
+                score=dict(score_info),
+                impact=dict(impact_info),
+                answers=answers,
+                logo_path=logo_path,
+                settings=self.settings,
+                verdict=self.category or "",
+                recommendation=getattr(self, "ai_recommendation", "") or "",
+            ),
+            str(out_path),
         )
 
-        # Post-generation PDF validation (file exists, opens, all sections)
+        # Post-generation PDF validation. Each renderer validates its own output:
+        # the full report checks for required sections the one-pager omits by
+        # design, so validating a one-pager with validate_report would fail it.
         self.after(0, lambda: self._set_progress(92, "Validating PDF…"))
         try:
-            ok, problems = validate_report(str(out_path))
+            ok, problems = renderer.validate(str(out_path))
             if not ok:
                 logger.error("PDF validation problems: %s", problems)
                 self.after(

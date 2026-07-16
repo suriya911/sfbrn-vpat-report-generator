@@ -23,6 +23,14 @@ class ReportInputs:
     answers: dict[str, str]
     logo_path: str = ""
     settings: dict[str, Any] | None = None
+    #: The five-way verdict (Good to Go / Minor Issue / Needs Manual Review /
+    #: Need TAAP / Deny). Optional because it is decided by the caller -- the GUI
+    #: heuristic or the AI review -- not by the domain. A renderer that shows it
+    #: must cope with "" (the CLI does not currently supply one).
+    verdict: str = ""
+    #: One-line action for the reader. Optional for the same reason; renderers
+    #: fall back to their own wording when it is empty.
+    recommendation: str = ""
 
 
 @runtime_checkable

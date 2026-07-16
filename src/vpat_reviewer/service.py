@@ -22,7 +22,7 @@ from vpat_reviewer.domain.models import VPATCriterion, VPATDocument
 from vpat_reviewer.domain.policy import GradingPolicy
 from vpat_reviewer.domain.scoring import ScoreInfo, compliance_score, get_barriers
 from vpat_reviewer.parsing import parse_vpat
-from vpat_reviewer.reporting import ReportInputs, ReportLabRenderer, ReportRenderer
+from vpat_reviewer.reporting import ReportInputs, ReportRenderer, renderer_for
 
 
 @dataclass
@@ -34,6 +34,11 @@ class ReviewResult:
     answers: dict[str, str] = field(default_factory=dict)
     output_path: str | None = None
     json_path: str | None = None
+    #: Set by the caller that decides the verdict (the GUI heuristic or the AI
+    #: review). The domain does not classify, so this stays empty for a plain
+    #: CLI analyze; renderers that show it must handle "".
+    verdict: str = ""
+    recommendation: str = ""
 
     @property
     def warnings(self) -> list[str]:
@@ -73,7 +78,8 @@ def render_result(
     """Render an existing analysis to a report file."""
     if settings is None:
         settings = settings_store.load_settings()
-    renderer = renderer or ReportLabRenderer()
+    # An explicit renderer wins; otherwise honor the user's report_style.
+    renderer = renderer or renderer_for(settings)
     inputs = ReportInputs(
         document=result.document,
         score=dict(result.score),
@@ -81,6 +87,8 @@ def render_result(
         answers=result.answers,
         logo_path=logo_path,
         settings=settings,
+        verdict=result.verdict,
+        recommendation=result.recommendation,
     )
     renderer.render(inputs, output_path)
     result.output_path = output_path

@@ -146,7 +146,8 @@ them. `cli.py` and `ui/gui/` are the outermost adapters and depend on
 │  │
 │  ├─ reporting/               ← VPATDocument + score → PDF. (ReportRenderer port)
 │  │  ├─ base.py               ← ReportInputs + the ReportRenderer Protocol
-│  │  ├─ __init__.py           ← ReportLabRenderer (the adapter class)
+│  │  ├─ __init__.py           ← ReportLabRenderer + renderer_for() (picks by settings)
+│  │  ├─ onepage.py            ← OnePageRenderer: the 1-page decision sheet ★
 │  │  └─ reportlab_renderer.py ← 83KB legacy layout engine (isolated; see §7)
 │  │
 │  ├─ config/                  ← everything the user can edit
@@ -190,6 +191,7 @@ From the project root, with a dev install (`pip install -e ".[dev]"`):
 | **Parser regression gate** | `python tools/corpus_report.py --check` |
 | CLI: score a VPAT | `python -m vpat_reviewer.cli analyze path/to/vpat.pdf` |
 | CLI: full report | `python -m vpat_reviewer.cli review path/to/vpat.pdf -o out.pdf` |
+| CLI: one-page sheet | `python -m vpat_reviewer.cli review vpat.pdf -o out.pdf --style one-page` |
 | CLI: see grading policy | `python -m vpat_reviewer.cli policy show` |
 | CLI: edit a policy knob | `python -m vpat_reviewer.cli policy set compliance_threshold 85` |
 | CLI: edit identity | `python -m vpat_reviewer.cli settings set org_name "Acme"` |
@@ -219,6 +221,25 @@ Full versions with code are in `docs/extending.md`. The shape:
    `reporting/base.py` (`output_suffix` + `render(inputs, output_path)`).
 2. Pass an instance to `service.render_result(..., renderer=YourRenderer())`.
    *The existing PDF renderer is just one adapter; add others beside it.*
+
+`reporting/onepage.py` is the worked example: a second renderer behind the same
+port, selected by the `report_style` setting via `reporting.renderer_for()`
+(`"full"` → `ReportLabRenderer`, `"one_page"` → `OnePageRenderer`; anything
+unrecognized falls back to the full report). The GUI's Settings dialog and the
+CLI's `--style` flag both just set that key.
+
+**The one-pager's contract is that it is exactly one page.** It renders,
+measures `doc.page`, and re-renders progressively tighter (`_TRIM_LEVELS`) until
+it fits. If you add a row, verify it still fits at the tightest trim — the
+`test_stays_one_page_when_content_explodes` test is what stops a "summary" from
+quietly becoming two pages.
+
+**Anything the app did not author must be escaped before it reaches a ReportLab
+`Paragraph`** (`_esc`). ReportLab parses Paragraph text as mini-HTML: H5P's VPAT
+remarks mention `<a>` tags, which ReportLab read as an unclosed anchor and which
+killed report generation outright. This applies to vendor text *and* AI output.
+Do not escape strings bound for `canvas.drawString` — that draws literally and
+would show `&amp;` to the reader.
 
 ### Change or add a grading knob (the editable grading system)
 - Grading lives entirely in `domain/policy.py` as the `GradingPolicy`
