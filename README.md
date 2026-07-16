@@ -1,195 +1,441 @@
-# SFBRN VPAT Reviewer — v11
+# SFBRN VPAT Reviewer
 
-A Windows desktop app that reads a vendor's VPAT document (PDF, Word, or
-text) and produces a branded, professionally styled **VPAT Accessibility
-Compliance — Summary Report** as a PDF, with a verdict: **Good to Go**,
-**Minor Issue**, **Needs Manual Review**, **Need TAAP**, or **Deny**.
+**Turn a vendor's accessibility paperwork into a decision you can act on.**
 
-### Does anything leave my machine?
+You give this app a vendor's VPAT — the document where a company states how
+accessible its product is — and it hands back a branded PDF report with a clear
+verdict: **Good to Go**, **Minor Issue**, **Needs Manual Review**, **Need TAAP**,
+or **Deny**.
 
-**Yes — by default the verdict comes from an AI model on Amazon Web Services.**
-Read this before reviewing anything confidential.
+It reads the document, scores it against the WCAG accessibility standard, works
+out who is affected and how badly, and writes the result in plain language, with
+the evidence attached.
 
-- The app sends AWS the **parsed contents of the VPAT** — product and vendor
-  names, every criterion, the vendor's own remarks, and the score. It does not
-  send the original file.
-- It runs on **every report**, automatically. There is no prompt asking first.
-- A copy of exactly what was sent, and what came back, is saved unencrypted in
-  `Desktop\VPAT Reviewer Files\AI Prompts\` and `\AI Responses\`.
-
-**To keep the app fully offline**, set `"use_ai": false` in `settings.json`. The
-app then produces the same report with the verdict decided by built-in rules, and
-nothing leaves your computer. That is also what happens automatically whenever
-AWS can't be reached — the report is still produced, and the summary panel tells
-you which decided: **Verdict by: Amazon Bedrock** or **Deterministic rules**.
-
-Everything else — reading the document, scoring it, drawing the PDF — has always
-run on your own computer and still does.
-
-This README is the friendly overview. If you're going to **change the code**
-(or you're an AI doing so), read **`CLAUDE.md`** next — it's the map and the
-rulebook. Deeper design notes are in **`docs/`**; building the `.exe` is in
-**`BUILD_INSTRUCTIONS.md`**.
+*Version 11.0.0 · Windows and macOS · Python 3.10+*
 
 ---
 
-## Setting up the AI review
+## Contents
 
-The app needs AWS Bedrock credentials. **Never put a key in `settings.json`** —
-that file is tracked in git and sits next to the exe, so anything in it is
-effectively public. Use one of:
-
-| How | Where |
-|---|---|
-| Environment variable | `AWS_BEARER_TOKEN_BEDROCK` (or `VPAT_BEDROCK_API_KEY`) |
-| Shared key file | `bedrock_api_key.txt` next to `settings.json` (gitignored) |
-| Named AWS profile | `"bedrock_profile": "your-profile"` in `settings.json` |
-| Anything boto3 finds | instance role, `~/.aws/credentials`, … |
-
-The model and region are `"bedrock_model_id"` / `"bedrock_region"` in
-`settings.json`, or `VPAT_BEDROCK_MODEL_ID` / `VPAT_BEDROCK_REGION`. They are
-**not** in the Settings dialog — edit the file or set the variable.
+- [What problem this solves](#what-problem-this-solves)
+- [Quick start](#quick-start)
+- [The five verdicts](#the-five-verdicts)
+- [What the compliance score means](#what-the-compliance-score-means)
+- [Does anything leave my computer?](#does-anything-leave-my-computer)
+- [Where your files go](#where-your-files-go)
+- [The audit log](#the-audit-log)
+- [How the app is put together](#how-the-app-is-put-together)
+- [Settings](#settings)
+- [For developers](#for-developers)
+- [Building the app to share](#building-the-app-to-share)
 
 ---
 
-## Version 2
+## What problem this solves
 
-Improvements over the initial release:
+Before a college buys software, someone has to answer a hard question: **can
+everyone use it?** — including people who are blind, deaf, or cannot use a mouse.
 
-- **Text-fallback parser hardened.** Real vendor ACRs saved as plain text / HTML
-  now parse and score — handles level written as `(Level AA 2.1 only)` or
-  `(WCAG 2.1)`, conformance prefixed by a target column (`Web: Supports`), and
-  status either on the criterion's own line or several lines below it after
-  EN 301 549 cross-references. A criterion's WCAG level is now assigned
-  authoritatively from its ID, which also tells a real WCAG row apart from an
-  EN 301 549 reference that shares the `N.N.N` shape.
-- **Vendor detection fixed.** The vendor is now the *earliest-occurring* known
-  name in the header, so a product that merely mentions another vendor (e.g.
-  "works inside Microsoft Office") is no longer misattributed.
-- **Machine-readable output.** `review()` now writes a normalized `.json`
-  sidecar next to the PDF (product/vendor/standards, score, barriers, and every
-  parsed criterion) — a complete record of the parse → score → classify run.
+Vendors answer with a **VPAT** (Voluntary Product Accessibility Template): a long
+document listing ~50 accessibility rules, with the vendor's own claim against
+each one — *Supports*, *Partially Supports*, *Does Not Support*, *Not
+Applicable*. They are tedious to read, inconsistent between vendors, and easy to
+skim past.
 
----
+This app reads one in seconds and tells you:
 
-## The big picture: how the app is put together
+- **A score** — what fraction of the applicable rules the vendor claims to meet.
+- **The barriers** — exactly which rules fail, and what each one means for a real
+  person trying to use the product.
+- **A verdict** — the recommended procurement decision.
+- **The reasoning** — so a human can disagree with it.
 
-The same "assembly line" as always — a file goes in one end and a finished
-report comes out the other — but the code now lives in a proper, tidy Python
-package under `src/vpat_reviewer/`, split so each part has one job:
-
-1. **The reader** (`extraction/` + `parsing/`) opens the vendor's document and
-   pulls out the product name, dates, WCAG rows, statuses, and remarks. This is
-   the most battle-tested part of the project, so **we never edit it casually.**
-2. **The rules** (`domain/`) calculate the compliance score, find the barriers,
-   and rate the impact. This part is "pure" — it does no file or PDF work — which
-   is why it's easy to test and hard to break.
-3. **The dictionary** (`reference/`) stores, for every WCAG criterion (like
-   "1.4.3 Contrast (Minimum)"), the official description and a plain-language
-   explanation. It's just a data file (`reference/data/wcag.json`) you can edit.
-4. **The writer** (`reporting/`) lays out the actual PDF: cover page, executive
-   summary, barrier cards, tables, page-numbered footer, colors, and fonts.
-
-Two things tie it together and let people use it:
-
-- **The window** (`ui/gui/`) is the graphical interface (buttons, drag-and-drop,
-  Settings). It just collects your input and hands the job to the parts above.
-  There's also a **command line** (`cli.py`) for the same thing without a window.
-- **The settings** (`config/`) remember who is using the app *and* let you edit
-  the **grading rules** — both saved in a small `settings.json`. Nothing is
-  hard-wired to one organization.
-
-Keeping the "screen" separate from the "brains" is a core software habit: you
-can change how the app *looks* without risking the logic that makes it *correct*.
+> **It is not an audit.** The app reads what the *vendor said about themselves*.
+> It does not test the product. A vendor can be wrong or optimistic, and this
+> app will faithfully report what they claimed. It exists to make a human
+> reviewer faster, not to replace them.
 
 ---
 
-## Why this is a Python app and not the Electron/React stack in the brief
+## Quick start
 
-The project brief suggested Electron + React + a Python backend, *"unless there
-is a strong technical reason to choose an equivalent approach."* There is one:
+**If someone handed you `VPAT_Reviewer.exe`:** double-click it. Skip to
+[The five verdicts](#the-five-verdicts).
 
-- **One language, not four.** This app is Python end to end. The Electron route
-  means juggling JavaScript, React, HTML/CSS, *and* Python — four things to learn
-  and four things that can break.
-- **It protects working code.** The reader already contains many hard-won fixes
-  for messy real-world VPATs (merged Word tables, weird date formats, vendor
-  typos in status words). Rebuilding from scratch would reintroduce solved bugs.
-- **It meets every requirement:** local-only storage, the Desktop folder
-  structure, single-click install, SFBRN branding, all report sections, and PDF
-  validation — plus an offline mode (`"use_ai": false`) that still produces a
-  full report with a verdict when the cloud is unavailable or unwanted.
+**Running from the source code:**
 
-The *goals* of the brief are met; only the toolkit differs, for good reasons.
-
----
-
-## The one rule to remember
-
-**Don't change how scoring or parsing behave without re-running the tests.**
-The whole point of the test suite is to catch it the instant you do. After any
-change, from inside this folder:
-
-```
-python -m pytest -q          # everything must pass
-python make_demo.py          # must print: Score: 72 | … | Validation: OK
-```
-
-That "Score: 72 … Validation: OK" line is the app's canary — if it changes, you
-changed the scoring, so make sure that was on purpose. `CLAUDE.md` lists all the
-"do not break" rules and shows how to extend the app safely.
-
----
-
-## What's in this project (high level)
-
-| Thing | Plain-English job |
-|---|---|
-| `src/vpat_reviewer/` | The app itself, as an importable Python package (all the parts above). |
-| `run_app.py` | Launches the window. Also the entry point the `.exe` is built from. |
-| `make_demo.py` | Builds a sample report so you can see the output. |
-| `tests/` | Automated checks that guard the math, the parsing, and the layout. |
-| `CLAUDE.md` | **Read this before changing code.** The map + rulebook. |
-| `docs/` | Design notes (`architecture.md`) and how-to recipes (`extending.md`). |
-| `BUILD_INSTRUCTIONS.md` | Step-by-step guide to build the `.exe` and installer. |
-| `build_exe.bat` / `vpat_reviewer.spec` | Turn the code into one `VPAT_Reviewer.exe`. |
-| `installer.iss` | Wrap the `.exe` in an optional single-click installer. |
-| `pyproject.toml` | The project's dependencies and settings. |
-| `INSTALL_INSTRUCTIONS.txt` | Hand this to end users. |
-
----
-
-## How to run it right now (before packaging)
-
-On your Windows machine, from inside this folder:
-
-```
+```bash
 pip install -e ".[dev]"
 python run_app.py
 ```
 
-The first time it opens, a short setup window asks for your organization and
-name. After that, drag a VPAT onto the window and click **Generate Report**.
+The first run asks for your organization and your name — that's what appears on
+the reports. Then:
 
-Prefer the command line? `python -m vpat_reviewer.cli review path\to\vpat.pdf`.
-To see an example without a real VPAT, run `python make_demo.py`.
+1. **Drag a VPAT onto the window** (PDF, Word `.docx`, or `.txt`).
+2. **Answer four questions** about how the product will be used (below).
+3. **Click Generate Report.**
 
-## How to turn it into a shareable app
+The report opens in a folder on your Desktop, filed by verdict.
 
-See `BUILD_INSTRUCTIONS.md`. The short version: run `build_exe.bat` to get one
-self-contained `dist\VPAT_Reviewer.exe` you can hand to the team. Optionally,
-open `installer.iss` in the free Inno Setup program and click Compile to get a
-single-click installer, `VPAT_Reviewer_Setup.exe`. Verify any build with
-`dist\VPAT_Reviewer.exe --selftest`.
+### The four questions, and why they matter
+
+The document tells the app how accessible the product *is*. Only you can say how
+much that **matters here** — the same VPAT deserves a different answer for one
+person's laptop than for a campus-wide rollout.
+
+| Question | Why it changes the answer |
+|---|---|
+| How many users? | A barrier affecting 5,000 people is not the same problem as one affecting 1. |
+| Does it limit access for users with disabilities? | The difference between "harder" and "impossible". |
+| Legal exposure? | ADA / Section 504 risk. |
+| Deployment scope? | Individual, department, or campus-wide. |
+
+These produce an **impact level** (Low / Medium / High), and impact **outranks
+the score** — see below.
+
+### No window? Use the command line
+
+```bash
+python -m vpat_reviewer.cli review path/to/vendor_vpat.pdf
+python make_demo.py          # see a sample report without a real VPAT
+```
 
 ---
 
-## What "compliance score" means here
+## The five verdicts
 
-The score counts how many WCAG **Level AA** criteria the vendor fully supports,
-divided by the Level AA criteria that actually apply, as a percentage. Criteria
-the vendor marks **Not Applicable** are left out of that math (a feature that
-doesn't exist can't pass or fail), but they still appear in the report as
-documented "known gaps" so nothing is hidden. This behavior is deliberate, it
-lives in the editable grading policy (`domain/policy.py`), and it's locked in by
-the tests.
+| Verdict | Meaning |
+|---|---|
+| **Good to Go** | Meets the bar. Approve as-is. |
+| **Minor Issue** | Deployable, with small gaps to track. Ask the vendor for a fix timeline. |
+| **Needs Manual Review** | Inconclusive. A human must test it before deciding. |
+| **Need TAAP** | Gaps require a **Temporary Alternative Access Plan** before approval — a documented way for affected users to get equivalent access while the vendor fixes things. |
+| **Deny** | Do not deploy. Barriers block required functionality. |
+
+**How the verdict is reached** (when the app is offline, or the AI is
+unavailable — first match wins, top to bottom):
+
+| # | If… | Then |
+|---|---|---|
+| 1 | The score couldn't be calculated | Needs Manual Review |
+| 2 | Denies access **and** High impact | Deny |
+| 3 | High impact **and** score below 50% | Deny |
+| 4 | High impact | Need TAAP |
+| 5 | Score ≥ 90% **and** zero barriers | Good to Go |
+| 6 | Score ≥ 70% | Minor Issue |
+| 7 | anything else | Needs Manual Review |
+
+Three things worth understanding:
+
+- **Impact outranks the score.** High impact never does better than Need TAAP —
+  even at 100%. A perfect score on software that denies access to a required
+  function is not a pass.
+- **A missing score is not a zero.** An unreadable document goes to a human, not
+  to Deny. The app never guesses.
+- **"Good to Go" is strict.** One *Partially Supports* at Level AA caps you at
+  Minor Issue.
+
+---
+
+## What the compliance score means
+
+> **Level AA criteria the vendor fully supports ÷ Level AA criteria that apply**
+
+Criteria the vendor marks **Not Applicable** are excluded from *both* halves — a
+feature that doesn't exist can't pass or fail. They still appear in the report as
+documented known gaps, so nothing is hidden.
+
+This is a deliberate policy decision, it lives in an editable file
+(`domain/policy.py`), and the tests lock it in place.
+
+---
+
+## Does anything leave my computer?
+
+**Yes — by default, the verdict comes from an AI model on Amazon Web Services.**
+Read this before reviewing anything confidential.
+
+- The app sends AWS the **parsed contents of the VPAT**: product and vendor
+  names, every criterion, the vendor's own remarks, and the score. It does not
+  send the original file.
+- It runs on **every report**, automatically. Nothing asks first.
+- A copy of what was sent and what came back is saved **unencrypted** in
+  `Desktop\VPAT Reviewer Files\AI Prompts\` and `\AI Responses\`.
+
+**To keep the app fully offline**, set `"use_ai": false` in `settings.json`. You
+get the same report, with the verdict decided by the built-in rules above, and
+nothing leaves your machine.
+
+That is also what happens automatically whenever AWS can't be reached — the
+report is still produced, and the app tells you which decided: **Verdict by:
+Amazon Bedrock** or **Deterministic rules**. Every row of the
+[audit log](#the-audit-log) records which one it was.
+
+Everything else — reading the document, scoring, drawing the PDF — has always run
+on your own computer and still does.
+
+---
+
+## Where your files go
+
+Everything lands in one folder on your Desktop:
+
+```
+Desktop/VPAT Reviewer Files/
+├── VPATs/                        a copy of each document you reviewed
+├── VPAT Summary Reports/
+│   ├── Good To Go/               reports, filed by verdict
+│   ├── Minor Issue/
+│   ├── Needs Manual Review/
+│   ├── Need TAAP/
+│   └── Deny/
+├── AI Prompts/                   exactly what was sent to AWS
+├── AI Responses/                 exactly what came back
+└── vpat_review_log.csv           one row per review (see below)
+```
+
+---
+
+## The audit log
+
+Every review appends one row to `vpat_review_log.csv` — open it in Excel. It
+answers the questions that come up months later: *what did we decide, why, and
+was it a model or a rule that decided it?*
+
+Alongside the score, verdict, barriers, and your four impact answers, each row
+carries:
+
+| Column | Why it's there |
+|---|---|
+| `verdict_source` | **`ai` or `offline`.** "Good to Go" from the model and from the built-in rules are the same words and very different claims. Nothing else in the row tells them apart. |
+| `source_sha256` | A fingerprint of the exact file. A filename doesn't identify a document; the bytes do. |
+| `unresolved_criteria` | Rows the app couldn't read a status for. A high number next to a confident-looking score means don't trust the score. |
+| `input_tokens` / `output_tokens` | What the AI call cost. Blank — never `0` — when the provider didn't report it. |
+| `ai_error` | Why there's no AI verdict, when there isn't one. |
+| `report_path` / `json_path` | Where the report and the full machine-readable record landed. |
+
+Turn it off with `"audit_log_enabled": false`, or move it with
+`"audit_log_path"`.
+
+---
+
+## How the app is put together
+
+### The plain-English version
+
+Think of it as an **assembly line**. A document goes in one end; a finished
+report comes out the other. Each station has exactly one job.
+
+```
+   Vendor's VPAT
+   (PDF / Word / text)
+          │
+          ▼
+   ┌──────────────┐   Opens the file and pulls out the words and tables.
+   │  1. READER   │   Knows about PDF quirks, merged Word cells, watermarks.
+   └──────────────┘
+          │
+          ▼
+   ┌──────────────┐   Finds the product name, the dates, and every WCAG row
+   │  2. PARSER   │   with the vendor's claim. Never invents one.
+   └──────────────┘
+          │
+          ▼
+   ┌──────────────┐   Scores it. Finds the barriers. Rates the impact using
+   │  3. RULES    │   your four answers. Pure arithmetic — no files, no network.
+   └──────────────┘
+          │
+          ├────────────────────────┐
+          ▼                        ▼
+   ┌──────────────┐        ┌──────────────┐
+   │  4. VERDICT  │        │ 5. DICTIONARY│  Plain-language explanation and
+   │  AI, or the  │        │  Every WCAG  │  workarounds for each criterion,
+   │  built-in    │        │  rule, in    │  so the report explains what a
+   │  rules       │        │  human words │  failure means for a real person.
+   └──────────────┘        └──────────────┘
+          │                        │
+          └───────────┬────────────┘
+                      ▼
+              ┌──────────────┐
+              │  6. WRITER   │   Draws the PDF: cover, summary, barriers,
+              │              │   tables, branding.
+              └──────────────┘
+                      │
+                      ▼
+         Report  +  JSON record  +  a row in the audit log
+```
+
+**Why it's built in separate pieces.** Each station can be checked, fixed, or
+replaced without disturbing the others. The scoring rules don't know what a PDF
+is. The PDF writer doesn't know what a score means. That separation is why a
+change to how the report *looks* cannot quietly break whether the report is
+*right* — and it's why the app can swap the AI for built-in rules mid-run and
+still produce the same report.
+
+**Two reports, one pipeline.** The same run produces either the full ~26-page
+evidence report or a **one-page decision sheet** for someone approving a
+purchase. Set `report_style` to `full` or `one_page`.
+
+### The technical version
+
+Ports and adapters (hexagonal). A pure core, with everything that touches the
+outside world as a swappable adapter around it.
+
+```
+                 ┌─────────────────────────────────────────────┐
+   INPUT         │                  CORE (pure)                 │        OUTPUT
+                 │                                              │
+  PDF ─┐         │   parsing/  →  domain/  →  reporting inputs  │        ┌─ PDF report
+  DOCX ─┼─ extraction/ ─────────────►  models / scoring /  ─────┼─ reporting/ ─► (full or 1-page)
+  TXT ─┘  (Extractor port)         impact / policy / verdict   │  (ReportRenderer port)
+                 │                       ▲                      │
+                 │                       │ reads               │        ┌─ risk verdict
+                 │                  reference/ (wcag.json)      ├─ ai/ ──► (Bedrock, or the
+                 │                                              │  (RiskAssessor  offline rules)
+                 │                                              ├─ audit/ ─► CSV row
+                 └───────────────────────┬──────────────────────┘  (AuditLog port)
+                                         │ orchestrated by
+                              service.py  →  cli.py / ui.gui (adapters)
+                                         │ configured by
+                        config/ (settings.json: identity + grading + Bedrock)
+```
+
+**The dependency rule: arrows point inward.** `domain/` depends on nothing.
+Everything else depends on `domain/`. `service.py` wires them together; `cli.py`
+and `ui/gui/` are the outermost layer.
+
+| Package | Job |
+|---|---|
+| `domain/` | Models, scoring, impact, grading policy, the five verdicts. Pure — no I/O, no libraries. |
+| `extraction/` | File bytes → text and tables. One adapter per format. |
+| `parsing/` | Text and tables → a `VPATDocument`. The hardest part of the app. |
+| `reference/` | WCAG knowledge as data (`wcag.json`) — descriptions and workarounds. |
+| `reporting/` | A review → a PDF. Two renderers behind one port. |
+| `ai/` | A review → a verdict. Where the network lives, which is why it's a boundary. |
+| `audit/` | A review → a CSV row. |
+| `config/` | Everything a user can edit. |
+| `service.py` | Orchestration. Builds records; never decides to reach for a network. |
+| `ui/gui/`, `cli.py` | The adapters people actually use. |
+
+**Why the AI is a boundary and not the brain.** The AI produces one thing — the
+verdict — and the app is designed to lose it gracefully. `service.assess_result`
+never raises: a failed call, or an answer that can't be read as one of the five
+categories, records an honest non-verdict and the built-in rules take over. The
+report is always produced. The rule throughout the AI layer is **reject, never
+repair**: an unrecognized category is refused rather than mapped to the closest
+one, because a verdict nobody can distinguish from a real one is worse than no
+verdict.
+
+---
+
+## Settings
+
+`settings.json` sits next to the app. It holds who you are, the grading rules,
+and the AI configuration.
+
+| Setting | Does |
+|---|---|
+| `org_name`, `reviewer_name`, `logo_path` | Branding on the report. |
+| `report_style` | `one_page` (decision sheet) or `full` (~26 pages of evidence). |
+| `threshold` | The compliance bar. Default `90`. |
+| `use_ai` | `false` makes the app fully offline. |
+| `bedrock_model_id`, `bedrock_region` | Which AI model, and where. |
+| `audit_log_enabled`, `audit_log_path` | The CSV log. |
+
+Grading rules — what counts as supported, what's excluded, the score bands — are
+editable too, via the Settings dialog, `vpat-review policy set`, or the file.
+
+### AI credentials
+
+> **Never put a key in `settings.json`.** It's tracked in git and ships next to
+> the app, so anything in it is effectively public. There is deliberately no
+> setting a key fits in, and the app ignores one if you add it by hand.
+
+| How | Where |
+|---|---|
+| AWS SSO (recommended) | `aws configure sso`, then `"bedrock_profile": "your-profile"` |
+| Environment variable | `AWS_BEARER_TOKEN_BEDROCK` or `VPAT_BEDROCK_API_KEY` |
+| Shared key file | `bedrock_api_key.txt` next to `settings.json` (gitignored) |
+
+**Model ids need care.** Some Bedrock models require a cross-region *inference
+profile* id (`us.anthropic.…`) and reject the plain catalog id — and a wrong id
+fails *silently*: every report quietly falls back to the offline verdict. Get ids
+from `aws bedrock list-inference-profiles`, and confirm a real review shows
+`verdict_source = ai` in the audit log.
+
+---
+
+## For developers
+
+**Read [`CLAUDE.md`](CLAUDE.md) before changing anything.** It's the map and the
+rulebook — the "do not break" list and the reasoning behind each one.
+
+### The gates — all must pass before you commit
+
+```bash
+ruff check .                    # lint
+ruff format .                   # format
+mypy                            # strict type-checking
+python -m pytest -q             # the whole suite
+python make_demo.py             # must print: Score: 72 … Validation: OK
+python tools/corpus_report.py --check   # the parser vs real vendor VPATs
+```
+
+That **`Score: 72 … Validation: OK`** line is the canary for the entire scoring
+pipeline. If it changes, you changed scoring — make sure that was intentional.
+
+`corpus_report.py` is the other half of the net, and the more truthful half: the
+unit tests only know the shapes we thought of; the corpus knows what vendors
+actually ship.
+
+### The rules that matter most
+
+1. **Never invent a parsed row.** If the document doesn't state a status, report
+   none. A wrong status is worse than a missing one — the report states it as
+   fact and nobody downstream can tell.
+2. **Never invent a verdict.** Same rule, higher stakes.
+3. **The domain layer stays pure.** No PDF libraries, no filesystem, no network.
+4. **Never change the parser without running the real corpus.**
+5. **Escape anything the app didn't author** before it reaches the PDF or the
+   CSV. Vendor text is untrusted input in both.
+
+### Project layout
+
+| Path | What it is |
+|---|---|
+| `src/vpat_reviewer/` | The package. New code goes here. |
+| `tests/` | Mirrors the package. |
+| `docs/` | Design notes, the model evaluation, real vendor VPATs. |
+| `tools/corpus_report.py` | The parser scoreboard. Dev-only. |
+| `run_app.py` | Launches the GUI; the entry point the `.exe` is built from. |
+| `make_demo.py` | The behavior anchor. |
+
+---
+
+## Building the app to share
+
+```bash
+build_exe.bat                        # → dist\VPAT_Reviewer.exe
+dist\VPAT_Reviewer.exe --selftest    # verify any build
+```
+
+Optionally open `installer.iss` in Inno Setup and click Compile for a
+single-click installer. Full details in
+[`BUILD_INSTRUCTIONS.md`](BUILD_INSTRUCTIONS.md).
+
+`--selftest` confirms the bundled data loads. It does **not** confirm the AI
+works — for that, generate one real report and check `verdict_source` in the
+audit log.
+
+---
+
+## Where to read more
+
+| Document | For |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | **Anyone changing the code.** The map + the rulebook. |
+| [`docs/architecture.md`](docs/architecture.md) | Design rationale and project history. |
+| [`docs/extending.md`](docs/extending.md) | Recipes: new format, new report, new AI provider. |
+| [`BUILD_INSTRUCTIONS.md`](BUILD_INSTRUCTIONS.md) | Building the exe and installer. |
+| `INSTALL_INSTRUCTIONS.txt` | Hand this to end users. |
