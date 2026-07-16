@@ -130,6 +130,11 @@ wires them. `cli.py` and `ui/gui/` are the outermost adapters and depend on
 record, and an adapter takes it somewhere. It is where the network lives, which
 is exactly why it is a boundary and not part of `domain/`.
 
+`audit/` is the same shape, and the same rule applies twice over: `service.py`
+builds the record (`build_audit_event`, the mirror of `build_assessment_request`)
+but never writes it. The composition roots — the GUI and `cli.py` — decide that a
+log happens, exactly as they decide which assessor runs.
+
 Two consequences of that arrow worth knowing before you trip on them:
 
 - **`service.py` does not import `ai.bedrock`.** `assess_result()` takes the
@@ -201,6 +206,10 @@ Two consequences of that arrow worth knowing before you trip on them:
 │  │  ├─ stub.py               ← StubAssessor: calls nothing (the test double)
 │  │  └─ data/risk_review_prompt.md  ← the rubric: categories + rules + schema ★
 │  │
+│  ├─ audit/                   ← review record → CSV row. (AuditLog port; see §7d)
+│  │  ├─ base.py               ← AuditEvent + FIELDS (the schema) + the Protocol ★
+│  │  └─ csv_log.py            ← CsvAuditLog: the adapter that ships
+│  │
 │  ├─ config/                  ← everything the user can edit
 │  │  ├─ settings.py           ← settings.json store (identity + grading + Bedrock)
 │  │  └─ policy_form.py        ← UI-agnostic policy editing + validation ★
@@ -244,6 +253,7 @@ From the project root, with a dev install (`pip install -e ".[dev]"`):
 | CLI: score a VPAT | `python -m vpat_reviewer.cli analyze path/to/vpat.pdf` |
 | CLI: full report | `python -m vpat_reviewer.cli review path/to/vpat.pdf -o out.pdf` |
 | CLI: one-page sheet | `python -m vpat_reviewer.cli review vpat.pdf -o out.pdf --style one-page` |
+| CLI: skip the audit log | `python -m vpat_reviewer.cli review vpat.pdf -o out.pdf --no-log` |
 | CLI: see grading policy | `python -m vpat_reviewer.cli policy show` |
 | CLI: edit a policy knob | `python -m vpat_reviewer.cli policy set compliance_threshold 85` |
 | CLI: edit identity | `python -m vpat_reviewer.cli settings set org_name "Acme"` |
@@ -533,12 +543,67 @@ Every one of these is a bug that shipped.
 - **`_persist_ai_io` writes the full VPAT payload in plaintext to the Desktop**
   every run — a payload that is also transmitted to AWS.
 
-## 7c. Working on window sizing / display scaling — read this before you touch it
+## 7d. Working on the audit log — read this before you touch it
+
+One CSV row per review, appended to `vpat_review_log.csv` in the Desktop
+`VPAT Reviewer Files` folder (override with the `audit_log_path` setting; switch
+it off with `audit_log_enabled: false`). `service.build_audit_event` maps a
+review to a row; `audit/csv_log.py` writes it; the GUI and the CLI call it.
+
+### Hard-won lessons — do not undo these
+
+- **The log must never break a review.** Every write is wrapped and swallowed
+  with a `# noqa: BLE001`. The normal failure is mundane and guaranteed to
+  happen: the reviewer has the CSV open in Excel, so the file is locked. A report
+  that fails because bookkeeping failed is a worse product than a missing row.
+- **`FIELDS` is append-only.** It is the column order *and* the schema, and the
+  header is written once per file. Reordering or removing a column means an
+  existing log on a reviewer's machine silently reads the wrong values under the
+  right headings — the rows written last week do not move.
+- **Empty means unknown, never zero.** `TokenUsage` is `None` when the provider
+  reported nothing, and the token cells are then blank. A `0` we invented would
+  be logged as a measurement (golden rule 7, one layer out).
+- **`verdict_source` is the point of the row.** "Good to Go" from Bedrock and
+  "Good to Go" from `classify_report` are the same string and different claims,
+  and nothing else in the row distinguishes them. Only the composition root knows
+  which happened, which is why it passes it in rather than the core inferring it.
+- **Cells are defused before writing.** Vendor text (product names, error
+  strings) reaches a file a reviewer opens in Excel, and a leading `=`/`+`/`-`/`@`
+  makes the cell *execute*. `_defuse` prefixes an apostrophe. This is the same
+  untrusted-input problem as `_esc` in the renderers (§6) — CSV quoting does not
+  help, because the formula parser runs after quoting is stripped.
+- **No credential, ever.** Same rule as `settings.json` (§10), and for a stronger
+  reason: this file is designed to be shared and opened.
+
+## 7c. Working on the GUI's look — read this before you touch it
+
+Covers window sizing, display scaling, and cross-platform widget appearance. The
+pieces live in `ui/gui/widgets.py` (shared helpers), `app.py`, and
+`policy_dialog.py`.
+
+### Buttons: use `widgets.FlatButton`, never `tk.Button`
+
+**On macOS, `tk.Button` ignores `-background`.** Tk draws it with the native Aqua
+widget, which paints its own background but *does* honour `-foreground` — so this
+app's white-on-navy buttons rendered as white text on a default grey button.
+Nearly invisible, and every selected/unselected pair looked identical, which is
+the entire signal in the Impact Assessment rows. The same code is correct on
+Windows, which is why it shipped: **the failure is invisible from the machine
+most of this is developed on.**
+
+`FlatButton` is a `tk.Label` (no native peer → honours `bg`/`fg` everywhere) plus
+the click, `command`, and Return/space binding a Label lacks. It is a drop-in for
+the `tk.Button` keywords the app used, and it checks `state` before invoking —
+a disabled Label still receives clicks, unlike a disabled Button.
+
+If you add a button, add a `FlatButton`. If you are tempted by `ttk.Button`:
+`ttk` on Aqua has the same theming limits, which is why this is a Label.
+
+### Window sizing / display scaling
 
 The app must fit and stay usable on any screen and any Windows display-scaling
 setting (125% / 150% / 200%). The symptom that drove this work: on a scaled
-display the action buttons were cut off with no way to reach them. The pieces
-live in `ui/gui/widgets.py` (shared helpers), `app.py`, and `policy_dialog.py`.
+display the action buttons were cut off with no way to reach them.
 
 ### Hard-won lessons — do not undo these
 
@@ -584,6 +649,11 @@ live in `ui/gui/widgets.py` (shared helpers), `app.py`, and `policy_dialog.py`.
   scaling, resize small, and open both dialogs — confirm no button is ever cut
   off. `run_app.py --selftest` does *not* cover layout; it only checks the
   bundled data loads.
+- **Look at it on a Mac before believing it.** The Aqua button bug above was
+  invisible on Windows and obvious in one screenshot from a Mac. You can get a
+  long way headlessly — build the window, walk `winfo_children()`, and assert on
+  `cget("bg")` — and that catches a regression to `tk.Button`, but it cannot tell
+  you what the native theme paints over it.
 - Once DPI-aware, moving the window to a monitor with a *different* scale won't
   re-scale the Tk fonts (bitmaps stay crisp). Per-monitor live re-scaling is out
   of scope.

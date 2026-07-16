@@ -40,9 +40,15 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     "threshold": 90,
     "logo_path": "",
     "report_title": "VPAT Accessibility Compliance — Summary Report",
-    # Which renderer Generate Report uses: "full" (~26 pages of evidence) or
-    # "one_page" (the decision sheet). See reporting.renderer_for.
-    "report_style": "full",
+    # Which renderer Generate Report uses: "one_page" (the decision sheet the
+    # client asked for) or "full" (~26 pages of evidence). See
+    # reporting.renderer_for. One page is the default because it is what the
+    # client requested; a reviewer who needs the evidence switches to "full" in
+    # Settings, and the full report is still what the one-pager's footer points
+    # at. Note renderer_for() falls back to "full" for an *unrecognized* value —
+    # a different question from the default, and a typo should not silently give
+    # a reviewer less of the review than they asked for.
+    "report_style": "one_page",
     # Amazon Bedrock AI review (outer adapter). On by default: the shipped app
     # asks Bedrock for the verdict. use_ai=False falls back to the deterministic
     # classifier and keeps the app fully offline. Env vars override these at
@@ -54,9 +60,20 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     # file, or use an AWS profile via bedrock_profile (a profile *name* is not a
     # secret). `bedrock_model_id` duplicates ai/bedrock.py::DEFAULT_MODEL_ID
     # because config cannot import ai; a test pins them together.
+    # The CSV audit trail: one row per review. Empty path means the default —
+    # `vpat_review_log.csv` beside the Desktop report folders, resolved per
+    # machine (audit.csv_log.default_log_path). Set a path to put it elsewhere,
+    # e.g. a shared drive. The log never gates a review: an unwritable path costs
+    # the row and logs a warning.
+    "audit_log_enabled": True,
+    "audit_log_path": "",
     "use_ai": True,
     "bedrock_region": "us-west-2",
-    "bedrock_model_id": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    # A deliberate cost/latency trade: fast and near-free, but it under-flags
+    # relative to the Opus baseline. See ai/bedrock.py::DEFAULT_MODEL_ID for the
+    # numbers, and for why an id from the model catalog is not always one
+    # Converse accepts.
+    "bedrock_model_id": "nvidia.nemotron-nano-12b-v2",
     "bedrock_profile": "",
     "bedrock_max_tokens": 4096,
     "bedrock_temperature": 0.2,
