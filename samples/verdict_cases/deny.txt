@@ -1,0 +1,129 @@
+Name of Product/Version: LegacyPortal Suite 1.0
+Report Date: January 2025
+Vendor: OldStack Systems
+Applicable Standards: WCAG 2.1 Level AA, Section 508 (Revised 2017)
+
+1.1.1 Non-text Content (Level A)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.
+
+1.3.1 Info and Relationships (Level A)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.
+
+2.1.1 Keyboard (Level A)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.
+
+2.4.3 Focus Order (Level A)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+4.1.2 Name, Role, Value (Level A)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+1.2.4 Captions (Live) (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.2.5 Audio Description (Prerecorded) (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.3.4 Orientation (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.3.5 Identify Input Purpose (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.3 Contrast (Minimum) (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.4 Resize Text (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.5 Images of Text (Level AA)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.
+
+1.4.10 Reflow (Level AA)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.
+
+1.4.11 Non-text Contrast (Level AA)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.
+
+1.4.12 Text Spacing (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+1.4.13 Content on Hover or Focus (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+2.4.5 Multiple Ways (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+2.4.6 Headings and Labels (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+2.4.7 Focus Visible (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+2.4.11 Focus Not Obscured (Minimum) (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+2.5.7 Dragging Movements (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+2.5.8 Target Size (Minimum) (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+3.1.2 Language of Parts (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+3.2.3 Consistent Navigation (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.
+
+3.2.4 Consistent Identification (Level AA)
+Does Not Support
+Remarks:
+The product does not currently meet this criterion.

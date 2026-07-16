@@ -47,3 +47,9 @@ vpat_selftest.json
 # Generated reports and their JSON records. Regenerate with:
 #   python -m vpat_reviewer.cli review <vpat> -o out/<name>.pdf
 out/
+
+# Bedrock API key (bearer token). Secret — never commit. Use the key file or an
+# env var, NOT settings.json (which is tracked).
+bedrock_api_key.txt
+*.bedrock.key
+.env

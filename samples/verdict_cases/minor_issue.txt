@@ -1,0 +1,79 @@
+Name of Product/Version: BrightForms 2.4
+Report Date: April 2025
+Vendor: BrightForms Inc.
+Applicable Standards: WCAG 2.1 Level AA, Section 508 (Revised 2017)
+
+1.1.1 Non-text Content (Level A)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.3.1 Info and Relationships (Level A)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+2.1.1 Keyboard (Level A)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+2.4.3 Focus Order (Level A)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+4.1.2 Name, Role, Value (Level A)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.2.4 Captions (Live) (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.2.5 Audio Description (Prerecorded) (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.3.4 Orientation (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.3.5 Identify Input Purpose (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.3 Contrast (Minimum) (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.4 Resize Text (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.5 Images of Text (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.10 Reflow (Level AA)
+Supports
+Remarks:
+Meets the success criterion across the product.
+
+1.4.11 Non-text Contrast (Level AA)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.
+
+1.4.12 Text Spacing (Level AA)
+Partially Supports
+Remarks:
+Meets the criterion in most areas; some components fall short.

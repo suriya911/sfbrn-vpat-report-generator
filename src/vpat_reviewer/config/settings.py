@@ -34,6 +34,18 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     "threshold": 90,
     "logo_path": "",
     "report_title": "VPAT Accessibility Compliance — Summary Report",
+    # Amazon Bedrock AI review (outer adapter). use_ai=False keeps the app fully
+    # offline (deterministic scoring only). Env vars override these at runtime:
+    # VPAT_BEDROCK_REGION / VPAT_BEDROCK_MODEL_ID / VPAT_BEDROCK_PROFILE.
+    "use_ai": True,
+    "bedrock_region": "us-west-2",
+    "bedrock_model_id": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "bedrock_profile": "",
+    # Bedrock API key (bearer token). Preferred for sharing across a team: set it
+    # here, in env AWS_BEARER_TOKEN_BEDROCK, or drop a `bedrock_api_key.txt` file
+    # next to settings.json. Takes precedence over bedrock_profile.
+    "bedrock_api_key": "",
+    "bedrock_api_key_file": "",
 }
 
 FIELD_LABELS: list[tuple[str, str]] = [

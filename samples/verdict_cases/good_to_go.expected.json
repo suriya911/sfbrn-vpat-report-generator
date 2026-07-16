@@ -1,0 +1,185 @@
+{
+  "document_kind": "vpat",
+  "document_kind_reasons": [
+    "declares the standard under review and answers 15 criteria"
+  ],
+  "product_name": "Northstar Docs",
+  "product_version": "3.0",
+  "product_description": "",
+  "product_type": "Web Application / Software",
+  "vendor_name": "Northstar Software",
+  "vendor_contact": "",
+  "vendor_report_date_raw": "May 2025",
+  "vpat_edition": "",
+  "is_outdated": true,
+  "outdated_note": "The vendor report date (May 2025) is approximately 14 months old. VPATs older than 12 months may not reflect the current accessibility state of the product. SFBRN recommends requesting an updated VPAT before final procurement decisions.",
+  "standards_reviewed": [
+    "WCAG 2.1 Level A",
+    "WCAG 2.1 Level AA",
+    "Section 508 (Revised 2017)"
+  ],
+  "evaluation_methods": "",
+  "score": 100,
+  "supported": 10,
+  "reviewable_total": 10,
+  "score_detail": {
+    "score": 100,
+    "supported": 10,
+    "total": 10,
+    "total_aa_found": 10,
+    "na_excluded": 0,
+    "message": "Strong accessibility support. The submitted VPAT indicates broad WCAG Level AA support, with few or no identified Level AA barriers."
+  },
+  "impact_level": "Low",
+  "impact": {
+    "suggested_level": "Low",
+    "rationale": []
+  },
+  "barriers": [],
+  "criteria": [
+    {
+      "id": "1.1.1",
+      "title": "Non-text Content",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.3.1",
+      "title": "Info and Relationships",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.1.1",
+      "title": "Keyboard",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.3",
+      "title": "Focus Order",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "4.1.2",
+      "title": "Name, Role, Value",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.2.4",
+      "title": "Captions (Live)",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.2.5",
+      "title": "Audio Description (Prerecorded)",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.3.4",
+      "title": "Orientation",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.3.5",
+      "title": "Identify Input Purpose",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.3",
+      "title": "Contrast (Minimum)",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.4",
+      "title": "Resize Text",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.5",
+      "title": "Images of Text",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.10",
+      "title": "Reflow",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.11",
+      "title": "Non-text Contrast",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.12",
+      "title": "Text Spacing",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    }
+  ],
+  "warnings": [],
+  "output_path": null,
+  "recommended_answers": {
+    "audience": "small_team",
+    "access_impact": "no_limit",
+    "legal_exposure": "low",
+    "deployment": "individual"
+  },
+  "expected_verdict": "Good to Go"
+}

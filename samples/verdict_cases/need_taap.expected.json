@@ -1,0 +1,286 @@
+{
+  "document_kind": "vpat",
+  "document_kind_reasons": [
+    "answers 25 of 25 WCAG criteria"
+  ],
+  "product_name": "Adobe Audience Manager",
+  "product_version": "24.9",
+  "product_description": "",
+  "product_type": "Software",
+  "vendor_name": "Adobe",
+  "vendor_contact": "",
+  "vendor_report_date_raw": "September 2024",
+  "vpat_edition": "",
+  "is_outdated": true,
+  "outdated_note": "The vendor report date (September 2024) is approximately 22 months old. VPATs older than 12 months may not reflect the current accessibility state of the product. SFBRN recommends requesting an updated VPAT before final procurement decisions.",
+  "standards_reviewed": [
+    "WCAG 2.1 Level A",
+    "WCAG 2.1 Level AA",
+    "Section 508 (Revised 2017)"
+  ],
+  "evaluation_methods": "",
+  "score": 65,
+  "supported": 13,
+  "reviewable_total": 20,
+  "score_detail": {
+    "score": 65,
+    "supported": 13,
+    "total": 20,
+    "total_aa_found": 20,
+    "na_excluded": 0,
+    "message": "Limited accessibility support. The submitted VPAT includes multiple Level AA barriers or incomplete support statements that should be reviewed before adoption."
+  },
+  "impact_level": "High",
+  "impact": {
+    "suggested_level": "High",
+    "rationale": [
+      "One or more WCAG Level AA criteria are fully unsupported, potentially blocking core functionality for users with disabilities.",
+      "Compliance score of 65% indicates moderate accessibility gaps."
+    ]
+  },
+  "barriers": [
+    "2.4.7",
+    "2.4.11",
+    "2.5.7",
+    "2.5.8",
+    "3.1.2",
+    "3.2.3",
+    "3.2.4"
+  ],
+  "criteria": [
+    {
+      "id": "1.1.1",
+      "title": "Non-text Content",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.3.1",
+      "title": "Info and Relationships",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.1.1",
+      "title": "Keyboard",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.3",
+      "title": "Focus Order",
+      "level": "A",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "4.1.2",
+      "title": "Name, Role, Value",
+      "level": "A",
+      "raw_status": "Partially Supports",
+      "status": "Partially Supports",
+      "remarks": "Meets the criterion in most areas; some components fall short.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.2.4",
+      "title": "Captions (Live)",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.2.5",
+      "title": "Audio Description (Prerecorded)",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.3.4",
+      "title": "Orientation",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.3.5",
+      "title": "Identify Input Purpose",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.3",
+      "title": "Contrast (Minimum)",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.4",
+      "title": "Resize Text",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.5",
+      "title": "Images of Text",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.10",
+      "title": "Reflow",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.11",
+      "title": "Non-text Contrast",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.12",
+      "title": "Text Spacing",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "1.4.13",
+      "title": "Content on Hover or Focus",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.5",
+      "title": "Multiple Ways",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.6",
+      "title": "Headings and Labels",
+      "level": "AA",
+      "raw_status": "Supports",
+      "status": "Supports",
+      "remarks": "Meets the success criterion across the product.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.7",
+      "title": "Focus Visible",
+      "level": "AA",
+      "raw_status": "Partially Supports",
+      "status": "Partially Supports",
+      "remarks": "Meets the criterion in most areas; some components fall short.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.4.11",
+      "title": "Focus Not Obscured (Minimum)",
+      "level": "AA",
+      "raw_status": "Partially Supports",
+      "status": "Partially Supports",
+      "remarks": "Meets the criterion in most areas; some components fall short.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.5.7",
+      "title": "Dragging Movements",
+      "level": "AA",
+      "raw_status": "Partially Supports",
+      "status": "Partially Supports",
+      "remarks": "Meets the criterion in most areas; some components fall short.",
+      "section": "wcag"
+    },
+    {
+      "id": "2.5.8",
+      "title": "Target Size (Minimum)",
+      "level": "AA",
+      "raw_status": "Partially Supports",
+      "status": "Partially Supports",
+      "remarks": "Meets the criterion in most areas; some components fall short.",
+      "section": "wcag"
+    },
+    {
+      "id": "3.1.2",
+      "title": "Language of Parts",
+      "level": "AA",
+      "raw_status": "Does Not Support",
+      "status": "Does Not Support",
+      "remarks": "The product does not currently meet this criterion.",
+      "section": "wcag"
+    },
+    {
+      "id": "3.2.3",
+      "title": "Consistent Navigation",
+      "level": "AA",
+      "raw_status": "Does Not Support",
+      "status": "Does Not Support",
+      "remarks": "The product does not currently meet this criterion.",
+      "section": "wcag"
+    },
+    {
+      "id": "3.2.4",
+      "title": "Consistent Identification",
+      "level": "AA",
+      "raw_status": "Does Not Support",
+      "status": "Does Not Support",
+      "remarks": "The product does not currently meet this criterion.",
+      "section": "wcag"
+    }
+  ],
+  "warnings": [],
+  "output_path": null,
+  "recommended_answers": {
+    "audience": "campus_wide",
+    "access_impact": "limits_some",
+    "legal_exposure": "high",
+    "deployment": "campus_wide"
+  },
+  "expected_verdict": "Need TAAP"
+}
