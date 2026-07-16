@@ -39,3 +39,11 @@ demo_*.pdf
 # PyInstaller build log and the self-test output are transient.
 build_log.txt
 vpat_selftest.json
+
+# Corpus scoreboard output (tools/corpus_report.py --json). The committed
+# baseline lives at tools/corpus_baseline.json; these runs are throwaway.
+.corpus/
+
+# Generated reports and their JSON records. Regenerate with:
+#   python -m vpat_reviewer.cli review <vpat> -o out/<name>.pdf
+out/

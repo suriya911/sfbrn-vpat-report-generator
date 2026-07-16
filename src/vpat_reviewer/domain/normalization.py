@@ -43,6 +43,10 @@ _STATUS_MAP: dict[str, str] = {
     "not applicable": "Not Applicable",
     "n/a": "Not Applicable",
     "na": "Not Applicable",
+    # Seen on a real ACR against 4.1.1 Parsing, which WCAG 2.2 removed. Note it
+    # must not be read as a "does not ..." negative: the vendor means the
+    # criterion does not apply, not that the product fails it.
+    "does not apply": "Not Applicable",
     "not evaluated": "Not Evaluated",
     # Vendor typo / alternate phrasing variants
     "partial support": "Partially Supports",  # missing trailing 's'

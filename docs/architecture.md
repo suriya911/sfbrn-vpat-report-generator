@@ -133,3 +133,55 @@ them risks silent, hard-to-notice regressions on documents we can't see. Instead
 we built the golden-fixture net so that *when* you do refactor the parser, any
 behavior change is caught immediately. Cleaning it up is safe **once fixtures
 cover the cases you're changing** — not before.
+
+## Parser hardening (July 2026) — and what the corpus taught us
+
+The caveat above ("without a large corpus of real vendor files") stopped being
+true: `docs/completed_forms/` now holds twelve real documents, and
+`tools/corpus_report.py` measures the parser against them. Running it the first
+time was sobering. **Three of the six real VPATs had almost every status wrong**
+— Atrium reported 55 of 56 criteria as "Not Evaluated", H5P all 87, Canvas 40 of
+50 — and the unit tests were entirely green throughout.
+
+### The lesson: the failure mode is silence, not noise
+
+None of those bugs threw. Each one read an empty cell and normalized `""` to
+`Not Evaluated`, which is a *plausible* answer, so nothing downstream could tell.
+The report printed a confident percentage over fabricated data.
+
+That is why the design now leans on two ideas:
+
+1. **Report only what the document states.** `parse_508_fpc` used to synthesize
+   all nine `302.x` functional performance rows on every document — including
+   files that were not VPATs at all — and the goldens had frozen those eighteen
+   invented rows as expected output. A row with no evidence behind it is not a
+   finding.
+2. **Say what kind of document this is.** `parsing/doctype.py` classifies before
+   anything is scored, and the CLI refuses a non-VPAT with a distinct exit code.
+   Scoring a remediation plan is worse than failing: it produces a number that
+   looks authoritative and means nothing.
+
+### The structural fix: look, don't index
+
+The single root cause behind Atrium, H5P and Canvas was `parse_from_tables`
+deciding the status column from the table's *width* (`9col` or `3col`, sniffed
+once from the first matching row). Real templates are 3, 5, 8 and 9 columns wide.
+`find_row_status` now scans each row for the cell that **is** a conformance value
+— strict, full-cell, after stripping any target prefix — which handles all
+observed widths and is inherently robust to the next one.
+
+The corresponding lesson for extraction: a PDF cell is not a string, it is a
+region of a page. `extraction/pdf.py::_overlay_fonts` drops watermark characters
+that fall inside cells by **geometry** (overlay text has no horizontally adjacent
+same-font neighbours) rather than by font name, and
+`criteria.py::_absorb_continuation` reattaches remarks that a vendor split across
+one table row per line. Both are cases where the naive string view of a cell is
+simply the wrong model.
+
+### Where this leaves the "don't rewrite the parser" rule
+
+It still holds, but the reason has sharpened. The regexes are not sacred; the
+*behaviour on real documents* is. The corpus scoreboard, not the unit tests, is
+what makes a parser change safe — `--check` fails when coverage drops or
+unresolved rows rise. Refactor freely with it green; do not touch the parser
+without it. See CLAUDE.md §7a.

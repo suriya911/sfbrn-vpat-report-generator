@@ -39,60 +39,6 @@
       "level": "AA",
       "status": "Does Not Support",
       "section": "wcag"
-    },
-    {
-      "id": "302.1",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.2",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.3",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.4",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.5",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.6",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.7",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.8",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
-    },
-    {
-      "id": "302.9",
-      "level": "",
-      "status": "Not Evaluated",
-      "section": "508_fpc"
     }
   ]
 }

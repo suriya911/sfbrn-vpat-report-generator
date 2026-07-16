@@ -58,6 +58,16 @@ These are load-bearing. If a change would violate one, stop and reconsider.
    proves you didn't regress.** See §8. These modules are full of hard-won,
    real-world fixes.
 
+6. **Never change the parser without running the real corpus.** `python
+   tools/corpus_report.py --check` must stay green — it measures the parser
+   against the actual vendor VPATs in `docs/completed_forms/`, and the unit tests
+   alone will not catch a document silently going blank. See §7a.
+
+7. **A parsed row must never be invented.** If the document does not state a
+   status, the parser reports none — it does not default to something
+   plausible. A wrong status is worse than a missing one, because the report
+   states it as fact.
+
 ---
 
 ## 3. Architecture in one picture
@@ -127,6 +137,7 @@ them. `cli.py` and `ui/gui/` are the outermost adapters and depend on
 │  ├─ parsing/                 ← text/tables → VPATDocument (the hard part)
 │  │  ├─ document.py           ← parse_vpat() / parse_document() entry points
 │  │  ├─ criteria.py           ← the criterion-row regex + table/text parsers
+│  │  ├─ doctype.py            ← is this actually a VPAT? (see §7a)
 │  │  ├─ metadata.py, dates.py, standards.py, section508.py, text_cleanup.py
 │  │
 │  ├─ reference/               ← WCAG knowledge (data, not code)
@@ -150,6 +161,12 @@ them. `cli.py` and `ui/gui/` are the outermost adapters and depend on
 │  ├─ unit/  parsing/  reporting/  fixtures/
 │  └─ test_regression.py       ← end-to-end regression / anchor suite
 │
+├─ tools/                      ← DEV-ONLY. Never shipped (outside src/).
+│  ├─ corpus_report.py         ← the parser scoreboard (see §7a) ★
+│  └─ corpus_baseline.json     ← frozen per-file counts; `--check` fails on regression
+│
+├─ docs/completed_forms/       ← the real vendor corpus the parser is measured against
+│
 ├─ run_app.py                  ← GUI launcher + PyInstaller entry point (see §7)
 └─ make_demo.py                ← the behavior anchor / sample generator
 ```
@@ -169,6 +186,8 @@ From the project root, with a dev install (`pip install -e ".[dev]"`):
 | Format | `ruff format .` |
 | Type-check | `mypy` |
 | Behavior anchor | `python make_demo.py` → `Score: 72 … Validation: OK` |
+| **Parser scoreboard** | `python tools/corpus_report.py` (see §7a) |
+| **Parser regression gate** | `python tools/corpus_report.py --check` |
 | CLI: score a VPAT | `python -m vpat_reviewer.cli analyze path/to/vpat.pdf` |
 | CLI: full report | `python -m vpat_reviewer.cli review path/to/vpat.pdf -o out.pdf` |
 | CLI: see grading policy | `python -m vpat_reviewer.cli policy show` |
@@ -230,7 +249,93 @@ Key `GradingPolicy` fields: `graded_level` ("A"/"AA"), `supported_statuses`,
 - Add a subparser in `cli.py::build_parser` and a `_cmd_*` handler. Keep it a
   thin wrapper over `service`/`config` — no business logic in the CLI.
 
+### Consume the parse from another program
+`service.to_dict(result)` is the **single** machine-readable shape the app emits.
+It backs both the CLI's `--json` and the sidecar written beside every report
+(`review ... --json-out PATH`, or `--no-json` to suppress). There used to be two
+divergent shapes and a sidecar the CLI never wrote; don't reintroduce that.
+
+Two fields exist specifically for a downstream consumer (a later LLM stage
+included) and are worth preserving:
+
+- **`document_kind`** — whether this was a VPAT at all. Check it before trusting
+  a score; `not_a_vpat` and `blank_template` mean the number is meaningless.
+- **`raw_status` alongside `status`** on every criterion — what the vendor
+  literally wrote, next to our canonical reading. Normalization is lossy and
+  occasionally wrong, so the evidence travels with the interpretation instead of
+  being replaced by it.
+
+The fixture goldens (`tests/fixtures/**/*.expected.json`) intentionally snapshot
+a *different, smaller* subset. Two consumers, two shapes, on purpose: pointing
+the goldens at `to_dict` would make every export tweak churn the safety net.
+
 ---
+
+## 7a. Working on the parser — read this before you touch it
+
+The parser's job is **never to be confidently wrong**. A wrong status is far
+worse than a missing one: the report states it as fact, and nobody downstream
+can tell. Everything below follows from that.
+
+### Measure first: the corpus scoreboard
+
+`docs/completed_forms/` holds real vendor VPATs. Never change the parser without
+running them:
+
+```
+python tools/corpus_report.py                 # the scoreboard
+python tools/corpus_report.py --check         # fails on regression vs the baseline
+python tools/corpus_report.py --save-baseline # bless a deliberate improvement
+```
+
+The column that matters is **`unres`** — rows where no status was recovered at
+all. It is the signature of a parser that has quietly stopped reading, and it is
+how every bug listed below was found. `--check` fails if coverage drops,
+`unres` rises, or invariant violations rise, so it is worth running before any
+commit that touches `parsing/` or `extraction/`.
+
+The scoreboard also prints **unknown status phrasings verbatim**. That is the
+feedback loop for `_STATUS_MAP` (`domain/normalization.py`): it is how the
+corpus told us Atrium answers `4.1.1 Parsing` with "Does Not Apply". Grow the map
+from what the corpus reports, not from guesswork.
+
+### Hard-won lessons — do not undo these
+
+- **Find the status by looking, not by index.** Vendor tables are 3, 5, 8 and 9
+  columns wide, with the status at index 1, 2 or 3. `parse_from_tables` used to
+  sniff `9col`/`3col` once per table; widths 5 and 8 fell through to an empty
+  cell, so **Atrium reported 55 of 56 criteria as "Not Evaluated" and H5P all 87**.
+  `find_row_status` scans for the cell that *is* a status. Keep it that way.
+- **Cells wrap.** A criterion name, its W3C link, and `(Level A)` routinely land
+  on three lines of one cell, and "Not Applicable" arrives as `Not\nApplicable`.
+  Match against `_flatten`ed text — Canvas matched **zero** table rows without it.
+- **Long remarks are split across continuation rows**, one row per line, with
+  only the remarks column filled. `_absorb_continuation` reattaches them; without
+  it Atrium's remarks were a 45-character fragment of a 450-character answer.
+- **Page overlays interleave with cell text.** A Box preview watermark put a `2`
+  *inside* "Not Applicab2le" in iCIMS. `extraction/pdf.py::_overlay_fonts` drops
+  it by geometry (overlay text has no horizontally-adjacent same-font
+  neighbours), not by font name.
+- **A row with no evidence is not a finding.** `parse_508_fpc` used to synthesize
+  all nine `302.x` rows on *every* document, including files that were not VPATs.
+  Report only what the document states.
+- **Not every file is a VPAT.** `parsing/doctype.py` classifies, and the CLI
+  refuses with **exit 2** (distinct from exit 1, "a VPAT we could not read").
+  Scoring a remediation plan produces an authoritative-looking number that means
+  nothing. The classifier is deliberately *generous*: a false "not a VPAT" blocks
+  real work, whereas `UNKNOWN` merely proceeds without a claim.
+- **`WCAG_LEVELS` overrides the vendor's stated level**, so an error there
+  silently moves rows in and out of the score. 3.2.6 and 3.3.7 were listed as AA
+  (they are Level A) and had no `wcag.json` entry at all — criteria graded with
+  nothing to say about them. `tests/unit/test_reference.py` now pins parser and
+  reference data together.
+
+### Table-shape bugs need table-shape tests
+
+`.txt` fixtures cannot express a column layout, so bugs like the above are
+reproduced in `tests/parsing/test_criteria.py` by calling `parse_from_tables`
+with the real cell shapes transcribed from the corpus. Add the reproducing test
+*before* the fix (§8), and cite which vendor document it came from.
 
 ## 7. The root scripts and the "legacy" modules
 
@@ -272,6 +377,13 @@ code to that standard.
   parses each and asserts it matches. This is the safety net that lets you
   refactor the parser: if a fixture's output changes, you'll know instantly.
   **When you fix a parser bug, add a fixture that reproduces it first.**
+  A `.txt` fixture cannot express a table's column layout, so table-shape bugs
+  get a `parse_from_tables` test instead — see §7a.
+- **The real corpus** (`docs/completed_forms/`, via `tools/corpus_report.py`) is
+  the other half of the net, and the more truthful half: the unit tests only know
+  the shapes we thought of, while the corpus knows what vendors actually ship.
+  Regenerating a golden proves you did not change *this* parse; the scoreboard
+  proves you did not break a real document.
 - **Unit tests** for the pure domain (`tests/unit/`) — scoring, impact, policy,
   normalization. Fast and exhaustive because the domain has no I/O.
 - **The behavior anchor** (`make_demo.py`, mirrored by

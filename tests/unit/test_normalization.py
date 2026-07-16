@@ -25,6 +25,22 @@ def test_fuzzy_and_typos():
     assert normalize_status("heading cell") == "Not Evaluated"
 
 
+def test_does_not_apply_is_out_of_scope_not_a_failure():
+    """A real ACR answers 4.1.1 Parsing (which WCAG 2.2 removed) "Does Not Apply".
+
+    It opens with "does not", but it means the criterion is out of scope rather
+    than failed -- the difference between an excluded row and a barrier.
+    """
+    assert normalize_status("Does Not Apply") == "Not Applicable"
+    assert normalize_status("does not apply") == "Not Applicable"
+
+
+def test_target_prefixed_status():
+    """Multi-target ACRs answer per surface: "Web: Supports"."""
+    assert normalize_status("Web: Supports") == "Supports"
+    assert normalize_status("Web: Partially Supports") == "Partially Supports"
+
+
 def test_output_is_always_canonical():
     for raw in ["", "weird value", "supports", "n/a", "partial", "not evaluated"]:
         assert normalize_status(raw) in CANONICAL_STATUSES

@@ -14,6 +14,30 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
+from enum import Enum
+
+
+class DocumentKind(str, Enum):
+    """What a submitted file turned out to be.
+
+    Reviewers are sent all sorts of accessibility paperwork, and only some of it
+    is a VPAT. Scoring a remediation plan or a blank template as though it were
+    a vendor's conformance claim produces a confident, meaningless number, so
+    the parser records what it thinks it read and the callers can refuse.
+    """
+
+    VPAT = "vpat"
+    BLANK_TEMPLATE = "blank_template"
+    NOT_A_VPAT = "not_a_vpat"
+    UNKNOWN = "unknown"
+
+
+@dataclass(frozen=True)
+class DocTypeVerdict:
+    """The classification plus the evidence for it, so a refusal can explain itself."""
+
+    kind: DocumentKind = DocumentKind.UNKNOWN
+    reasons: tuple[str, ...] = ()
 
 
 @dataclass
@@ -50,6 +74,8 @@ class VPATDocument:
     parse_warnings: list[str] = field(default_factory=list)
     is_outdated: bool = False
     outdated_note: str = ""
+    document_kind: DocumentKind = DocumentKind.UNKNOWN
+    document_kind_reasons: list[str] = field(default_factory=list)
 
 
 # Backward-compatible alias for the legacy name used across the v10 codebase.

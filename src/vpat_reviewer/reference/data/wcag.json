@@ -531,6 +531,18 @@
       "Report inconsistently labeled controls to the vendor with screenshots of both instances."
     ]
   },
+  "3.2.6": {
+    "title": "Consistent Help",
+    "level": "A",
+    "principle": "Understandable",
+    "description": "If a web page contains any of the following help mechanisms, and those mechanisms are repeated on multiple web pages within a set of web pages, they occur in the same order relative to other page content, unless a change is initiated by the user: human contact details; human contact mechanism; self-help option; a fully automated contact mechanism.",
+    "plain": "If help is offered — a phone number, a chat widget, a link to support — it should sit in the same place on every page, so people do not have to hunt for it.",
+    "workarounds": [
+      "Bookmark the support or help page directly so it can be reached without locating the help control on each page.",
+      "Ask the vendor to place help links consistently in the header or footer across the product.",
+      "Document where help appears on each major screen and share that list with affected users as an interim guide."
+    ]
+  },
   "3.3.1": {
     "title": "Error Identification",
     "level": "A",
@@ -578,6 +590,19 @@
       "Check whether the application sends a confirmation email — that serves as a record of submission.",
       "If the form has a review step, use it even if it appears optional.",
       "Faculty should document submission steps for students in case data is lost."
+    ]
+  },
+  "3.3.7": {
+    "title": "Redundant Entry",
+    "level": "A",
+    "principle": "Understandable",
+    "description": "Information previously entered by or provided to the user that is required to be entered again in the same process is either auto-populated or available for the user to select, except when re-entering the information is essential, the information is required to ensure the security of the content, or previously entered information is no longer valid.",
+    "plain": "A multi-step process should not make people type the same thing twice — it should carry the earlier answer forward or offer it for selection.",
+    "workarounds": [
+      "Copy repeated values (address, student ID) to the clipboard at the start of a multi-step form so they can be pasted at each step.",
+      "Use browser or password-manager autofill to re-enter previously supplied details.",
+      "Ask the vendor to carry earlier answers forward between steps of the same process.",
+      "Students who find repeated entry a barrier should contact Disability Services about completing the process with assistance."
     ]
   },
   "3.3.8": {

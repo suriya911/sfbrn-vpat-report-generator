@@ -16,12 +16,17 @@ import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
 
 from vpat_reviewer import __version__, service
 from vpat_reviewer.config import policy_form, settings
 from vpat_reviewer.config.settings import IDENTITY_DEFAULTS
+from vpat_reviewer.domain.models import DocumentKind
 from vpat_reviewer.domain.policy import GradingPolicy
+
+# Distinguish "this is the wrong kind of file" from "this is a VPAT we could not
+# read" -- a caller scripting the CLI should be able to tell them apart.
+EXIT_UNPARSEABLE = 1
+EXIT_WRONG_DOCUMENT = 2
 
 _AUDIENCE = ["individual", "small_team", "department", "campus_wide"]
 _ACCESS = ["no_limit", "limits_some", "denies_access"]
@@ -47,21 +52,6 @@ def _add_impact_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument("--access", choices=_ACCESS, help="Access impact (impact input).")
     p.add_argument("--legal", choices=_LEGAL, help="Legal exposure (impact input).")
     p.add_argument("--deployment", choices=_DEPLOYMENT, help="Deployment scale (impact input).")
-
-
-def _result_dict(result: service.ReviewResult) -> dict[str, Any]:
-    doc = result.document
-    return {
-        "product_name": doc.product_name,
-        "product_version": doc.product_version,
-        "vendor_name": doc.vendor_name,
-        "standards_reviewed": doc.standards_reviewed,
-        "score": result.score,
-        "impact": result.impact,
-        "barriers": [b.criterion_id for b in result.barriers],
-        "warnings": result.warnings,
-        "output_path": result.output_path,
-    }
 
 
 def _print_summary(result: service.ReviewResult) -> None:
@@ -90,15 +80,33 @@ def _print_summary(result: service.ReviewResult) -> None:
 
 def _emit(result: service.ReviewResult, as_json: bool) -> None:
     if as_json:
-        print(json.dumps(_result_dict(result), indent=2, ensure_ascii=False))
+        print(json.dumps(service.to_dict(result), indent=2, ensure_ascii=False))
     else:
         _print_summary(result)
+
+
+def _wrong_document(result: service.ReviewResult) -> str:
+    """Why this file should not be scored at all, or "" if it is fine to score.
+
+    Distinct from "a VPAT we could not parse": scoring a remediation plan or a
+    blank template yields an authoritative-looking number that means nothing, so
+    it is worth refusing loudly rather than reporting 0%.
+    """
+    doc = result.document
+    if doc.document_kind in (DocumentKind.VPAT, DocumentKind.UNKNOWN):
+        return ""
+    reasons = "; ".join(doc.document_kind_reasons)
+    return f"{doc.document_kind.value}: {reasons}" if reasons else doc.document_kind.value
 
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
     result = service.analyze(args.input, answers=_answers(args))
     _emit(result, args.json)
-    return 0 if result.has_criteria else 1
+    wrong = _wrong_document(result)
+    if wrong:
+        print(f"This file does not look like a VPAT — {wrong}", file=sys.stderr)
+        return EXIT_WRONG_DOCUMENT
+    return 0 if result.has_criteria else EXIT_UNPARSEABLE
 
 
 def _default_output(input_path: str) -> str:
@@ -108,12 +116,19 @@ def _default_output(input_path: str) -> str:
 
 def _cmd_review(args: argparse.Namespace) -> int:
     result = service.analyze(args.input, answers=_answers(args))
+    wrong = _wrong_document(result)
+    if wrong:
+        _emit(result, args.json)
+        print(f"Refusing to report on this file — {wrong}", file=sys.stderr)
+        return EXIT_WRONG_DOCUMENT
     if not result.has_criteria:
         _emit(result, args.json)
         print("Nothing to report — no criteria were parsed.", file=sys.stderr)
-        return 1
+        return EXIT_UNPARSEABLE
     output = args.output or _default_output(args.input)
     service.render_result(result, output, logo_path=args.logo or "")
+    if not args.no_json:
+        service.write_json(result, args.json_out or str(Path(output).with_suffix(".json")))
     _emit(result, args.json)
     return 0
 
@@ -204,6 +219,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_review.add_argument("-o", "--output", help="Output PDF path (default: next to input).")
     p_review.add_argument("--logo", help="Path to a logo image for the report.")
     p_review.add_argument("--json", action="store_true", help="Emit JSON instead of a summary.")
+    p_review.add_argument(
+        "--json-out", help="Where to write the machine-readable record (default: beside the PDF)."
+    )
+    p_review.add_argument(
+        "--no-json", action="store_true", help="Do not write the JSON record beside the report."
+    )
     _add_impact_flags(p_review)
     p_review.set_defaults(func=_cmd_review)
 

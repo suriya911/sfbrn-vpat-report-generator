@@ -17,14 +17,27 @@ from vpat_reviewer.extraction.txt import TxtExtractor
 def test_get_extractor_by_extension():
     assert isinstance(get_extractor("a.pdf"), PdfExtractor)
     assert isinstance(get_extractor("a.docx"), DocxExtractor)
-    assert isinstance(get_extractor("a.doc"), DocxExtractor)  # legacy: .doc -> docx
     assert isinstance(get_extractor("a.txt"), TxtExtractor)
     assert get_extractor("a.xlsx") is None
+
+
+def test_legacy_doc_is_rejected_not_silently_empty():
+    """`.doc` used to be aliased to `.docx`.
+
+    python-docx cannot read the legacy binary format, so it raised, the
+    extractor swallowed it, and the user got a VPAT with no criteria and no
+    explanation. Say what is wrong and what to do instead.
+    """
+    assert get_extractor("a.doc") is None
+    with pytest.raises(UnsupportedFormatError) as exc:
+        extract("legacy.doc")
+    assert ".docx" in str(exc.value), "the message must name the fix"
 
 
 def test_supported_extensions():
     exts = supported_extensions()
     assert ".pdf" in exts and ".docx" in exts and ".txt" in exts
+    assert ".doc" not in exts
 
 
 def test_extract_unsupported_raises():

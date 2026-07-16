@@ -88,34 +88,59 @@ def render_result(
 
 
 def to_dict(result: ReviewResult) -> dict[str, Any]:
-    """Serialize a review to the normalized JSON shape used by the test fixtures.
+    """Serialize a review to the machine-readable record of the whole pipeline.
 
-    Mirrors ``tests/fixtures/txt/*.expected.json`` (product/vendor/standards, the
-    WCAG-AA score, the barrier IDs, and every parsed criterion) and adds the
-    suggested impact level so the JSON is a complete machine-readable record of
-    the parse -> score -> classify pipeline.
+    This is the single JSON shape the app emits -- for the CLI's ``--json`` and
+    for the sidecar written beside a report -- and it is what a downstream
+    consumer (including an LLM asked to interpret a vendor's claims) reads.
+
+    Two things it deliberately carries beyond what the report shows:
+
+    * ``document_kind`` says whether this was a VPAT at all. A consumer must be
+      able to tell a vendor's conformance claim from a remediation plan or a
+      blank template before it trusts a score.
+    * every criterion keeps both ``raw_status`` (verbatim, as the vendor wrote
+      it) and ``status`` (our canonical reading). Normalization is lossy and
+      occasionally wrong, so the evidence travels next to the interpretation
+      rather than being replaced by it.
     """
     doc = result.document
     return {
+        "document_kind": doc.document_kind.value,
+        "document_kind_reasons": doc.document_kind_reasons,
         "product_name": doc.product_name,
         "product_version": doc.product_version,
+        "product_description": doc.product_description,
+        "product_type": doc.product_type,
         "vendor_name": doc.vendor_name,
+        "vendor_contact": doc.vendor_contact,
         "vendor_report_date_raw": doc.vendor_report_date_raw,
+        "vpat_edition": doc.vpat_edition,
+        "is_outdated": doc.is_outdated,
+        "outdated_note": doc.outdated_note,
         "standards_reviewed": doc.standards_reviewed,
+        "evaluation_methods": doc.evaluation_methods,
         "score": result.score["score"],
         "supported": result.score["supported"],
         "reviewable_total": result.score["total"],
+        "score_detail": dict(result.score),
         "impact_level": result.impact.get("suggested_level", ""),
+        "impact": dict(result.impact),
         "barriers": [b.criterion_id for b in result.barriers],
         "criteria": [
             {
                 "id": c.criterion_id,
+                "title": c.title,
                 "level": c.level,
+                "raw_status": c.raw_status,
                 "status": c.normalized_status,
+                "remarks": c.remarks,
                 "section": c.section,
             }
             for c in doc.criteria
         ],
+        "warnings": result.warnings,
+        "output_path": result.output_path,
     }
 
 

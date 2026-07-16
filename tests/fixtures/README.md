@@ -45,6 +45,13 @@ A normalized, **deterministic** subset of the parse result. Date-derived fields
 excluded because they depend on today's date. The raw report-date *string*
 (`vendor_report_date_raw`) is included.
 
-Note: every parse synthesizes the nine Section 508 functional-performance rows
-(302.1–302.9) as a fallback, so they appear in every golden's `criteria` list
-with `section: "508_fpc"` and `level: ""`. They do not affect the WCAG AA score.
+Note: Section 508 functional-performance rows (302.1–302.9, `section: "508_fpc"`,
+`level: ""`) appear only when the document actually states them — from a table
+row, or from prose naming the criterion and its conformance value. They do not
+affect the WCAG AA score, which counts only `level: "AA"`.
+
+Until July 2026 the parser emitted all nine rows unconditionally, defaulting the
+status to `Not Evaluated`, and the goldens here froze that as expected output.
+Both fixtures contain no `302` text at all, so those eighteen rows were pure
+invention — and every document got them, including files that were not VPATs.
+If you see fabricated rows come back, that fallback has regressed.

@@ -1,0 +1,113 @@
+{
+  "2026-January-VPAT-CornerstoneLearningManagement-CorePlatform.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Not Applicable": 18,
+      "Partially Supports": 24,
+      "Supports": 13
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 55
+  },
+  "Anatomy LT_SSU_June2026 (signed).pdf": {
+    "fpc_count": 0,
+    "statuses": {},
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 0
+  },
+  "Appsian Accessibility Report.pdf": {
+    "fpc_count": 0,
+    "statuses": {},
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 0
+  },
+  "Atrium Connect - April 2025 - April 2026 - VPAT WCAG.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Not Applicable": 1,
+      "Partially Supports": 13,
+      "Supports": 42
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 56
+  },
+  "Beyond_Compare-ScooterSoftware-ACR(3-24-2020).doc": {
+    "fpc_count": 0,
+    "statuses": {},
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 0
+  },
+  "Canvas VPAT Novemeber 2023.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Not Applicable": 1,
+      "Partially Supports": 6,
+      "Supports": 43
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 50
+  },
+  "H5P.com_-_VPAT_-_2025.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Not Applicable": 7,
+      "Not Evaluated": 31,
+      "Partially Supports": 3,
+      "Supports": 46
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 87
+  },
+  "ICT Risk Scoring Example.docx": {
+    "fpc_count": 0,
+    "statuses": {},
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 0
+  },
+  "TAAP Version 3_2 051225.docx": {
+    "fpc_count": 0,
+    "statuses": {},
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 0
+  },
+  "VPAT-ACR Review In Depth Guide.docx": {
+    "fpc_count": 9,
+    "statuses": {
+      "Not Evaluated": 38
+    },
+    "unresolved": 38,
+    "violations": 1,
+    "wcag_count": 38
+  },
+  "WRDS-VPAT_Jan2026.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Not Applicable": 10,
+      "Partially Supports": 1,
+      "Supports": 39
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 50
+  },
+  "iCIMS_VPAT 2.5_WCAG2_2.2_August 2024_SkS.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Not Applicable": 6,
+      "Partially Supports": 4,
+      "Supports": 46
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 56
+  }
+}
