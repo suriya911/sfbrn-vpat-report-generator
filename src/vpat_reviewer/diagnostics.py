@@ -3,8 +3,8 @@
 The GUI executable can't show terminal output, so ``VPAT_Reviewer.exe
 --selftest`` runs these checks *inside the frozen app* and writes the result to
 a JSON file. Use it to confirm a fresh build actually works — most importantly
-that the bundled WCAG reference data (``wcag.json``) is present and loadable,
-which is the one thing packaging tends to break.
+that the bundled data files (``wcag.json`` and the review rubric) are present
+and loadable, which is the one thing packaging tends to break.
 
     VPAT_Reviewer.exe --selftest                 -> writes vpat_selftest.json next to the exe
     VPAT_Reviewer.exe --selftest C:\\path\\out.json -> writes to a chosen path
@@ -71,6 +71,38 @@ def run_checks() -> dict[str, Any]:
         record("renderer_imports", True, ReportLabRenderer().output_suffix)
     except Exception as e:  # noqa: BLE001
         record("renderer_imports", False, f"{type(e).__name__}: {e}")
+
+    # 6. The review rubric is bundled and has its substitution point (packaging).
+    #    This is the check that would have caught the AI silently never running
+    #    in the frozen exe: the rubric used to be a loose prompt.txt found by
+    #    walking up from __file__, which resolves to nothing inside a bundle.
+    try:
+        from vpat_reviewer.ai import prompt
+
+        text = prompt.template()
+        has_placeholder = prompt.PLACEHOLDER in text
+        record(
+            "review_rubric_loads",
+            has_placeholder,
+            f"{len(text)} chars" if has_placeholder else f"missing {prompt.PLACEHOLDER}",
+        )
+    except Exception as e:  # noqa: BLE001
+        record("review_rubric_loads", False, f"{type(e).__name__}: {e}")
+
+    # 7. The Bedrock adapter and its AWS client can be built (its deps are
+    #    bundled). Constructing a client needs botocore's service-model data but
+    #    no credentials — so this fails loudly at build time rather than silently
+    #    at a reviewer's desk. No network call is made.
+    try:
+        from vpat_reviewer.ai.bedrock import BedrockAssessor, BedrockConfig, _client
+
+        cfg = BedrockConfig.from_settings(settings.load_settings())
+        # Touching the service model is the point: it forces botocore to load the
+        # bundled data files for bedrock-runtime, which is what a build drops.
+        service = _client(cfg).meta.service_model.service_name
+        record("ai_adapter_ready", True, f"{service}: {BedrockAssessor(cfg).model_id}")
+    except Exception as e:  # noqa: BLE001
+        record("ai_adapter_ready", False, f"{type(e).__name__}: {e}")
 
     passed = all(c["ok"] for c in checks)
     return {

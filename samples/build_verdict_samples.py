@@ -13,8 +13,8 @@ from pathlib import Path
 
 from vpat_reviewer.domain.impact import calculate_impact
 from vpat_reviewer.domain.scoring import get_barriers
+from vpat_reviewer.domain.verdict import classify_report
 from vpat_reviewer.service import analyze, to_dict
-from vpat_reviewer.ui.gui.app import classify_report
 
 OUT = Path(__file__).resolve().parent / "verdict_cases"
 

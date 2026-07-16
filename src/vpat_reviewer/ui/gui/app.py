@@ -15,14 +15,20 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 # GUI as an adapter: import the package directly (not the legacy root shims).
-from vpat_reviewer.ai.review import build_prompt, review_with_ai
+# This module is the composition root for the AI review — it is where "which
+# model" is decided and where `use_ai` is honored. service.assess_result takes
+# the assessor as an argument precisely so the library never reaches for a
+# network on its own.
+from vpat_reviewer.ai.base import AssessmentError, RiskAssessment
+from vpat_reviewer.ai.bedrock import BedrockAssessor, BedrockConfig
 from vpat_reviewer.config import settings as settings_manager
 from vpat_reviewer.domain.impact import calculate_impact
 from vpat_reviewer.domain.scoring import compliance_score
 from vpat_reviewer.domain.scoring import get_barriers as get_aa_barriers
+from vpat_reviewer.domain.verdict import CATEGORIES, classify_report
 from vpat_reviewer.parsing import parse_vpat
 from vpat_reviewer.reporting.reportlab_renderer import generate_report, validate_report
-from vpat_reviewer.service import ReviewResult
+from vpat_reviewer.service import ReviewResult, assess_result, build_assessment_request
 from vpat_reviewer.ui.gui.policy_dialog import GradingPolicyDialog
 
 # ── Logging ────────────────────────────────────────────────────────────────────
@@ -71,15 +77,10 @@ FONT = "Segoe UI"
 IMPACT_COLORS = {"High": C_RED, "Medium": C_ORANGE, "Low": C_GREEN}
 
 # ── Report categorization ───────────────────────────────────────────────────────
-# Five review verdicts. Each maps to (accent colour, glyph, one-line meaning) for
-# the side panel, and to an on-disk folder name reports are filed under.
-CATEGORIES = [
-    "Good to Go",
-    "Minor Issue",
-    "Needs Manual Review",
-    "Need TAAP",
-    "Deny",
-]
+# The five verdicts live in domain/verdict.py — the rubric, the validator and this
+# panel must all name them identically. Here we only add presentation: each maps to
+# (accent colour, glyph, one-line meaning) for the side panel, and to an on-disk
+# folder name reports are filed under.
 CATEGORY_META = {
     "Good to Go": ("#15803d", "✓", "Meets the bar — ready to deploy as-is."),
     "Minor Issue": ("#4d7c0f", "◐", "Deployable, with a few small gaps to track."),
@@ -96,28 +97,46 @@ CATEGORY_FOLDER = {
 }
 
 
-def classify_report(
-    score, impact_level: str, barriers: int, access: str, good_cut: int = 90
-) -> str:
-    """Map a finished review to one of the five verdicts.
+def _impact_from_risk(risk_level: str) -> str | None:
+    """The report's Low/Medium/High from the rubric's risk level. None = no opinion.
 
-    Frontend-only heuristic (no domain change): drives which folder the report is
-    filed under and what the side panel shows. ``score`` is 0–100 or ``None`` when
-    it could not be computed; ``impact_level`` is Low/Medium/High.
+    "Critical" becomes "High" because the report's scale has no cell above it and
+    Critical is unambiguously inside High — lossy, but not invented, and the
+    model's own word survives in the JSON sidecar either way.
+
+    "Unknown" returns None: the model declined to rate the risk. The previous
+    implementation called that "Medium", manufacturing a rating nobody gave. We
+    already computed a real one deterministically, so we keep it.
     """
-    if score is None:
-        return "Needs Manual Review"
-    if access == "denies_access" and impact_level == "High":
-        return "Deny"
-    if impact_level == "High" and score < 50:
-        return "Deny"
-    if impact_level == "High":
-        return "Need TAAP"
-    if score >= good_cut and barriers == 0:
-        return "Good to Go"
-    if score >= 70:
-        return "Minor Issue"
-    return "Needs Manual Review"
+    if risk_level == "Critical":
+        return "High"
+    if risk_level in ("Low", "Medium", "High"):
+        return risk_level
+    return None  # "Unknown" — validation guarantees nothing else reaches here.
+
+
+def _rationale_bullets(assessment) -> list[str]:
+    """The report's rationale bullets, assembled from a validated assessment."""
+    bullets = []
+    if assessment.reason:
+        bullets.append(assessment.reason)
+    # Prefer the concrete risks; fall back to the generic signals.
+    bullets.extend(assessment.major_accessibility_risks or assessment.signals_found)
+    bullets += [f"Missing/unclear: {g}" for g in assessment.missing_or_unclear_information]
+    recs = ([assessment.recommendation] if assessment.recommendation else []) + list(
+        assessment.next_steps
+    )
+    if recs:
+        bullets.append("Recommendations: " + "; ".join(recs))
+    if assessment.needs_human_review:
+        # The model asking for a human is the single thing a reviewer must not
+        # miss, and the previous implementation discarded it along with the
+        # confidence. A weak verdict still counts — but it says so.
+        bullets.append(
+            f"The model flagged this for human review "
+            f"(confidence {assessment.confidence:.2f})."
+        )
+    return bullets
 
 
 def _status_color(status: str) -> str:
@@ -353,6 +372,7 @@ class VPATReviewerApp(tk.Tk):
         self.report_path = None
         self.category = None
         self.ai_review = None
+        self.ai_error = None
         self.category_dirs = {}
         self._processing = False
         self._canvases: set = set()  # scrollable canvases (for the mouse wheel)
@@ -932,6 +952,12 @@ class VPATReviewerApp(tk.Tk):
             padx=12, pady=(0, 8), anchor="w"
         )
 
+    def _verdict_source(self) -> str:
+        """Who actually decided the verdict — the model, or the offline rules."""
+        if self.ai_review is not None and self.ai_review.is_verdict:
+            return "Amazon Bedrock"
+        return "Deterministic rules"
+
     def _populate_summary(self):
         for region in (self.sum_top, self.sum_bottom, self.bar_list):
             for w in region.winfo_children():
@@ -996,6 +1022,10 @@ class VPATReviewerApp(tk.Tk):
             ("Report Date", data.vendor_report_date_raw or "—"),
             ("AA Barriers", str(len(aa_barriers))),
             ("Filed Under", CATEGORY_FOLDER.get(self.category, "—")),
+            # Who decided. Without this, "did the AI actually run?" is
+            # unanswerable from the app — and for a long time the answer in the
+            # shipped exe was silently "no".
+            ("Verdict by", self._verdict_source()),
         ]
         for i, (lbl, val) in enumerate(rows):
             r = tk.Frame(facts, bg=BG_CARD)
@@ -1221,11 +1251,15 @@ class VPATReviewerApp(tk.Tk):
             self._processing = False
             self.after(0, lambda: self.btn_generate.config(state="normal"))
 
-    def _persist_ai_io(self, stem, prompt_text, response_text, ai, error):
-        """Save the exact prompt sent to Bedrock and the response received.
+    def _persist_ai_io(self, stem, prompt_text, assessment):
+        """Save the exact prompt sent to Bedrock and the assessment it produced.
 
         Writes to the two Desktop folders (AI Prompts / AI Responses) so every
         run has an auditable trail. Never raises — logging must not block a report.
+
+        The record is ``assessment.to_dict()`` verbatim: it already carries the
+        model id, the confidence, the error when there was one, and the model's
+        raw reply. Copying fields out by hand here is how they get forgotten.
         """
         try:
             prompts_dir = getattr(self, "ai_prompts_dir", None)
@@ -1234,34 +1268,21 @@ class VPATReviewerApp(tk.Tk):
                 return
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             model = self.settings.get("bedrock_model_id", "")
-            header = f"# {stamp} | model: {model}\n\n"
 
             if prompt_text:
                 (prompts_dir / f"{stem}.txt").write_text(
-                    "# Prompt sent to Amazon Bedrock\n" + header + prompt_text,
+                    "# Prompt sent to Amazon Bedrock\n"
+                    + f"# {stamp} | model: {model}\n\n"
+                    + prompt_text,
                     encoding="utf-8",
                 )
 
-            # Single response file: metadata + parsed fields + the raw reply, all
-            # in one JSON (no separate .txt, so nothing is written twice).
             record = {
                 "timestamp": stamp,
-                "model_id": model,
                 "region": self.settings.get("bedrock_region", ""),
-                "error": error,
             }
-            if ai is not None:
-                record.update(
-                    {
-                        "parsed_ok": ai.parsed_ok,
-                        "verdict": ai.verdict,
-                        "impact_level": ai.impact_level,
-                        "summary": ai.summary,
-                        "rationale": ai.rationale,
-                        "recommendations": ai.recommendations,
-                    }
-                )
-            record["raw_response"] = response_text
+            if assessment is not None:
+                record.update(assessment.to_dict())
             (responses_dir / f"{stem}.json").write_text(
                 json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
             )
@@ -1307,6 +1328,7 @@ class VPATReviewerApp(tk.Tk):
         # any Bedrock/creds failure, so a report is always produced).
         good_cut = int(self.settings.get("threshold", 90) or 90)
         self.ai_review = None
+        self.ai_error = None
         used_ai = False
         # Correlate the saved prompt/response with the report by a shared stem.
         _stem_name = (_safe_filename(data.product_name or "Product")[:50]).strip() or "Product"
@@ -1320,35 +1342,36 @@ class VPATReviewerApp(tk.Tk):
                 barriers=barriers,
                 answers=answers,
             )
+            request = None
             prompt_text = ""
             try:
-                prompt_text = build_prompt(review_obj)
-            except Exception as e:  # noqa: BLE001 - prompt logging must never block
-                logger.warning("Could not build AI prompt for logging: %s", e)
-            try:
-                ai = review_with_ai(review_obj, self.settings)
-                # Persist exactly what we sent and what we got back (audit trail).
-                self._persist_ai_io(ai_stem, prompt_text, ai.raw_text, ai, None)
-                if ai.parsed_ok:
-                    self.ai_review = ai
-                    self.category = ai.verdict
-                    if not override:  # a manual override still wins the impact level
-                        impact_info["final_level"] = ai.impact_level
-                    ai_reasons = list(ai.rationale)
-                    if ai.summary:
-                        ai_reasons.insert(0, ai.summary)
-                    if ai.recommendations:
-                        ai_reasons.append(
-                            "Recommendations: " + "; ".join(ai.recommendations)
-                        )
-                    if ai_reasons:
-                        impact_info["rationale"] = ai_reasons
-                    used_ai = True
-                else:
-                    logger.warning("Bedrock reply not parseable; using deterministic verdict.")
-            except Exception as e:  # noqa: BLE001 - never let AI break report generation
-                logger.warning("Bedrock review unavailable (%s); using deterministic verdict.", e)
-                self._persist_ai_io(ai_stem, prompt_text, "", None, str(e))
+                request = build_assessment_request(review_obj)
+                prompt_text = request.prompt
+            except AssessmentError as e:  # an unpackaged or malformed rubric
+                logger.warning("Could not build the AI prompt: %s", e)
+
+            # assess_result never raises: a failed call, or a reply we cannot read
+            # as a verdict, records a "Not Assessed" assessment instead.
+            assessor = BedrockAssessor(BedrockConfig.from_settings(self.settings))
+            assess_result(review_obj, assessor=assessor, request=request)
+            ai = review_obj.assessment
+            self.ai_review = ai
+            self._persist_ai_io(ai_stem, prompt_text, ai)
+
+            if ai is not None and ai.is_verdict:
+                self.category = ai.category
+                level = _impact_from_risk(ai.risk_level)
+                if level and not override:  # a manual override still wins the impact level
+                    impact_info["final_level"] = level
+                bullets = _rationale_bullets(ai)
+                if bullets:
+                    impact_info["rationale"] = bullets
+                used_ai = True
+            else:
+                self.ai_error = (ai.error or ai.reason) if ai else "no assessment was produced"
+                logger.warning(
+                    "AI review unavailable (%s); using deterministic verdict.", self.ai_error
+                )
 
         if not used_ai:
             # Deterministic five-folder heuristic (offline / fallback).
@@ -1439,9 +1462,10 @@ class VPATReviewerApp(tk.Tk):
     def _on_success(self):
         self._populate_summary()
         self.btn_save_as.config(state="normal")
+        note = " (AI unavailable — deterministic verdict)" if self.ai_error else ""
         self._status(
             f"Done — verdict: {self.category}. Filed under "
-            f"“{CATEGORY_FOLDER.get(self.category, '')}”.",
+            f"“{CATEGORY_FOLDER.get(self.category, '')}”.{note}",
             C_SUCCESS,
         )
 
