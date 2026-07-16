@@ -14,7 +14,7 @@ from tkinter import messagebox
 from vpat_reviewer.config import policy_form, settings
 from vpat_reviewer.domain.normalization import CANONICAL_STATUSES
 from vpat_reviewer.domain.policy import GradingPolicy
-from vpat_reviewer.ui.gui.widgets import make_scrollable, size_scrollable_dialog
+from vpat_reviewer.ui.gui.widgets import FlatButton, make_scrollable, size_scrollable_dialog
 
 
 class GradingPolicyDialog(tk.Toplevel):
@@ -39,9 +39,9 @@ class GradingPolicyDialog(tk.Toplevel):
         footer.pack(side="bottom", fill="x")
         btns = tk.Frame(footer)
         btns.pack(pady=10)
-        tk.Button(btns, text="Save", command=self._save).pack(side="left", padx=6)
-        tk.Button(btns, text="Reset to Defaults", command=self._reset).pack(side="left", padx=6)
-        tk.Button(btns, text="Close", command=self.destroy).pack(side="left", padx=6)
+        FlatButton(btns, text="Save", command=self._save).pack(side="left", padx=6)
+        FlatButton(btns, text="Reset to Defaults", command=self._reset).pack(side="left", padx=6)
+        FlatButton(btns, text="Close", command=self.destroy).pack(side="left", padx=6)
 
         # Scrollable field area above the footer. Register the canvas in the main
         # window's wheel-scroll set so the mouse wheel scrolls it too.

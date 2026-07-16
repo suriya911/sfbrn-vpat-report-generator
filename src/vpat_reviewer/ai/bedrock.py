@@ -25,15 +25,50 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from vpat_reviewer.ai.base import AssessmentError, AssessmentRequest, RiskAssessment
+from vpat_reviewer.ai.base import (
+    AssessmentError,
+    AssessmentRequest,
+    RiskAssessment,
+    TokenUsage,
+)
 from vpat_reviewer.ai.response import parse
 
 DEFAULT_REGION = "us-west-2"
-# Cross-region inference profile for Claude Haiku 4.5 on Bedrock. Override with
-# VPAT_BEDROCK_MODEL_ID or the bedrock_model_id setting to switch models.
+# NVIDIA Nemotron Nano 12B on Bedrock. Override with VPAT_BEDROCK_MODEL_ID or
+# the bedrock_model_id setting to switch models.
+#
+# **This is a deliberate cost/latency trade, not the most accurate option.**
+# Against the 59-model, 5-VPAT comparison in docs/model_eval, this model scores
+# 67.6 avg quality and agrees with the crowd consensus on 2 of 5 documents, vs
+# 86.0 / 4-of-5 for `us.anthropic.claude-opus-4-6-v1`. It is ~91x cheaper
+# ($0.0009 vs $0.0785/doc) and ~7.5x faster (3.5s vs 26.4s). Where it diverges it
+# tends to answer one category *lower* than the larger models -- on Google Docs
+# it said "Needs Manual Review" where Opus 4.6 said "Need TAAP" -- and
+# under-flagging is the unsafe direction for a procurement verdict.
+#
+# Those numbers predate the current rubric, and the rubric is what the model is
+# graded against: re-run docs/model_eval after editing
+# ai/data/risk_review_prompt.md before trusting the comparison, and before
+# treating a swap here as free. `needs_human_review` defaults to True for
+# exactly this reason.
+#
+# **Model-id form differs by model, so verify rather than pattern-match.** Some
+# models need a cross-region *inference profile* id (the `us.` prefix) and reject
+# the bare foundation-model id from the catalog: `anthropic.claude-opus-4-6-v1`
+# is real and Converse still refuses it -- "Invocation ... with on-demand
+# throughput isn't supported. Retry with the ID or ARN of an inference profile."
+# The Nemotron models have no inference profile and take the bare id. Check with
+# `aws bedrock list-inference-profiles` *and* `list-foundation-models`.
+#
+# A wrong id fails *silently in the product*: the Converse call raises,
+# assess_result records a non-verdict, and every report falls back to the offline
+# classifier with only a status-line note (§7b). --selftest does not catch it --
+# it checks the adapter loads, not that the id answers. The cheap proof is one
+# real review with `verdict_source` == "ai" in the audit log (§7d).
+#
 # NOTE: duplicated in config/settings.py::IDENTITY_DEFAULTS, because config must
 # not import ai (the arrows point inward). A test pins the two together.
-DEFAULT_MODEL_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+DEFAULT_MODEL_ID = "nvidia.nemotron-nano-12b-v2"
 
 # Standard env var boto3 uses for a Bedrock API key (bearer token).
 BEARER_ENV = "AWS_BEARER_TOKEN_BEDROCK"
@@ -171,7 +206,36 @@ def _client(cfg: BedrockConfig) -> Any:
     )
 
 
-def _converse(prompt: str, cfg: BedrockConfig, system: str) -> str:
+@dataclass(frozen=True)
+class Reply:
+    """A model's answer plus what the call cost, as Bedrock reported it."""
+
+    text: str
+    usage: TokenUsage | None = None
+
+
+def _usage_from(response: dict[str, Any]) -> TokenUsage | None:
+    """Read the Converse envelope's usage block, or ``None`` if it isn't there.
+
+    Absent or malformed means unreported, not zero — a zero we invented would be
+    logged as a measurement. Never raises: a usable verdict must not be lost
+    because the accounting was unreadable.
+    """
+    usage = response.get("usage")
+    if not isinstance(usage, dict):
+        return None
+    try:
+        latency = response.get("metrics", {}).get("latencyMs")
+        return TokenUsage(
+            input_tokens=int(usage["inputTokens"]),
+            output_tokens=int(usage["outputTokens"]),
+            latency_ms=int(latency) if latency is not None else None,
+        )
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _converse(prompt: str, cfg: BedrockConfig, system: str) -> Reply:
     try:
         client = _client(cfg)
     except BedrockError:
@@ -193,13 +257,14 @@ def _converse(prompt: str, cfg: BedrockConfig, system: str) -> str:
         raise BedrockError(f"Bedrock call failed: {e}") from e
 
     try:
-        return str(response["output"]["message"]["content"][0]["text"])
+        text = str(response["output"]["message"]["content"][0]["text"])
     except (KeyError, IndexError, TypeError) as e:
         raise BedrockError(f"Unexpected Bedrock response shape: {e}") from e
+    return Reply(text=text, usage=_usage_from(response))
 
 
-def invoke(prompt: str, cfg: BedrockConfig, *, system: str = "") -> str:
-    """Send ``prompt`` to Bedrock and return the model's reply text.
+def invoke(prompt: str, cfg: BedrockConfig, *, system: str = "") -> Reply:
+    """Send ``prompt`` to Bedrock and return its reply text and token usage.
 
     Raises :class:`BedrockError` on any transport/auth/shape failure so callers
     can fall back to the deterministic pipeline.
@@ -222,10 +287,10 @@ class BedrockAssessor:
 
     def assess(self, request: AssessmentRequest) -> RiskAssessment:
         try:
-            raw = invoke(request.prompt, self._cfg)
+            reply = invoke(request.prompt, self._cfg)
         except BedrockError as e:
             # The port speaks AssessmentError. That the provider was Bedrock, and
             # that it failed at the transport layer, is not the caller's problem
             # — only that there is no verdict, and why.
             raise AssessmentError(str(e)) from e
-        return parse(raw, model_id=self._cfg.model_id)
+        return parse(reply.text, model_id=self._cfg.model_id, usage=reply.usage)

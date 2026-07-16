@@ -26,6 +26,7 @@ from vpat_reviewer.ai.base import (
     RiskAssessment,
     RiskAssessor,
 )
+from vpat_reviewer.audit.base import AuditEvent
 from vpat_reviewer.config import settings as settings_store
 from vpat_reviewer.domain.impact import ImpactInfo, calculate_impact
 from vpat_reviewer.domain.models import VPATCriterion, VPATDocument
@@ -178,6 +179,109 @@ def write_json(result: ReviewResult, output_path: str) -> str:
     )
     result.json_path = output_path
     return output_path
+
+
+def _sha256(path: str) -> str:
+    """Digest the reviewed bytes, or "" if they cannot be read.
+
+    Identifies *which* document a row is about when the filename doesn't: two
+    reviews of "the same" VPAT are the same review only if this matches.
+    """
+    import hashlib
+
+    try:
+        digest = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+    except OSError:  # unreadable / vanished — a missing digest, not a fatal error
+        return ""
+
+
+def build_audit_event(
+    result: ReviewResult,
+    *,
+    source_path: str = "",
+    settings: dict[str, Any] | None = None,
+    verdict_source: str = "",
+    ai_response_path: str = "",
+) -> AuditEvent:
+    """The record of one review, ready for an :class:`AuditLog`.
+
+    Built here for the same reason ``build_assessment_request`` is: the mapping
+    from a review to an outbound record is the core's knowledge, while *where it
+    goes* -- or whether it goes anywhere -- is the composition root's decision.
+
+    ``verdict_source`` is the caller's to state, and matters more than the
+    verdict beside it: only the caller knows whether the string in
+    ``result.verdict`` came from the model or from ``classify_report`` after the
+    model was unavailable. Left empty, the row says so rather than implying one.
+    """
+    from datetime import datetime
+
+    from vpat_reviewer import __version__
+
+    cfg = settings or {}
+    doc = result.document
+    a = result.assessment
+    usage = a.usage if a else None
+    answers = result.answers or {}
+    unresolved = [c for c in doc.criteria if not c.normalized_status]
+
+    size: int | str = ""
+    if source_path:
+        try:
+            size = Path(source_path).stat().st_size
+        except OSError:
+            size = ""
+
+    return AuditEvent.of(
+        timestamp=datetime.now().astimezone().isoformat(timespec="seconds"),
+        app_version=__version__,
+        source_path=source_path,
+        source_sha256=_sha256(source_path) if source_path else "",
+        source_bytes=size,
+        document_kind=doc.document_kind.value,
+        product_name=doc.product_name,
+        vendor_name=doc.vendor_name,
+        product_version=doc.product_version,
+        vendor_report_date=doc.vendor_report_date_raw,
+        criteria_total=len(doc.criteria),
+        unresolved_criteria=len(unresolved),
+        parse_warnings=len(result.warnings),
+        score=result.score["score"],
+        supported=result.score["supported"],
+        reviewable=result.score["total"],
+        na_excluded=result.score["na_excluded"],
+        threshold=cfg.get("threshold", ""),
+        barriers_total=len(result.barriers),
+        barrier_ids=" ".join(b.criterion_id for b in result.barriers),
+        audience=answers.get("audience", ""),
+        access_impact=answers.get("access_impact", ""),
+        legal_exposure=answers.get("legal_exposure", ""),
+        deployment=answers.get("deployment", ""),
+        impact_suggested=result.impact.get("suggested_level", ""),
+        impact_final=result.impact.get("final_level", ""),
+        verdict=result.verdict,
+        verdict_source=verdict_source,
+        ai_category=a.category if a else "",
+        ai_risk_level=a.risk_level if a else "",
+        ai_confidence=a.confidence if a else "",
+        ai_needs_human_review=a.needs_human_review if a else "",
+        ai_model_id=a.model_id if a else "",
+        ai_error=a.error if a else "",
+        input_tokens=usage.input_tokens if usage else "",
+        output_tokens=usage.output_tokens if usage else "",
+        total_tokens=usage.total_tokens if usage else "",
+        latency_ms=usage.latency_ms if usage else "",
+        report_path=result.output_path or "",
+        report_style=cfg.get("report_style", ""),
+        json_path=result.json_path or "",
+        ai_response_path=ai_response_path,
+        reviewer_name=cfg.get("reviewer_name", ""),
+        org_name=cfg.get("org_name", ""),
+    )
 
 
 def _record_for_prompt(result: ReviewResult) -> dict[str, Any]:

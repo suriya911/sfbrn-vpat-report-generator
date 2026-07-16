@@ -54,6 +54,19 @@ def test_rubric_states_every_category():
         assert category in text
 
 
+def test_the_rubric_expands_taap_correctly():
+    """TAAP is a Temporary Alternative Access Plan -- not an "Action Plan".
+
+    The rubric is what teaches the model what the verdict *means*, so a wrong
+    expansion here is a wrong definition, not a typo. It had drifted to three
+    different phrasings across the app before anything checked it.
+    """
+    text = prompt.template()
+    assert "Temporary Alternative Access Plan" in text
+    for wrong in ("Technical Accessibility Action Plan", "Technology Accessibility Action Plan"):
+        assert wrong not in text
+
+
 def test_rubric_is_bundled_by_the_pyinstaller_spec():
     """Packaged data PyInstaller isn't told about is packaged data the exe lacks.
 
@@ -80,7 +93,9 @@ def test_render_keeps_the_output_schema_braces_verbatim():
     rendered = prompt.render(_record())
     assert '"category": "Good to Go | Minor Issue' in rendered
     assert '"needs_human_review": true' in rendered
-    assert '"ada_relevance": ""' in rendered
+    # A schema placeholder carrying its own braces: str.format would read the
+    # angle-bracket hint's surrounding object as a field reference and raise.
+    assert '"ada_relevance": "<how ADA obligations factor into this classification>"' in rendered
 
 
 def test_render_survives_braces_in_vendor_text():

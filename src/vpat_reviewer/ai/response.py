@@ -24,6 +24,7 @@ from vpat_reviewer.ai.base import (
     AssessmentError,
     RegulatoryBasis,
     RiskAssessment,
+    TokenUsage,
 )
 
 _FENCE = re.compile(r"```(?:json)?\s*(.*?)```", re.DOTALL)
@@ -118,12 +119,16 @@ def _regulatory_basis(data: dict[str, Any]) -> RegulatoryBasis:
     )
 
 
-def parse(text: str, *, model_id: str = "") -> RiskAssessment:
+def parse(text: str, *, model_id: str = "", usage: TokenUsage | None = None) -> RiskAssessment:
     """Read an assessor's answer as a verdict, or raise :class:`AssessmentError`.
 
     Keys we did not ask for are ignored rather than absorbed: the record carries
     exactly the fields the rubric promises, and anything else a model volunteers
     is not smuggled into it under a name nobody defined.
+
+    ``usage`` is supplied by the adapter from the response envelope and passed
+    through untouched. It is deliberately not read out of ``text``: a token count
+    a model wrote about itself is a claim, not a measurement.
     """
     data = _find_json(text)
 
@@ -153,4 +158,5 @@ def parse(text: str, *, model_id: str = "") -> RiskAssessment:
         needs_human_review=needs_human_review,
         model_id=model_id,
         raw_response=text,
+        usage=usage,
     )

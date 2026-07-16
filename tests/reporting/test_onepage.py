@@ -133,6 +133,111 @@ def test_renders_vendor_text_containing_html_tags(tmp_path: Path) -> None:
     assert _pages(out) == 1
 
 
+def _text(path: Path) -> str:
+    """The page's text with wrapping flattened.
+
+    Assertions here are about what the sheet *says*; where ReportLab happens to
+    break a line is a layout detail, and a test that couples to it fails the next
+    time the font or a budget changes without anything being wrong.
+    """
+    from pypdf import PdfReader
+
+    return " ".join(PdfReader(str(path)).pages[0].extract_text().split())
+
+
+def test_the_summary_states_the_score_and_the_barrier_count(tmp_path: Path) -> None:
+    out = tmp_path / "summary.pdf"
+    OnePageRenderer().render(_inputs(_doc(n_barriers=3), verdict="Deny"), str(out))
+
+    text = _text(out)
+    assert "SUMMARY" in text
+    assert "3 Level AA barrier(s)" in text
+    assert "25%" in text  # 1 of 4 AA criteria supported
+    assert "below the SFBRN 90% threshold" in text
+
+
+def test_the_summary_survives_a_clean_document(tmp_path: Path) -> None:
+    """No barriers is a sentence, not an omission -- silence reads as a bug."""
+    out = tmp_path / "clean.pdf"
+    OnePageRenderer().render(_inputs(_doc(n_barriers=0), verdict="Good to Go"), str(out))
+
+    assert "No Level AA barriers were identified." in _text(out)
+
+
+def test_the_sheet_shows_the_impact_answers_behind_the_level(tmp_path: Path) -> None:
+    """Impact outranks the score in classify_report, so its basis cannot be off-page."""
+    out = tmp_path / "basis.pdf"
+    OnePageRenderer().render(_inputs(_doc(), verdict="Minor Issue"), str(out))
+
+    text = _text(out).replace("\n", " ")
+    assert "Impact basis:" in text
+    assert "Limits some access" in text
+    assert "Medium legal exposure" in text
+    assert "Department deployment" in text
+
+
+def test_a_reviewer_override_is_named_as_one(tmp_path: Path) -> None:
+    """An override is the reviewer's call, not the computed rating; say so."""
+    inputs = _inputs(_doc(), verdict="Need TAAP")
+    inputs.impact["suggested_level"] = "Low"
+    inputs.impact["final_level"] = "High"
+    out = tmp_path / "override.pdf"
+    OnePageRenderer().render(inputs, str(out))
+
+    text = _text(out).replace("\n", " ")
+    assert "set to High by the reviewer" in text
+    assert "suggested Low" in text
+
+
+def test_no_override_note_when_the_reviewer_took_the_suggestion(tmp_path: Path) -> None:
+    inputs = _inputs(_doc(), verdict="Minor Issue")
+    inputs.impact["final_level"] = inputs.impact["suggested_level"]
+    out = tmp_path / "nooverride.pdf"
+    OnePageRenderer().render(inputs, str(out))
+
+    assert "by the reviewer" not in _text(out)
+
+
+def test_an_unknown_answer_is_shown_not_dropped() -> None:
+    """It drove the rating either way -- hiding it leaves the level unexplained."""
+    from vpat_reviewer.reporting.onepage import _ACCESS_LABEL, _answer
+
+    assert _answer({"access_impact": "limits_some"}, "access_impact", _ACCESS_LABEL) == (
+        "Limits some access"
+    )
+    assert _answer({"access_impact": "some_new_value"}, "access_impact", _ACCESS_LABEL) == (
+        "some new value"
+    )
+    assert _answer({}, "access_impact", _ACCESS_LABEL) == ""
+
+
+def test_renders_without_impact_answers(tmp_path: Path) -> None:
+    """A caller that supplies none must not print a dangling 'Impact basis:' label."""
+    doc = _doc()
+    inputs = ReportInputs(
+        document=doc,
+        score=dict(compliance_score(doc)),
+        impact={},
+        answers={},
+        settings=SETTINGS,
+    )
+    out = tmp_path / "noanswers.pdf"
+    OnePageRenderer().render(inputs, str(out))
+
+    assert _pages(out) == 1
+    assert "Impact basis" not in _text(out)
+
+
+def test_an_unusable_threshold_does_not_take_the_report_down() -> None:
+    """settings.json is hand-edited for these keys; a typo must not crash it."""
+    from vpat_reviewer.reporting.onepage import _threshold
+
+    assert _threshold({"threshold": "85"}) == 85
+    assert _threshold({}) == 90
+    for bad in ({"threshold": "ninety"}, {"threshold": None}):
+        assert _threshold(bad) == 90
+
+
 def test_renderer_for_honors_the_setting() -> None:
     assert isinstance(renderer_for({"report_style": "one_page"}), OnePageRenderer)
     assert isinstance(renderer_for({"report_style": "full"}), ReportLabRenderer)

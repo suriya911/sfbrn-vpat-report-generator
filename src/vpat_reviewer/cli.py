@@ -16,8 +16,9 @@ import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
-from vpat_reviewer import __version__, service
+from vpat_reviewer import __version__, audit, service
 from vpat_reviewer.config import policy_form, settings
 from vpat_reviewer.config.settings import IDENTITY_DEFAULTS
 from vpat_reviewer.domain.models import DocumentKind
@@ -135,8 +136,37 @@ def _cmd_review(args: argparse.Namespace) -> int:
     service.render_result(result, output, logo_path=args.logo or "", settings=render_settings)
     if not args.no_json:
         service.write_json(result, args.json_out or str(Path(output).with_suffix(".json")))
+    if not args.no_log:
+        _record_audit(result, args, render_settings)
     _emit(result, args.json)
     return 0
+
+
+def _record_audit(
+    result: service.ReviewResult,
+    args: argparse.Namespace,
+    render_settings: dict[str, Any] | None,
+) -> None:
+    """Append this run to the audit log, if the settings ask for one.
+
+    The CLI is a composition root, so it -- not service -- decides that a log
+    happens at all, the same way it decides no assessor runs here.
+
+    ``verdict_source`` is "offline" and not left empty precisely *because* the
+    CLI never calls Bedrock (§5): a row from this path is always the
+    deterministic classifier's, and saying so is the point of the column.
+    """
+    log = audit.log_for(render_settings or settings.load_settings())
+    if log is None:
+        return
+    log.record(
+        service.build_audit_event(
+            result,
+            source_path=args.input,
+            settings=render_settings or settings.load_settings(),
+            verdict_source="offline" if result.verdict else "",
+        )
+    )
 
 
 def _cmd_policy_show(_args: argparse.Namespace) -> int:
@@ -230,6 +260,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_review.add_argument(
         "--no-json", action="store_true", help="Do not write the JSON record beside the report."
+    )
+    p_review.add_argument(
+        "--no-log", action="store_true", help="Do not append this run to the CSV audit log."
     )
     p_review.add_argument(
         "--style",

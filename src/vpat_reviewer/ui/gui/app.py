@@ -20,6 +20,7 @@ from tkinter import filedialog, messagebox, ttk
 # model" is decided and where `use_ai` is honored. service.assess_result takes
 # the assessor as an argument precisely so the library never reaches for a
 # network on its own.
+from vpat_reviewer import audit
 from vpat_reviewer.ai.base import AssessmentError, RiskAssessment
 from vpat_reviewer.ai.bedrock import BedrockAssessor, BedrockConfig
 from vpat_reviewer.config import settings as settings_manager
@@ -29,9 +30,20 @@ from vpat_reviewer.domain.scoring import get_barriers as get_aa_barriers
 from vpat_reviewer.domain.verdict import CATEGORIES, classify_report
 from vpat_reviewer.parsing import parse_vpat
 from vpat_reviewer.reporting import ReportInputs, renderer_for
-from vpat_reviewer.service import ReviewResult, assess_result, build_assessment_request
+from vpat_reviewer.service import (
+    ReviewResult,
+    assess_result,
+    build_assessment_request,
+    build_audit_event,
+    write_json,
+)
 from vpat_reviewer.ui.gui.policy_dialog import GradingPolicyDialog
-from vpat_reviewer.ui.gui.widgets import make_scrollable, size_scrollable_dialog, work_area
+from vpat_reviewer.ui.gui.widgets import (
+    FlatButton,
+    make_scrollable,
+    size_scrollable_dialog,
+    work_area,
+)
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -87,7 +99,7 @@ CATEGORY_META = {
     "Good to Go": ("#15803d", "✓", "Meets the bar — ready to deploy as-is."),
     "Minor Issue": ("#4d7c0f", "◐", "Deployable, with a few small gaps to track."),
     "Needs Manual Review": ("#b45309", "?", "Inconclusive — a human reviewer must decide."),
-    "Need TAAP": ("#c2410c", "!", "Gaps require a Technology Accessibility Action Plan."),
+    "Need TAAP": ("#c2410c", "!", "Gaps require a Temporary Alternative Access Plan."),
     "Deny": ("#b91c1c", "✕", "Fails the bar — do not deploy without remediation."),
 }
 CATEGORY_FOLDER = {
@@ -229,7 +241,7 @@ class SettingsDialog(tk.Toplevel):
         btn_row.pack(side="bottom", fill="x")
         btns = tk.Frame(btn_row, bg=BG_CARD)
         btns.pack(pady=12)
-        tk.Button(
+        FlatButton(
             btns,
             text="Save Settings",
             font=(FONT, 9, "bold"),
@@ -241,7 +253,7 @@ class SettingsDialog(tk.Toplevel):
             cursor="hand2",
             command=self._save,
         ).pack(side="left", padx=6)
-        tk.Button(
+        FlatButton(
             btns,
             text="Grading Policy…",
             font=(FONT, 9),
@@ -254,7 +266,7 @@ class SettingsDialog(tk.Toplevel):
             command=self._open_grading,
         ).pack(side="left", padx=6)
         if not first_run:
-            tk.Button(
+            FlatButton(
                 btns,
                 text="Cancel",
                 font=(FONT, 9),
@@ -339,7 +351,7 @@ class SettingsDialog(tk.Toplevel):
         tk.Entry(logo_row, textvariable=self._vars["logo_path"], font=(FONT, 8), width=28).pack(
             side="left"
         )
-        tk.Button(
+        FlatButton(
             logo_row, text="Browse…", font=(FONT, 8), command=self._browse_logo, cursor="hand2"
         ).pack(side="left", padx=4)
         row += 1
@@ -613,7 +625,7 @@ class VPATReviewerApp(tk.Tk):
         tk.Frame(self, bg=ACCENT, height=2).pack(fill="x")
 
     def _hdr_btn(self, parent, text, command):
-        b = tk.Button(
+        b = FlatButton(
             parent,
             text=text,
             font=(FONT, 8, "bold"),
@@ -748,7 +760,7 @@ class VPATReviewerApp(tk.Tk):
         HOV_BG = ACCENT_SFT
 
         row = tk.Frame(parent, bg=BG_CARD)
-        buttons: list[tuple[tk.Button, str]] = []
+        buttons: list[tuple[FlatButton, str]] = []
 
         def restyle():
             cur = var.get()
@@ -762,7 +774,7 @@ class VPATReviewerApp(tk.Tk):
                 )
 
         for label, value in options:
-            b = tk.Button(
+            b = FlatButton(
                 row,
                 text=label,
                 font=(FONT, 9),
@@ -1153,7 +1165,7 @@ class VPATReviewerApp(tk.Tk):
             )
             note.pack(fill="x", padx=16, pady=(6, 10))
             text = (
-                "A Technology Accessibility Action Plan (TAAP) is required before deployment."
+                "A Temporary Alternative Access Plan (TAAP) is required before approval."
                 if self.category == "Need TAAP"
                 else "Do not deploy — remediation is required before this "
                 "product can be reconsidered."
@@ -1188,7 +1200,7 @@ class VPATReviewerApp(tk.Tk):
     # ── Button helpers ─────────────────────────────────────────────────────────
 
     def _pri_btn(self, parent, text, command, state="normal"):
-        btn = tk.Button(
+        btn = FlatButton(
             parent,
             text=text,
             font=(FONT, 9, "bold"),
@@ -1216,7 +1228,7 @@ class VPATReviewerApp(tk.Tk):
         return btn
 
     def _ghost_btn(self, parent, text, command, state="normal"):
-        btn = tk.Button(
+        btn = FlatButton(
             parent,
             text=text,
             font=(FONT, 9, "bold"),
@@ -1522,8 +1534,66 @@ class VPATReviewerApp(tk.Tk):
             logger.warning("PDF validation could not run: %s", e)
 
         self.report_path = out_path
+
+        self.after(0, lambda: self._set_progress(96, "Recording the run…"))
+        self._record_run(
+            ReviewResult(
+                document=data,
+                score=score_info,
+                impact=impact_info,
+                barriers=barriers,
+                answers=answers,
+                output_path=str(out_path),
+                assessment=self.ai_review,
+                verdict=self.category or "",
+                recommendation=self.ai_recommendation,
+            ),
+            source_path=path,
+            used_ai=used_ai,
+            ai_stem=ai_stem,
+        )
+
         self.after(0, lambda: self._set_progress(100, "Report generated successfully."))
         self.after(0, self._on_success)
+
+    def _record_run(self, run, *, source_path, used_ai, ai_stem):
+        """Write the parsed-record sidecar and append the run to the audit log.
+
+        Never raises: both are bookkeeping, and the report already exists on disk
+        by the time we get here. Losing the row must not lose the report or show
+        the reviewer an error about a file they did not ask for.
+
+        ``verdict_source`` is decided here because this is the only place that
+        knows it: ``self.category`` is the same kind of string whether Bedrock
+        produced it or ``classify_report`` did after Bedrock was unreachable, and
+        that difference is exactly what an auditor needs (§7b).
+        """
+        try:
+            write_json(run, str(Path(run.output_path).with_suffix(".json")))
+        except Exception as e:  # noqa: BLE001 - the record is not the report
+            logger.warning("Could not write the parsed-record JSON: %s", e)
+
+        try:
+            log = audit.log_for(self.settings)
+            if log is None:
+                return
+            responses_dir = getattr(self, "ai_responses_dir", None)
+            ai_response_path = ""
+            if used_ai and responses_dir is not None:
+                candidate = responses_dir / f"{ai_stem}.json"
+                if candidate.exists():
+                    ai_response_path = str(candidate)
+            log.record(
+                build_audit_event(
+                    run,
+                    source_path=source_path,
+                    settings=self.settings,
+                    verdict_source="ai" if used_ai else "offline",
+                    ai_response_path=ai_response_path,
+                )
+            )
+        except Exception as e:  # noqa: BLE001 - the log must never break a review
+            logger.warning("Could not append to the audit log: %s", e)
 
     def _on_success(self):
         self._populate_summary()

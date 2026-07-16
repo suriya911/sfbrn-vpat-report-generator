@@ -18,6 +18,65 @@ from __future__ import annotations
 import sys
 import tkinter as tk
 from tkinter import ttk
+from typing import Any
+
+
+class FlatButton(tk.Label):
+    """A button that actually wears the colours it is given — on macOS too.
+
+    **Why this is not a ``tk.Button``.** On macOS, Tk draws buttons with the
+    native Aqua widget, which paints its own background and silently ignores
+    ``-background``. It honours ``-foreground``, so the app's white-on-navy
+    buttons came out as white text on a default grey button: the label was
+    nearly invisible and every selected/unselected pair looked identical. The
+    same code is correct on Windows, which is why this survived so long.
+
+    ``tk.Label`` has no native peer, so it honours ``bg``/``fg`` everywhere. It
+    already supports ``state`` (normal/active/disabled), ``disabledforeground``,
+    ``relief``, ``bd``, and the ``highlight*`` options, so the only things
+    missing are the click and the ``command`` — which is all this class adds.
+
+    Deliberately a drop-in for the ``tk.Button`` call sites it replaced: the
+    same keywords, plus ``.invoke()``, and ``config(state=...)`` /
+    ``btn["state"]`` behave as before.
+    """
+
+    def __init__(self, parent: tk.Misc, command: Any = None, **kw: Any) -> None:
+        kw.setdefault("cursor", "hand2")
+        # Buttons centre their text; labels do not.
+        kw.setdefault("anchor", "center")
+        kw.setdefault("justify", "center")
+        # takefocus is a Button default and a Label non-default; keyboard users
+        # must still be able to reach these.
+        kw.setdefault("takefocus", True)
+        super().__init__(parent, **kw)
+        self._command = command
+        self.bind("<Button-1>", self._invoke)
+        # Space and Return activate a focused button; a Label would ignore both.
+        self.bind("<Return>", self._invoke)
+        self.bind("<space>", self._invoke)
+
+    def _invoke(self, _event: Any = None) -> None:
+        # A disabled Label still receives clicks -- unlike a disabled Button,
+        # which drops them. Without this check, "Save Report As…" would fire
+        # while greyed out and before a report exists.
+        if str(self["state"]) == "disabled":
+            return
+        if self._command is not None:
+            self._command()
+
+    def invoke(self) -> None:
+        """Run the command, as ``tk.Button.invoke`` does."""
+        self._invoke()
+
+    def configure(self, cnf: Any = None, **kw: Any) -> Any:
+        # `command` is not a Label option; intercept it so a caller can rebind
+        # the action the same way it would on a Button.
+        if "command" in kw:
+            self._command = kw.pop("command")
+        return super().configure(cnf, **kw)
+
+    config = configure
 
 
 def work_area(widget: tk.Misc, margin: int = 48) -> tuple[int, int, int, int]:
