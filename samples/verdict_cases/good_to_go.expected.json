@@ -175,6 +175,7 @@
   ],
   "warnings": [],
   "output_path": null,
+  "assessment": null,
   "recommended_answers": {
     "audience": "small_team",
     "access_impact": "no_limit",

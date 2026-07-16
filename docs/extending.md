@@ -211,6 +211,95 @@ exit code / output.
 
 ---
 
+## Recipe 7 — Swap the AI provider (or add a second one)
+
+`BedrockAssessor` is one adapter behind the `RiskAssessor` port. Another provider
+is another class beside it.
+
+**1. Implement the port** in `src/vpat_reviewer/ai/openai.py` (say):
+
+```python
+"""An example non-Bedrock assessor."""
+
+from __future__ import annotations
+
+from vpat_reviewer.ai.base import AssessmentError, AssessmentRequest, RiskAssessment
+from vpat_reviewer.ai.response import parse
+
+
+class ExampleAssessor:
+    def __init__(self, model_id: str):
+        self.model_id = model_id            # a plain attribute, not a @property:
+                                           # the port declares a mutable str and
+                                           # mypy --strict rejects a property.
+
+    def assess(self, request: AssessmentRequest) -> RiskAssessment:
+        import some_sdk                    # lazily: importing ai/ must not need it
+
+        try:
+            reply = some_sdk.complete(self.model_id, request.prompt)
+        except Exception as e:             # transport failure -> a recorded
+            raise AssessmentError(str(e)) from e   # non-verdict, not a crash
+
+        return parse(reply.text, model_id=self.model_id)
+```
+
+Three rules that matter more than the shape of the call:
+
+- **Always go through `response.parse()`.** It is the thing that refuses to
+  invent. Do not hand-roll a `json.loads` that maps an unknown category to the
+  nearest one or clamps a confidence — that is CLAUDE.md golden rule 8, and both
+  of those were real bugs that shipped.
+- **Raise `AssessmentError` on transport failure.** `service.assess_result`
+  catches it and records an honest non-verdict; anything else propagates and
+  costs the user their whole review.
+- **Import the SDK inside the method.** Importing `vpat_reviewer.ai` must not
+  require your dependency (or any credentials).
+
+**2. Use it** — from the composition root, which is the GUI:
+
+```python
+service.assess_result(review_obj, assessor=ExampleAssessor("some.model.v1"))
+```
+
+`assess_result` deliberately has **no default assessor**: whoever wants a verdict
+names who gives it. That is what stops `service.py` importing an adapter (an
+outward arrow) and what keeps `make_demo.py` offline.
+
+**3. Test it** in `tests/ai/` **without a network**: assert it satisfies the
+Protocol (`isinstance(x, RiskAssessor)`), and test reply-handling by driving
+`response.parse` directly. Don't test the SDK. Clear any provider env vars first
+— see `tests/ai/test_bedrock.py::_clear_bedrock_env` for why.
+
+---
+
+## Recipe 8 — Edit the review rubric (categories, decision rules, schema)
+
+The rubric is **data, not code** — `src/vpat_reviewer/ai/data/risk_review_prompt.md`.
+Edit the Markdown to change what we ask the model. No code change needed.
+
+Four things to keep in mind:
+
+1. **Keep the `{{vpat_acr_content}}` placeholder.** It's where the parsed record
+   is substituted, and `prompt.render()` raises without it — deliberately loud,
+   because a rubric with nowhere to put the document would still get a confident
+   verdict back, drawn from nothing at all.
+2. **If you change the category list, change `domain/verdict.py::CATEGORIES` in
+   the same edit.** They are two halves of one contract: the rubric asks for
+   those strings and `response.parse` accepts only those strings (exact match,
+   case-insensitive). Rename one alone and every reply is rejected — no verdict,
+   ever, silently falling back to the offline classifier.
+   `tests/ai/test_prompt.py::test_rubric_states_every_category` catches it.
+   The GUI's `CATEGORY_META`/`CATEGORY_FOLDER` and the Desktop folder names key
+   off the same list.
+3. **Write it for a JSON record, not a PDF.** The model sees `service.to_dict()`
+   output — parsed criteria with `raw_status` and `status`, `document_kind`, the
+   score — not the vendor's original document.
+4. **Never use `str.format` to substitute.** The rubric embeds its own output
+   schema as literal JSON, so every `{` and `}` is content.
+
+---
+
 ## After any change — the checklist
 
 ```
