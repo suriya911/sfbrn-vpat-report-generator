@@ -1,0 +1,199 @@
+# Ministral 3 8B (mistral.ministral-3-8b-instruct)
+# 12.67s in=9923 out=3048 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "Critical",
+  "reason": "
+  **Core accessibility barriers exist across multiple Level A and AA criteria**, including:
+  - **Widespread 'Partially Supports' entries** (e.g., 1.1.1 Non-text Content, 2.1.1 Keyboard, 2.4.3 Focus Order, 1.4.3 Contrast, 1.4.10 Reflow) with **numerous exceptions** that create functional barriers.
+  - **Critical core workflow failures**:
+    - **Keyboard access**: Multiple components (e.g., comboboxes, pagination, calendar) are **not focusable or navigable** via keyboard (2.1.1).
+    - **Screen reader compatibility**: **Status messages, error alerts, and dynamic content** (e.g., status updates, search results) are **not announced** (3.3.1, 4.1.3).
+    - **Focus management**: **Focus traps, invisible focus indicators, and incorrect focus order** (2.1.2, 2.4.7) disrupt usability for keyboard users.
+    - **Semantic structure**: **Missing landmarks, labels, and ARIA roles** (1.3.1, 4.1.2) prevent assistive technologies from conveying page context.
+  - **Contrast and reflow failures**: **Multiple instances of failing 4.5:1 contrast** (1.4.3) and **layout collapse at 320px** (1.4.10) block accessibility for users with low vision.
+  - **No evidence of remediation roadmap**: The VPAT explicitly states a **44% compliance score** and **high accessibility risk**, with no resolution dates or actionable plans provided.
+  - **508 FPC gaps**: Confirms **Partially Supports** for core user groups (e.g., 'Without Vision', 'With Limited Manipulation'), reinforcing systemic barriers.
+  ",
+  "regulatory_basis": {
+    "ada_relevance": "
+    **Direct ADA implications**:
+    - **Core ADA Title III requirements** (e.g., effective communication, equal access to digital content) are **not met** due to keyboard, screen reader, and contrast failures.
+    - **Functional barriers** (e.g., inability to navigate forms, incomplete error feedback) **disproportionately affect** individuals with disabilities, violating the **reasonable accommodation** principle.
+    - **Lack of remediation** risks **disparate impact**, as users with disabilities may be **excluded from critical LMS workflows** (e.g., training administration, certification management).
+    ",
+    "section_508_relevance": "
+    **Section 508 (Rev. 2017) violations**:
+    - **Subpart B (Technical Standards)** fails for **502.2 (Keyboard Operability)**, **504.2 (Information, Documentation, and Support)**, and **508.2 (Functional Performance Criteria)** due to:
+      - **Incomplete keyboard support** (e.g., comboboxes, pagination).
+      - **Missing alternative text and semantics** (1.1.1, 4.1.2).
+      - **Contrast and reflow failures** (1.4.3, 1.4.10).
+    - **Subpart D (Accessibility of Web-Based Information and Applications)** is **not met** for **508.17 (Web-Based Intranet/Web-Based Extranet Applications)** due to **widespread 'Partially Supports'** entries.
+    ",
+    "wcag_relevance": "
+    **WCAG 2.2 AA violations**:
+    - **Level A failures** (e.g., 2.1.1 Keyboard, 1.3.1 Info/Relationships) **block core accessibility** and are **not excused** under WCAG’s **Level A priority**.
+    - **Level AA failures** (e.g., 1.4.3 Contrast, 2.4.6 Headings, 4.1.3 Status Messages) **create significant usability barriers** for users with disabilities.
+    - **No 'Not Applicable' exceptions** justify these failures; **all exceptions are remediable** (e.g., alt text, focus indicators, contrast adjustments).
+    "
+  },
+  "signals_found": [
+    {
+      "criterion": "2.1.1 Keyboard",
+      "status": "Partially Supports",
+      "exceptions": 10+,
+      "impact": "Critical: Core workflows (e.g., comboboxes, calendar, pagination) **cannot be completed via keyboard**."
+    },
+    {
+      "criterion": "1.1.1 Non-text Content",
+      "status": "Partially Supports",
+      "exceptions": 12+,
+      "impact": "Critical: **Screen reader announcements are incorrect or missing** for logos, icons, and decorative elements."
+    },
+    {
+      "criterion": "4.1.3 Status Messages",
+      "status": "Partially Supports",
+      "exceptions": 10+,
+      "impact": "Critical: **Error messages and dynamic updates are silent** for screen reader users."
+    },
+    {
+      "criterion": "2.4.3 Focus Order",
+      "status": "Partially Supports",
+      "exceptions": 10+,
+      "impact": "Critical: **Focus jumps unpredictably**, breaking keyboard navigation."
+    },
+    {
+      "criterion": "1.4.3 Contrast (Minimum)",
+      "status": "Partially Supports",
+      "exceptions": 8+,
+      "impact": "High: **Text and UI elements fail 4.5:1 ratio**, affecting low-vision users."
+    },
+    {
+      "criterion": "1.4.10 Reflow",
+      "status": "Partially Supports",
+      "exceptions": 6+,
+      "impact": "High: **Layout collapses at 320px**, blocking mobile/low-vision users."
+    },
+    {
+      "criterion": "3.3.2 Labels or Instructions",
+      "status": "Partially Supports",
+      "exceptions": 8+,
+      "impact": "High: **Missing visible labels** for edit fields and form controls."
+    },
+    {
+      "criterion": "2.4.6 Headings and Labels",
+      "status": "Partially Supports",
+      "exceptions": 7+,
+      "impact": "High: **Non-descriptive headings** confuse screen reader users."
+    },
+    {
+      "criterion": "2.4.7 Focus Visible",
+      "status": "Partially Supports",
+      "exceptions": 4+,
+      "impact": "Medium: **Invisible focus indicators** disrupt keyboard users."
+    },
+    {
+      "criterion": "302.1 (Without Vision)",
+      "status": "Partially Supports",
+      "impact": "Critical: **Aggregates all Level A/AA failures** into a single FPC violation, confirming systemic barriers."
+    }
+  ],
+  "major_accessibility_risks": [
+    {
+      "risk": "Keyboard Inaccessibility",
+      "criteria": ["2.1.1", "2.1.2", "2.4.3", "2.5.7"],
+      "description": "Multiple critical components (e.g., comboboxes, calendar, pagination) **cannot be operated via keyboard**, violating **ADA Title III** and **Section 508**. This **blocks core LMS workflows** (e.g., training administration, certification management) for users who rely on keyboard navigation."
+    },
+    {
+      "risk": "Screen Reader Failures",
+      "criteria": ["1.1.1", "1.3.1", "3.3.1", "3.3.2", "4.1.3", "4.1.2"],
+      "description": "**Status messages, error alerts, and dynamic content are silent** for screen reader users. **Incorrect alt text, missing labels, and unannounced focus changes** create **complete information barriers**, violating **WCAG 2.2 AA** and **Section 508 FPC**."
+    },
+    {
+      "risk": "Contrast and Reflow Collapse",
+      "criteria": ["1.4.3", "1.4.4", "1.4.10", "1.4.11", "1.4.12"],
+      "description": "**Text and UI elements fail 4.5:1 contrast**, and **layout collapses at 320px**, affecting **low-vision and mobile users**. This **disproportionately impacts** users with visual impairments, violating **ADA reasonable accommodation** and **Section 508**."
+    },
+    {
+      "risk": "Focus and Navigation Traps",
+      "criteria": ["2.1.2", "2.4.3", "2.4.7"],
+      "description": "**Focus traps, invisible indicators, and incorrect focus order** disrupt keyboard navigation, creating **usability deadlocks**. This **violates WCAG 2.1 AA** and **Section 508 502.2**, as users cannot complete workflows without mouse assistance."
+    },
+    {
+      "risk": "Missing Semantic Structure",
+      "criteria": ["1.3.1", "1.3.2", "2.4.6", "4.1.2"],
+      "description": "**Missing landmarks, ARIA roles, and descriptive headings** prevent assistive technologies from **understanding page context**. This **violates WCAG 1.3.1** and **Section 508 504.2**, as users cannot navigate or understand content."
+    }
+  ],
+  "missing_or_unclear_information": [
+    {
+      "issue": "Product Version",
+      "detail": "No **product version** is specified in the VPAT, making it **impossible to track remediation progress** across updates."
+    },
+    {
+      "issue": "Testing Scope",
+      "detail": "While **evaluation methods** are listed (e.g., JAWS, Axe), the **specific pages/modules tested** are not documented. This **lacks transparency** about coverage."
+    },
+    {
+      "issue": "Remediation Roadmap",
+      "detail": "The VPAT **does not provide** a timeline, priority list, or **actionable plan** for addressing the **44% compliance score** or **critical failures** (e.g., keyboard, screen reader)."
+    },
+    {
+      "issue": "Assistive Technology Validation",
+      "detail": "No **detailed validation** is provided for **real-world usability** (e.g., testing with **specific assistive tech combinations** like VoiceOver + Zoom)."
+    },
+    {
+      "issue": "Legal/Compliance Context",
+      "detail": "The VPAT **does not clarify** whether this assessment was conducted **independently** or **under vendor oversight**, which could **bias findings**."
+    }
+  ],
+  "recommendation": "
+  **1. Immediate Remediation (Critical Risks)**:
+  - **Fix keyboard accessibility** for all comboboxes, pagination, and calendar components (**2.1.1, 2.4.3**).
+  - **Resolve screen reader failures**: Ensure **all status messages, errors, and dynamic content are announced** (**3.3.1, 4.1.3**).
+  - **Remediate contrast and reflow**: Adjust **all failing 4.5:1 contrast ratios** and **fix layout collapse at 320px** (**1.4.3, 1.4.10**).
+  - **Correct focus management**: Eliminate **focus traps, invisible indicators, and incorrect focus order** (**2.1.2, 2.4.7**).
+
+  **2. Formal TAAP Development**:
+  - **Develop a 30/60/90-day remediation plan** with **clear ownership** for each criterion.
+  - **Conduct user testing** with **disability communities** to validate fixes.
+  - **Document all changes** in a **publicly accessible VPAT update** with **versioned compliance scores**.
+
+  **3. Process Improvements**:
+  - **Assign an accessibility champion** to oversee ongoing compliance.
+  - **Integrate automated testing** (e.g., Axe, WAVE) into **CI/CD pipelines**.
+  - **Train developers** on **WCAG 2.2 AA** and **Section 508** requirements.
+  ",
+  "next_steps": [
+    {
+      "action": "Conduct a **disability-led accessibility audit** to validate remediation efforts.",
+      "owner": "Vendor Accessibility Team",
+      "deadline": "Within 30 days"
+    },
+    {
+      "action": "Publish an **interim VPAT update** with **progress metrics** (e.g., % of critical criteria remediated).",
+      "owner": "Vendor Compliance Team",
+      "deadline": "Within 45 days"
+    },
+    {
+      "action": "Implement **automated contrast and ARIA validation** in development workflows.",
+      "owner": "Product Engineering",
+      "deadline": "Within 60 days"
+    },
+    {
+      "action": "Schedule a **stakeholder workshop** with disability advocates to prioritize high-impact fixes.",
+      "owner": "Vendor Leadership",
+      "deadline": "Within 30 days"
+    },
+    {
+      "action": "Provide **training for support teams** on assisting users with accessibility barriers.",
+      "owner": "Customer Support",
+      "deadline": "Within 30 days"
+    }
+  ],
+  "needs_human_review": true
+}
+```

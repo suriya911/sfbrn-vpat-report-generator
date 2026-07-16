@@ -1,0 +1,47 @@
+# Palmyra X5 (us.writer.palmyra-x5-v1:0)
+# 14.74s in=9930 out=1152 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT indicates widespread 'Partially Supports' entries across critical Level A and Level AA criteria, including keyboard access (2.1.1), focus order (2.4.3), focus visibility (2.4.7), color contrast (1.4.3, 1.4.11), reflow (1.4.10), and status messages (4.1.3). These issues impact core accessibility areas and affect multiple user workflows. The score of 44% on reviewable criteria and documented barriers in 10 WCAG criteria confirm significant accessibility gaps. Although no 'Does Not Support' is explicitly listed, the volume and severity of partial support—especially in foundational areas like keyboard navigation and screen reader compatibility—constitute substantial barriers requiring a formal remediation plan.",
+  "regulatory_basis": {
+    "ada_relevance": "The ADA requires digital accessibility for public and private entities; documented keyboard traps, insufficient contrast, and missing screen reader feedback create barriers for users with disabilities, increasing legal and compliance risk.",
+    "section_508_relevance": "Section 508 mandates that federal agencies procure accessible IT; the product’s partial support across multiple 508 functional performance criteria (e.g., 302.1, 302.2, 302.7) indicates non-compliance with core requirements.",
+    "wcag_relevance": "Multiple Level A and AA failures—including 1.4.3 (Contrast), 2.1.1 (Keyboard), 2.4.3 (Focus Order), and 4.1.3 (Status Messages)—violate fundamental WCAG principles necessary for accessible web applications."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' entries for Level A criteria: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 2.1.1, 2.1.2, 2.4.2, 2.4.3, 2.4.4, 2.5.3, 3.2.2, 3.3.1, 3.3.2, 4.1.2",
+    "Multiple 'Partially Supports' entries for Level AA criteria: 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3",
+    "Barriers identified in 10 distinct WCAG criteria, including critical ones like 1.4.3 (Contrast), 2.1.1 (Keyboard), and 4.1.3 (Status Messages)",
+    "Evaluation methods include JAWS and keyboard-only testing, confirming real-world assistive technology impact",
+    "Score of 44% on reviewable criteria indicates significant accessibility gaps",
+    "Functional Performance Criteria (508) consistently marked 'Partially Supports' for vision, limited vision, color perception, manipulation, and cognitive access"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps (e.g., Copy Event, Shopping Cart) prevent full keyboard navigation",
+    "Insufficient color contrast (e.g., white text on colored backgrounds) fails WCAG 1.4.3",
+    "Focus order issues disrupt logical navigation and screen reader usability",
+    "Missing or incorrect alternative text impairs screen reader understanding",
+    "Status messages not announced to screen readers (4.1.3), leading to confusion during interactions",
+    "Reflow failures at 320px width create horizontal scrolling and content loss on mobile",
+    "Lack of visible focus indicators (2.4.7) hinders keyboard-only users",
+    "Dragging required without keyboard alternative (2.5.7)"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing, making it difficult to tie accessibility claims to a specific release",
+    "Evaluation date is listed as January 27th 2026, which is in the future and likely erroneous",
+    "Some remarks are cut off (e.g., 1.3.2, 3.3.1, 4.1.2), limiting full understanding of issues",
+    "No remediation roadmap or timeline provided for identified gaps"
+  ],
+  "recommendation": "Do not approve for procurement or deployment without a formal accessibility action plan (TAAP). The product presents high risk due to pervasive partial support in core accessibility areas. Vendor must provide a detailed remediation plan with timelines to address all 'Partially Supports' items, especially those impacting keyboard access, screen reader compatibility, color contrast, and status message announcements.",
+  "next_steps": [
+    "Request a corrected VPAT with accurate evaluation date and complete remarks",
+    "Require the vendor to submit a formal Technical Accessibility Action Plan (TAAP) with milestones",
+    "Verify product version and retest key workflows with assistive technologies",
+    "Engage accessibility specialists for manual audit of high-risk components",
+    "Hold vendor accountable for remediating critical issues before deployment"
+  ],
+  "needs_human_review": true
+}

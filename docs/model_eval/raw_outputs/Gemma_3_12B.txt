@@ -1,0 +1,42 @@
+# Gemma 3 12B (google.gemma-3-12b-it)
+# latency=7.5s in=10774 out=618 cost=$0.0012 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.7,
+  "risk_level": "High",
+  "reason": "The VPAT indicates numerous 'Partially Supports' entries across several key accessibility areas, including keyboard access, focus order, screen reader compatibility, name/role/value, and contrast.  Specifically, there are multiple exceptions listed for each of these areas.  The 'Partially Supports' status for criteria like 1.1.1, 1.3.1, 1.4.1, 2.1.1, 2.4.3, and 3.3.3, combined with the detailed remarks outlining specific accessibility barriers, suggests significant remediation efforts are needed.",
+  "regulatory_basis": {
+    "ada_relevance": "The numerous accessibility barriers identified would likely violate ADA standards for effective communication and equal access to digital services.",
+    "section_508_relevance": "The 'Partially Supports' and detailed remarks indicate non-compliance with several Section 508 requirements, particularly related to WCAG 2.0/2.1/2.2 conformance.",
+    "wcag_relevance": "The document explicitly references WCAG 2.0, 2.1, and 2.2, and the numerous 'Partially Supports' entries demonstrate significant gaps in meeting WCAG Level A and AA success criteria."
+  },
+  "signals_found": [
+    "Numerous 'Partially Supports' entries at Level A and AA.",
+    "Detailed remarks outlining specific accessibility barriers.",
+    "Impact level is 'Medium'.",
+    "Barriers listed for multiple WCAG criteria.",
+    "VPAT message indicates 'High accessibility risk'."
+  ],
+  "major_accessibility_risks": [
+    "Inconsistent keyboard navigation and focus management.",
+    "Lack of proper alternative text for images and non-text content.",
+    "Insufficient color contrast.",
+    "Issues with screen reader compatibility and announcement of elements.",
+    "Problems with error identification and messaging."
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing.",
+    "Evaluation date is in the future (January 27th 2026)."
+  ],
+  "recommendation": "A thorough accessibility audit and remediation plan are required to address the identified barriers.  This should include manual testing with assistive technologies and a focus on the areas highlighted in the remarks.",
+  "next_steps": [
+    "Conduct a comprehensive accessibility audit.",
+    "Develop a detailed remediation plan with timelines.",
+    "Prioritize remediation based on the severity of the barriers and their impact on users.",
+    "Retest the application after remediation to ensure compliance."
+  ],
+  "needs_human_review": true
+}
+```

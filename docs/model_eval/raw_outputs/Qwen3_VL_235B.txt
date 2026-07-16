@@ -1,0 +1,49 @@
+# Qwen3 VL 235B (qwen.qwen3-vl-235b-a22b)
+# 13.36s in=9701 out=884 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT indicates widespread 'Partially Supports' entries across core WCAG Level A and AA criteria, including critical areas such as keyboard access (2.1.1, 2.1.2), focus order and visibility (2.4.3, 2.4.7), name/role/value (4.1.2), status messages (4.1.3), contrast (1.4.3), reflow (1.4.10), and error identification (3.3.1). These issues affect core workflows and are documented with specific examples. No 'Does Not Support' entries are present, but the volume and severity of partial support across fundamental accessibility areas warrant a formal remediation plan. The score of 44% (of reviewable criteria) confirms significant accessibility gaps.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA requires effective communication and equal access; documented barriers to keyboard navigation, screen reader compatibility, and visual contrast violate these principles.",
+    "section_508_relevance": "Section 508 mandates that electronic content be accessible to people with disabilities; the 'Partially Supports' status across multiple functional performance criteria (302.1–302.9) indicates non-compliance.",
+    "wcag_relevance": "WCAG 2.0/2.1/2.2 Level A and AA conformance is not met due to failures in key success criteria including 1.4.3 (contrast), 2.1.1 (keyboard), 2.4.3 (focus order), 4.1.2 (name/role/value), and 4.1.3 (status messages)."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' entries across Level A and AA criteria",
+    "Documented keyboard traps and missing keyboard focus (2.1.1, 2.1.2)",
+    "Focus order and visible focus issues (2.4.3, 2.4.7)",
+    "Contrast failures (1.4.3, 1.4.11)",
+    "Reflow and text spacing issues (1.4.10, 1.4.12)",
+    "Status messages not announced (4.1.3)",
+    "Error identification and labeling gaps (3.3.1, 3.3.2)",
+    "Name/role/value inconsistencies (4.1.2)",
+    "Low compliance score (44%)",
+    "Specific examples of barriers in core workflows"
+  ],
+  "major_accessibility_risks": [
+    "Users cannot complete core tasks via keyboard alone due to missing focus and keyboard traps",
+    "Screen reader users encounter incorrect or missing labels, roles, and status messages",
+    "Low contrast and reflow issues prevent users with low vision from accessing content",
+    "Form fields lack visible labels and error messages, increasing risk of user error",
+    "Drag-and-drop functionality without keyboard alternative (2.5.7)"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing",
+    "Evaluation scope is not fully defined (e.g., which modules or features were tested)",
+    "No remediation roadmap or timeline provided",
+    "Testing methods lack detail on assistive technology versions or user testing",
+    "No evidence of user testing with people with disabilities"
+  ],
+  "recommendation": "Initiate a formal Accessibility Action Plan (TAAP) to remediate documented barriers. Prioritize keyboard navigation, screen reader compatibility, contrast, reflow, and error handling. Engage accessibility experts and users with disabilities for testing. Provide a remediation timeline and update the VPAT with resolved issues.",
+  "next_steps": [
+    "Assign accessibility remediation owner",
+    "Prioritize fixes based on impact (keyboard, screen reader, contrast)",
+    "Conduct user testing with assistive technology users",
+    "Update VPAT with remediation status and timeline",
+    "Schedule re-evaluation after fixes are implemented"
+  ],
+  "needs_human_review": true
+}

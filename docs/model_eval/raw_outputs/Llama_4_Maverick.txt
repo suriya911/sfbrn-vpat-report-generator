@@ -1,0 +1,39 @@
+# Llama 4 Maverick (us.meta.llama4-maverick-17b-instruct-v1:0)
+# latency=2.2s in=9485 out=435 cost=$0.0027 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.9,
+  "risk_level": "High",
+  "reason": "The VPAT/ACR content indicates significant accessibility barriers and widespread 'Partially Supports' entries across core accessibility areas.",
+  "regulatory_basis": {
+    "ada_relevance": "The product is a web application, making it subject to ADA accessibility expectations.",
+    "section_508_relevance": "The VPAT is based on Section 508 (Revised 2017) standards, indicating its relevance.",
+    "wcag_relevance": "The document references WCAG 2.0, 2.1, and 2.2, and evaluates conformance to Level A and AA criteria."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' entries for Level A and AA criteria",
+    "Exceptions noted in remarks for various criteria, indicating known accessibility gaps",
+    "Issues with keyboard access, focus order, screen reader compatibility, and color contrast"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard accessibility issues (2.1.1)",
+    "Focus order problems (2.4.3)",
+    "Color contrast issues (1.4.3, 1.4.11)",
+    "Screen reader compatibility problems (1.1.1, 1.3.1, 4.1.2)",
+    "Reflow and text spacing issues (1.4.10, 1.4.12)"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing",
+    "Some remarks are vague or lack specific examples"
+  ],
+  "recommendation": "A formal remediation or accessibility action plan is needed to address the identified accessibility barriers.",
+  "next_steps": [
+    "Conduct a thorough manual review to identify and document specific accessibility issues",
+    "Create a remediation plan to address the identified accessibility barriers",
+    "Provide training to developers on accessibility best practices and WCAG guidelines"
+  ],
+  "needs_human_review": true
+}
+```

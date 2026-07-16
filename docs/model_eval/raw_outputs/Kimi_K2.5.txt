@@ -1,0 +1,66 @@
+# Kimi K2.5 (moonshotai.kimi-k2.5)
+# 13.43s in=9574 out=1919 err=None
+
+ ```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.92,
+  "risk_level": "High",
+  "reason": "The VPAT documents widespread 'Partially Supports' entries across core accessibility areas including keyboard access, focus order, screen reader support, color contrast, form labels, and status messages. The compliance score of 44% indicates significant accessibility barriers. Multiple Level A and AA criteria show partial conformance with extensive exceptions that block core workflows for assistive technology users. No 'Does Not Support' entries exist, but the breadth and severity of documented exceptions across essential accessibility functions warrant a formal remediation plan.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA Title III requires effective communication and equal access to services. The documented barriers in keyboard navigation, screen reader compatibility, and focus management create significant barriers for users with disabilities accessing the learning management platform.",
+    "section_508_relevance": "Section 508 requires conformance with WCAG 2.0 Level A and AA. The VPAT indicates partial support for multiple 508 Functional Performance Criteria (302.1, 302.2, 302.3, 302.7, 302.9), indicating the product does not fully meet Section 508 requirements for users without vision, with limited vision, without perception of color, with limited manipulation, and with cognitive disabilities.",
+    "wcag_relevance": "Multiple WCAG 2.0/2.1/2.2 Level A and AA criteria are marked 'Partially Supports' with extensive exceptions: 1.1.1 (Non-text Content), 1.3.1 (Info and Relationships), 1.3.2 (Meaningful Sequence), 1.4.1 (Use of Color), 2.1.1 (Keyboard), 2.1.2 (No Keyboard Trap), 2.4.2 (Page Titled), 2.4.3 (Focus Order), 2.4.4 (Link Purpose), 2.5.3 (Label in Name), 3.2.2 (On Input), 3.3.1 (Error Identification), 3.3.2 (Labels or Instructions), 4.1.2 (Name, Role, Value), 1.4.3 (Contrast), 1.4.4 (Resize text), 1.4.5 (Images of Text), 1.4.10 (Reflow), 1.4.11 (Non-text Contrast), 1.4.12 (Text Spacing), 2.4.6 (Headings and Labels), 2.4.7 (Focus Visible), 2.5.7 (Dragging Movements), and 4.1.3 (Status Messages)."
+  },
+  "signals_found": [
+    "Compliance score of 44% with 8 'Supports' out of 18 reviewable criteria",
+    "10 WCAG barriers explicitly identified: 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3",
+    "Multiple Level A criteria with 'Partially Supports' and extensive exception lists: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 2.1.1, 2.1.2, 2.4.2, 2.4.3, 2.4.4, 2.5.3, 3.2.2, 3.3.1, 3.3.2, 4.1.2",
+    "Multiple Level AA criteria with 'Partially Supports' and extensive exception lists: 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3",
+    "Keyboard trap documented (2.1.2): Focus trapped on Description edit field and Shopping Cart fields",
+    "Critical keyboard access failures (2.1.1): Multiple controls not focusable including calendar, pagination, comboboxes, list boxes, and table buttons",
+    "Focus order failures (2.4.3): Focus lost after actions, incorrect focus order, hidden buttons receiving focus",
+    "Screen reader support gaps: Missing alt text, incorrect announcements, redundant/misleading alternatives, status messages not announced",
+    "Color contrast failures (1.4.3): Multiple white text on colored backgrounds failing 4.5:1 ratio, orange focus indicators failing",
+    "Reflow failures (1.4.10): Dual scrollbars, truncated content, overlapping content, missing controls at 320px width",
+    "Form label failures (3.3.2): Missing permanent visible labels, meaning of asterisk not announced",
+    "Section 508 FPC 302.1 'Without Vision' marked 'Partially Supports' citing 7 WCAG criteria with barriers",
+    "Section 508 FPC 302.2 'With Limited Vision' marked 'Partially Supports' citing contrast, reflow, and text spacing issues",
+    "Section 508 FPC 302.3 'Without Perception of Color' marked 'Partially Supports' citing color-only information",
+    "Section 508 FPC 302.7 'With Limited Manipulation' marked 'Partially Supports'",
+    "Section 508 FPC 302.9 'With Limited Language, Cognitive, and Learning Abilities' marked 'Partially Supports'"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard navigation barriers: Multiple critical controls not keyboard accessible including calendar, date pickers, comboboxes, pagination, and table actions, preventing operation without a mouse",
+    "Keyboard traps: Users cannot escape from Description edit field and Shopping Cart fields without mouse assistance",
+    "Focus management failures: Focus lost after common actions (checkbox activation, search, pencil icon activation, combobox value changes), breaking navigation for screen reader and keyboard users",
+    "Screen reader compatibility: Extensive incorrect or missing alternative text, redundant announcements, unannounced status messages, and improperly implemented tables and landmarks",
+    "Color contrast barriers: Multiple instances of white text on yellow, green, blue, and red backgrounds failing minimum contrast, plus orange focus indicators and button text failing contrast requirements",
+    "Responsive design failures: Content loss, truncation, overlapping, and dual scrollbars at 320px viewport width preventing access on mobile devices and zoom users",
+    "Form accessibility: Missing visible labels, unannounced required field indicators, and improperly associated labels creating barriers for cognitive and screen reader users",
+    "Status message accessibility: Critical feedback including errors, search results, loading states, and success messages not announced to screen readers, leaving users unaware of system state"
+  ],
+  "missing_or_unclear_information": [
+    "Product version number is blank in document metadata",
+    "Evaluation scope unclear: Specific pages/modules tested not explicitly listed, though many page-specific exceptions are noted",
+    "Remediation timeline or roadmap not provided in the VPAT",
+    "Testing methodology details: Specific browser versions, screen reader versions, and operating systems not specified",
+    "Severity or priority classification of documented exceptions not provided",
+    "User impact assessment for each exception not quantified",
+    "No information on planned fixes or release dates for documented barriers"
+  ],
+  "recommendation": "Classify as 'Need TAAP' due to widespread partial conformance across core accessibility areas with documented barriers that impact keyboard users, screen reader users, users with low vision, and users with cognitive disabilities. The breadth of exceptions across 24+ WCAG criteria with specific functional barriers warrants a formal Technical Accessibility Action Plan with prioritized remediation, timeline, and validation approach before procurement or deployment decisions.",
+  "next_steps": [
+    "Request formal Technical Accessibility Action Plan (TAAP) from vendor with prioritized remediation roadmap",
+    "Require vendor to provide specific timeline for addressing keyboard trap and critical keyboard access failures (2.1.1, 2.1.2)",
+    "Request remediation plan for focus management and focus order issues across identified pages (2.4.3)",
+    "Require color contrast remediation plan with specific CSS changes for identified failing combinations (1.4.3, 1.4.11)",
+    "Request screen reader compatibility improvements including status message announcements and alternative text corrections (4.1.3, 1.1.1)",
+    "Require responsive design fixes for 320px viewport width to address reflow failures (1.4.10)",
+    "Obtain product version number and specific evaluation scope for tracking",
+    "Schedule vendor demonstration with assistive technology to validate severity of documented barriers",
+    "Consider phased acceptance with accessibility milestones if timeline permits, or evaluate alternative products if barriers are blockers for intended use cases"
+  ],
+  "needs_human_review": true
+}
+```

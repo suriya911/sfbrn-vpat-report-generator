@@ -1,0 +1,43 @@
+# Gemma 3 27B (google.gemma-3-27b-it)
+# latency=9.5s in=10774 out=618 cost=$0.0024 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT indicates numerous \"Partially Supports\" entries at both Level A and Level AA, covering critical accessibility areas such as keyboard access (2.1.1, 2.1.2), color contrast (1.4.3), text resizing (1.4.4), headings and labels (2.4.6), focus visibility (2.4.7), and error identification (3.3.1, 3.3.3).  The remarks consistently detail specific accessibility failures and limitations, indicating significant barriers for users with disabilities. The score of 44% further supports a high-risk classification.",
+  "regulatory_basis": {
+    "ada_relevance": "The identified accessibility barriers would likely violate Title II or Title III of the ADA, depending on the entity providing the software.",
+    "section_508_relevance": "The numerous failures related to keyboard access, color contrast, and other criteria directly violate Section 508 standards.",
+    "wcag_relevance": "The numerous 'Partially Supports' entries across WCAG Level A and AA criteria demonstrate a failure to meet established accessibility guidelines."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' at Level A and AA",
+    "Specific accessibility failures documented in remarks",
+    "Issues in core accessibility areas (keyboard, contrast, labels)",
+    "Low accessibility score (44%)",
+    "Barriers listed (1.4.3, 1.4.4, 1.4.5, etc.)"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard accessibility issues preventing full interaction.",
+    "Insufficient color contrast impacting users with low vision.",
+    "Lack of clear headings and labels hindering navigation.",
+    "Error messages not being properly conveyed to assistive technologies.",
+    "Reflow issues causing content to be inaccessible at different zoom levels."
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing.",
+    "Evaluation scope is not fully defined (e.g., specific features tested).",
+    "Details on the assistive technology testing methodology are limited."
+  ],
+  "recommendation": "A comprehensive accessibility audit and remediation plan are required to address the identified issues. Prioritize remediation based on the severity of the barriers and the impact on users with disabilities.",
+  "next_steps": [
+    "Conduct a thorough manual accessibility audit.",
+    "Develop a detailed remediation plan with timelines.",
+    "Retest after remediation to ensure compliance.",
+    "Provide accessibility training to development teams."
+  ],
+  "needs_human_review": true
+}
+```

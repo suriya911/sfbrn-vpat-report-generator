@@ -1,0 +1,50 @@
+# DeepSeek V3.2 (deepseek.v3.2)
+# latency=10.4s in=9690 out=1019 cost=$0.00314 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.9,
+  "risk_level": "High",
+  "reason": "The VPAT documents widespread 'Partially Supports' entries across core accessibility areas at both Level A and AA, and includes one or more 'Does Not Support' entries at Level A or AA. The compliance score is 44% of reviewable criteria, indicating significant accessibility gaps. Core issues include keyboard traps, missing keyboard access, focus order problems, insufficient screen reader announcements, missing labels, and contrast failures that affect fundamental user interactions.",
+  "regulatory_basis": {
+    "ada_relevance": "The documented barriers (keyboard traps, missing focus indicators, insufficient screen reader support, missing labels) would likely constitute barriers to access under ADA Title III for individuals with disabilities.",
+    "section_508_relevance": "The issues with keyboard access (2.1.1, 2.1.2), focus order (2.4.3), name/role/value (4.1.2), and status messages (4.1.3) directly violate Section 508 requirements for functional performance criteria.",
+    "wcag_relevance": "Multiple Level A and AA success criteria are marked 'Partially Supports' or 'Does Not Support', including 1.1.1 (Non-text Content), 1.3.1 (Info and Relationships), 2.1.1 (Keyboard), 2.1.2 (No Keyboard Trap), 2.4.3 (Focus Order), 3.3.2 (Labels), 1.4.3 (Contrast), 1.4.10 (Reflow), 2.4.7 (Focus Visible), and 4.1.3 (Status Messages)."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' entries at Level A and AA (over 10)",
+    "Specific 'Does Not Support' entries at Level A or AA (implied by barriers list and low score)",
+    "Core accessibility areas affected: keyboard access (2.1.1), keyboard traps (2.1.2), focus order (2.4.3), focus visible (2.4.7), screen reader compatibility (1.1.1, 1.3.1, 4.1.2), form labels (3.3.2), contrast (1.4.3), reflow (1.4.10)",
+    "Compliance score of 44% indicates significant gaps",
+    "Barriers list includes critical criteria: 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3",
+    "Functional Performance Criteria (508) show 'Partially Supports' for Without Vision, With Limited Vision, Without Perception of Color, With Limited Manipulation"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps in specific components (Copy event, Shopping Cart Preferences)",
+    "Missing keyboard access for calendar controls, comboboxes, and buttons",
+    "Incorrect focus order causing loss of focus or focus on non-interactive elements",
+    "Missing or insufficient screen reader announcements for status messages, error messages, and search results",
+    "Missing visible labels for form fields in multiple pages",
+    "Contrast failures for text links and focus indicators",
+    "Reflow issues causing horizontal scrolling or truncated content at 320px",
+    "Dragging movements without keyboard alternative"
+  ],
+  "missing_or_unclear_information": [
+    "Product version not specified",
+    "Remarks for some criteria are incomplete (e.g., 1.3.2, 3.3.1, 4.1.2 show truncated remarks)",
+    "No clear remediation roadmap or resolution dates mentioned",
+    "Testing scope mentions only Chrome/Windows/JAWS - limited assistive technology coverage"
+  ],
+  "recommendation": "Do not proceed with procurement without a formal Technical Accessibility Action Plan (TAAP) that addresses the widespread barriers documented. The product requires significant remediation before it can be considered accessible.",
+  "next_steps": [
+    "Request a Technical Accessibility Action Plan (TAAP) from the vendor with specific remediation timelines",
+    "Require demonstration that keyboard traps have been resolved",
+    "Require testing with additional screen readers (NVDA, VoiceOver) and browsers",
+    "Validate fixes for core issues: keyboard access, focus order, screen reader announcements, labels, and contrast",
+    "Request updated VPAT after remediation",
+    "Consider conducting independent accessibility testing on critical user journeys"
+  ],
+  "needs_human_review": true
+}
+```

@@ -1,0 +1,39 @@
+# Nova Micro (us.amazon.nova-micro-v1:0)
+# latency=2.9s in=10304 out=482 cost=$0.00043 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.9,
+  "risk_level": "High",
+  "reason": "The VPAT indicates significant accessibility gaps at Level AA, including issues with contrast, reflow, keyboard navigation, and error messages. Several criteria are marked 'Partially Supports' with notable exceptions, and there are multiple instances where core accessibility areas are not fully supported.",
+  "regulatory_basis": {
+    "ada_relevance": "High",
+    "section_508_relevance": "High",
+    "wcag_relevance": "High"
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' entries at Level AA, especially in core areas like contrast, reflow, keyboard navigation, and error messages.",
+    "Exceptions noted for criteria such as 1.4.3 Contrast (Minimum), 1.4.10 Reflow, 2.4.3 Focus Order, and 3.3.3 Error Suggestion.",
+    "Compliance score of 44% indicates significant accessibility gaps."
+  ],
+  "major_accessibility_risks": [
+    "Insufficient color contrast for text and focus indicators.",
+    "Content reflows improperly at 320px width, causing loss of information.",
+    "Keyboard navigation issues in multiple areas, including focus traps and missing focusable elements.",
+    "Error messages and status updates are not always announced by screen readers."
+  ],
+  "missing_or_unclear_information": [
+    "Product version is missing.",
+    "Evaluation scope and specific testing methods are not detailed for all criteria.",
+    "No information on the product version being evaluated."
+  ],
+  "recommendation": "Conduct a thorough accessibility audit focusing on the identified gaps, especially in contrast, reflow, keyboard navigation, and error handling. Develop a remediation plan to address the 'Partially Supports' criteria and ensure full compliance with WCAG Level AA.",
+  "next_steps": [
+    "Engage with accessibility experts to conduct a detailed audit.",
+    "Create a remediation plan targeting the identified accessibility issues.",
+    "Update the VPAT with detailed evaluation scope, methods, and product version information."
+  ],
+  "needs_human_review": true
+}
+```

@@ -1,0 +1,53 @@
+# Claude Opus 4.1 (us.anthropic.claude-opus-4-1-20250805-v1:0)
+# latency=217.3s in=11510 out=884 cost=$0.23895 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.85,
+  "risk_level": "High",
+  "reason": "The VPAT shows widespread 'Partially Supports' entries (27 out of 55 criteria) across critical Level A and AA success criteria, including fundamental accessibility areas like keyboard access (2.1.1), focus order (2.4.3), info (1.4.3), and name/role/value (4.1.2). Multiple keyboard traps exist, focus is frequently lost, and there are numerous issues with screen reader announcements. The compliance score of 44% indicates significant barriers that would prevent users with disabilities from effectively using the product.",
+  "regulatory_basis": {
+    "ada_relevance": "The documented barriers would likely prevent equal access for users with disabilities, particularly those using screen readers or keyboard navigation, potentially violating ADA Title III for places of public accommodation if this is a public-facing software.",
+    "section_508_relevance": "Multiple Section 508 Functional Performance Criteria (302.1-302.9) are marked 'Partially Supports' with significant exceptions noted. The product would not meet Section 508 requirements for federal procurement or use.",
+    "wcag_relevance": "27 WCAG 2.0/2.1 Level A and AA criteria are marked 'Partially Supports' with extensive documented failures. Critical failures in keyboard access, focus management, contrast, and screen reader support violate fundamental WCAG principles of Perceivable, Operable, Understandable, and Robust."
+  },
+  "signals_found": [
+    "27 'Partially Supports' entries out of 55 total criteria",
+    "Compliance score of only 44%",
+    "Keyboard traps documented in 2.1.2",
+    "Missing keyboard access for multiple controls (2.1.1)",
+    "Focus lost after user actions in multiple locations (2.4.3)",
+    "Color contrast failures throughout (1.4.3)",
+    "Screen reader announcement problems widespread",
+    "Status messages not announced (4.1.3)",
+    "Dragging required without some functions without keyboard alternative (2.5.7)",
+    "Multiple instances of color-only information (1.4.1)"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard users cannot access or are trapped in certain controls",
+    "Screen reader users receive incorrect or missing information throughout",
+    "Low vision users face contrast and reflow issues",
+    "Focus management problems cause disorientation",
+    "Error messages and status updates not announced to assistive technology",
+    "Core workflows may be blocked for users with disabilities"
+  ],
+  "missing_or_unclear_information": [
+    "Product version number is blank",
+    "No specific remediation timeline or roadmap provided",
+    "Testing appears limited to JAWS on Windows Chrome only",
+    "Mobile accessibility not addressed",
+    "No mention of user testing with people with disabilities"
+  ],
+  "recommendation": "Require a formal Temporary Alternative Accessibility Plan (TAAP) before procurement or deployment. The vendor must provide a detailed remediation roadmap with specific timelines for addressing the 27 partially supported criteria, particularly the keyboard access, focus management, and screen reader issues that block core functionality.",
+  "next_steps": [
+    "Request detailed remediation roadmap from vendor with specific fix dates",
+    "Require TAAP documentation outlining interim accommodaccommodations",
+    "Conduct independent accessibility testing to verify VPAT accuracy",
+    "Establish quarterly progress reviews on remediation efforts",
+    "Consider alternative products if critical workflows remain inaccessible",
+    "Document accessibility requirements in procurement contract with penalties"
+  ],
+  "needs_human_review": true
+}
+```

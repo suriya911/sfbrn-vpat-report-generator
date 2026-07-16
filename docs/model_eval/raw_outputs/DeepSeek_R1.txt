@@ -1,0 +1,46 @@
+# DeepSeek R1 (us.deepseek.r1-v1:0)
+# latency=10.7s in=9691 out=1579 cost=$0.02161 err=None
+
+
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.95,
+  "risk_level": "High",
+  "reason": "The VPAT/ACR indicates widespread 'Partially Supports' entries across critical WCAG Level A/AA criteria and Section 508 functional performance criteria, including keyboard access (2.1.1), focus order (2.4.3), contrast (1.4.3), screen reader compatibility (1.1.1, 4.1.2), and status message announcements (4.1.3). The 44% compliance score and explicit barriers list confirm significant accessibility gaps in core workflows.",
+  "regulatory_basis": {
+    "ada_relevance": "Barriers in keyboard navigation, screen reader compatibility, and visual contrast create discrimination risks for users with disabilities under ADA Title III.",
+    "section_508_relevance": "Fails multiple Section 508 Functional Performance Criteria (302.1, 302.2, 302.3, 302.7, 302.9) for users with vision, motor, and cognitive disabilities.",
+    "wcag_relevance": "15+ Level A/AA criteria marked 'Partially Supports' including 1.1.1, 1.3.1, 1.4.3, 2.1.1, 2.4.3, 4.1.3. Multiple contrast, keyboard, and focus visibility failures."
+  },
+  "signals_found": [
+    "Multiple 'Partially Supports' in keyboard navigation (2.1.1)",
+    "Focus order issues in critical workflows (2.4.3)",
+    "Contrast failures in interactive elements (1.4.3)",
+    "Missing screen reader announcements for status messages (4.1.3)",
+    "Section 302.1 (Without Vision) partially supported",
+    "44% compliance score with explicit high-risk warning"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard traps in shopping cart workflows (2.1.2)",
+    "Missing form labels (3.3.2)",
+    "Insufficient focus visibility (2.4.7)",
+    "Content overlap at 320px viewport (1.4.10)",
+    "Unannounced error messages (3.3.1)"
+  ],
+  "missing_or_unclear_information": [
+    "Product version not specified",
+    "Remediation timeline not provided",
+    "Scope of manual testing unclear"
+  ],
+  "recommendation": "Immediate accessibility action plan (TAAP) required to address keyboard navigation, screen reader compatibility, and visual contrast issues. Prioritize fixes blocking core admin/learning workflows.",
+  "next_steps": [
+    "Request remediation roadmap with timelines",
+    "Verify testing with NVDA screen reader",
+    "Review contrast fixes for brand colors",
+    "Validate keyboard fixes in calendar/table components"
+  ],
+  "needs_human_review": true
+}
+```

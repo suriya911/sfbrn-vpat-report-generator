@@ -1,0 +1,63 @@
+# gpt-oss-120b (openai.gpt-oss-120b-1:0)
+# 10.22s in=9516 out=1662 err=None
+
+{
+  "category": "Need TAAP",
+  "confidence": 0.92,
+  "risk_level": "High",
+  "reason": "The VPAT shows a large number of Level A and AA criteria marked as \"Partially Supports\" across core accessibility domains (keyboard access, focus order, alt text, color contrast, reflow, visible focus, status messages, name/role/value, headings/labels). No criteria are marked \"Supports\" for the majority of required items, and the vendor’s own score summary describes a \"High accessibility risk\" with a 44% compliance score. This pattern meets the rubric condition for widespread partial support and significant barriers, triggering a Need TAAP classification.",
+  "regulatory_basis": {
+    "ada_relevance": "ADA requires that web applications be accessible to people with disabilities, which aligns with WCAG 2.0/2.1 Level A and AA. The identified gaps (keyboard traps, missing alt text, insufficient contrast, etc.) constitute barriers under ADA.",
+    "section_508_relevance": "Section 508 (Revised 2017) incorporates WCAG 2.0 Level A and AA. The partial support for many Section 508 functional performance criteria (e.g., 302.1, 302.2, 302.3) indicates non‑conformance.",
+    "wcag_relevance": "Multiple WCAG 2.0/2.1/2.2 Level A and AA success criteria are only partially supported, violating the conformance requirements for a fully accessible product."
+  },
+  "signals_found": [
+    "1.1.1 Non‑text Content – Partially Supports (missing/incorrect alt text)",
+    "2.1.1 Keyboard – Partially Supports (several focusable elements not reachable)",
+    "2.1.2 No Keyboard Trap – Partially Supports (focus traps identified)",
+    "2.4.3 Focus Order – Partially Supports (focus lost, incorrect order)",
+    "2.4.6 Headings and Labels – Partially Supports (missing/incorrect labels)",
+    "2.4.7 Focus Visible – Partially Supports (invisible focus indicators)",
+    "1.4.1 Use of Color – Partially Supports (color‑only cues)",
+    "1.4.3 Contrast (Minimum) – Partially Supports (multiple low‑contrast text)",
+    "1.4.10 Reflow – Partially Supports (horizontal scrollbars, content cut‑off)",
+    "1.4.11 Non‑text Contrast – Partially Supports (focus indicator contrast)",
+    "1.4.12 Text Spacing – Partially Supports (text truncation when spacing changed)",
+    "2.5.7 Dragging Movements – Partially Supports (no keyboard alternative)",
+    "4.1.2 Name, Role, Value – Partially Supports (inconsistent accessible names)",
+    "4.1.3 Status Messages – Partially Supports (messages not announced)",
+    "302.1–302.3 (Section 508 functional performance) – Partially Supports"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard navigation gaps and focus traps preventing full operation without a mouse.",
+    "Missing or incorrect alternative text for images and icons.",
+    "Insufficient color contrast for text and UI elements.",
+    "Failure of reflow and text spacing adjustments, causing content loss at 320 px width.",
+    "Invisible or insufficient focus indicators on interactive controls.",
+    "Inconsistent or missing accessible names/labels for form fields and buttons.",
+    "Status and error messages not programmatically announced to screen readers.",
+    "Use of color alone to convey meaning in several UI components."
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not provided.",
+    "No remediation roadmap, target dates, or responsible parties are listed.",
+    "Testing scope is vague – only “pages” are referenced, not the full application or mobile views.",
+    "No explicit statement of conformance level (e.g., “WCAG 2.1 AA”) beyond the table entries.",
+    "No evidence of assistive technology testing beyond JAWS on Windows (no macOS, iOS, Android, or NVDA).",
+    "No mention of ongoing monitoring or future updates."
+  ],
+  "recommendation": "Develop and submit a formal Technical Accessibility Action Plan (TAAP) that prioritizes remediation of the identified barriers, especially keyboard access, focus management, alt text, contrast, and status message announcements. Establish clear remediation timelines and assign responsibility.",
+  "next_steps": [
+    "Conduct a comprehensive accessibility audit covering the entire product (including mobile and admin interfaces).",
+    "Fix all keyboard traps and ensure every interactive element is reachable via Tab/Shift+Tab.",
+    "Provide correct, descriptive alt text for all images and icons; hide decorative images from AT.",
+    "Increase color contrast to meet minimum 4.5:1 (3:1 for large text) and ensure non‑text contrast of 3:1.",
+    "Implement visible focus indicators that meet WCAG 2.4.7 requirements.",
+    "Correct heading structure and ensure all form fields have programmatically associated labels.",
+    "Make status and error messages perceivable to screen readers using ARIA live regions.",
+    "Validate reflow and text spacing at 320 px width and ensure no content is clipped.",
+    "Document a remediation schedule with target completion dates and perform regression testing after fixes.",
+    "Update the VPAT/ACR to reflect the new conformance status and include a clear remediation plan."
+  ],
+  "needs_human_review": true
+}

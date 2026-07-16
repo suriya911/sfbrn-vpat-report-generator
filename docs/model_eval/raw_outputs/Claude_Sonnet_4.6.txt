@@ -1,0 +1,76 @@
+# Claude Sonnet 4.6 (us.anthropic.claude-sonnet-4-6)
+# latency=49.0s in=11510 out=2702 cost=$0.07506 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.93,
+  "risk_level": "High",
+  "reason": "This VPAT documents widespread 'Partially Supports' entries across nearly every core accessibility area at both WCAG Level A and Level AA. The compliance score is 44% of reviewable criteria, which the document itself characterizes as 'High accessibility risk.' Critical Level A criteria are 'Partially Supports' including: Keyboard (2.1.1) with multiple components inaccessible by keyboard; No Keyboard Trap (2.1.2) with confirmed focus traps in two workflows; Non-text Content (1.1.1) with numerous incorrect or missing alt text instances; Info and Relationships (1.3.1) with missing landmarks, unassociated labels, and improper semantics; Focus Order (2.4.3) with focus loss and incorrect order across many pages; Name, Role, Value (4.1.2) with programmatic name/role failures; Error Identification (3.3.1) with errors not announced; Labels or Instructions (3.3.2) with missing visible labels across many pages; Use of Color (1.4.1) with color-only indicators; and On Input (3.2.2) with unexpected context changes. At Level AA, barriers are equally widespread: Contrast (1.4.3) fails across multiple components; Reflow (1.4.10) fails with content loss at 320px across at least 8 pages; Focus Visible (2.4.7) with invisible focus indicators on interactive elements; Status Messages (4.1.3) with screen reader announcements missing across many pages; Headings and Labels (2.4.6) with non-descriptive labels across many pages; and Text Spacing (1.4.12) and Non-text Contrast (1.4.11) also failing. The barriers collectively affect keyboard-only users, screen reader users, low-vision users, and users with cognitive disabilities. Core workflows including calendar navigation, form submission, search, and assignment creation are impacted. No remediation roadmap or resolution dates are provided. The product version is missing. No TAAP or formal remediation plan is referenced.",
+  "regulatory_basis": {
+    "ada_relevance": "Under Title II and Title III of the ADA, web-based software used by employees or the public must be accessible to individuals with disabilities. The documented barriers to keyboard access, screen reader compatibility, focus management, color contrast, and form labeling create substantial risk of ADA non-compliance, particularly given that this is a Learning Management System used in employment contexts.",
+    "section_508_relevance": "Section 508 (Revised 2017) requires that ICT procured or used by federal agencies meets WCAG 2.0 Level A and AA. The Functional Performance Criteria (302.1 Without Vision, 302.2 With Limited Vision, 302.3 Without Perception of Color, 302.7 With Limited Manipulation, 302.9 With Limited Language/Cognitive Abilities) are all marked 'Partially Supports,' indicating systemic non-conformance with Section 508 requirements across multiple disability categories.",
+    "wcag_relevance": "The VPAT documents 'Partially Supports' for 10 Level A criteria (1.1.1, 1.3.1, 1.3.2, 1.4.1, 2.1.1, 2.1.2, 2.4.2, 2.4.3, 2.4.4, 2.5.3, 3.2.2, 3.3.1, 3.3.2, 4.1.2) and 8 Level AA criteria (1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3). No Level A or AA criterion is fully 'Supports' in the core interaction areas. This represents a systemic failure across WCAG 2.1 and 2.2 Level A and AA, well beyond the threshold for Minor Changes or GTG classification."
+  },
+  "signals_found": [
+    "Compliance score of 44% of reviewable criteria — vendor's own document flags 'High accessibility risk'",
+    "2.1.1 Keyboard: Partially Supports — 9 documented instances of keyboard inaccessibility including calendar, comboboxes, pagination, and list boxes",
+    "2.1.2 No Keyboard Trap: Partially Supports — confirmed focus traps in Copy Event description field and Shopping Cart Preferences",
+    "2.4.3 Focus Order: Partially Supports — focus loss and incorrect order documented across 11+ pages",
+    "2.4.7 Focus Visible: Partially Supports — invisible focus indicators on Translate buttons, tab buttons, Search button, and training links",
+    "1.1.1 Non-text Content: Partially Supports — 11 documented alt text failures including missing, incorrect, and redundant alternatives",
+    "1.3.1 Info and Relationships: Partially Supports — missing landmarks, unassociated labels, improper table semantics across 10+ pages",
+    "4.1.2 Name, Role, Value: Partially Supports — programmatic name/role failures (remarks truncated, indicating more issues)",
+    "4.1.3 Status Messages: Partially Supports — 9 documented instances of status/error messages not announced by screen reader",
+    "3.3.1 Error Identification: Partially Supports — errors not programmatically identified (remarks truncated)",
+    "3.3.2 Labels or Instructions: Partially Supports — missing visible labels across many pages including search fields and combo boxes",
+    "1.4.3 Contrast (Minimum): Partially Supports — multiple contrast failures across Welcome, Curricula Admin, Copy Event, Cert Management",
+    "1.4.10 Reflow: Partially Supports — 8 documented reflow failures at 320px including content loss, dual scrollbars, and missing table headers",
+    "1.4.11 Non-text Contrast: Partially Supports — focus indicator contrast failure on Save button",
+    "2.4.6 Headings and Labels: Partially Supports — non-descriptive labels and missing context across many pages",
+    "1.4.1 Use of Color: Partially Supports — color-only indicators in Groups, Edit Part, Admin Compliance Dashboard, Calendar",
+    "3.2.2 On Input: Partially Supports — unexpected page reloads and context changes in Curricula Admin, Manage Learning Assignments, Homepage",
+    "2.5.3 Label in Name: Partially Supports — visible and accessible labels mismatch in Course Catalog and Transcripts",
+    "Section 508 FPC 302.1, 302.2, 302.3, 302.7, 302.9 all marked Partially Supports",
+    "Product version is missing from the document",
+    "No remediation roadmap, target dates, or TAAP referenced",
+    "Several remarks are truncated, suggesting incomplete documentation",
+    "Testing limited to Chrome/Windows with JAWS only — no Firefox, Safari, NVDA, VoiceOver, or mobile testing documented"
+  ],
+  "major_accessibility_risks": [
+    "Keyboard inaccessibility across multiple core UI components (calendar, comboboxes, pagination, list boxes) blocks keyboard-only users from completing core LMS workflows",
+    "Confirmed keyboard traps in Copy Event and Shopping Cart Preferences create complete barriers for keyboard users",
+    "Screen reader users cannot receive status messages, error messages, or search results on many pages — blocking form completion and task feedback",
+    "Focus loss and incorrect focus order across 11+ pages disrupts screen reader and keyboard navigation throughout the application",
+    "Missing and incorrect alt text across 11 documented instances impairs screen reader users' ability to understand content and navigate",
+    "Multiple color contrast failures across Welcome, navigation, and administrative pages affect low-vision users",
+    "Reflow failures across 8 pages at 320px prevent use on mobile or with browser zoom for low-vision users",
+    "Missing visible labels across many form fields creates barriers for all users, especially those with cognitive disabilities",
+    "Name, Role, Value failures (4.1.2) and Label in Name failures (2.5.3) impair voice control and screen reader users",
+    "Color-only indicators in multiple areas exclude users who cannot perceive color"
+  ],
+  "missing_or_unclear_information": [
+    "Product version is not provided — cannot confirm which release was tested",
+    "Remarks for 3.3.1 Error Identification, 4.1.2 Name/Role/Value, and 1.3.2 Meaningful Sequence are truncated — full scope of issues is unknown",
+    "No remediation roadmap, target fix dates, or accessibility action plan is referenced",
+    "Testing scope does not include mobile browsers, NVDA, VoiceOver, or Firefox — coverage may be incomplete",
+    "No information on whether issues are isolated to specific modules or affect the entire platform",
+    "302.7 With Limited Manipulation remarks are truncated — full scope of manipulation barriers is unknown",
+    "No statement on whether a formal TAAP or corrective action plan exists",
+    "Evaluation date is listed as January 27, 2026 — unclear if this is a future-dated document or a typo"
+  ],
+  "recommendation": "This product requires a Technology Accessibility Action Plan (TAAP) before procurement or deployment. The VPAT documents systemic accessibility failures across keyboard access, screen reader compatibility, focus management, color contrast, form labeling, and status messaging — affecting users who are blind, have low vision, use keyboard-only navigation, or have cognitive disabilities. The 44% compliance score and widespread 'Partially Supports' entries across both Level A and Level AA criteria indicate that significant remediation is required. A formal TAAP should be negotiated with the vendor, including specific remediation commitments, target dates, and interim accommodations for affected users.",
+  "next_steps": [
+    "Request a formal Technology Accessibility Action Plan (TAAP) from Cornerstone/CSOD with specific remediation timelines for all documented Level A and AA failures",
+    "Prioritize remediation of keyboard traps (2.1.2), keyboard inaccessibility (2.1.1), and screen reader status message failures (4.1.3) as these block core workflows",
+    "Request the missing product version number and confirm the evaluation date (January 27, 2026 appears to be future-dated)",
+    "Request complete, untruncated remarks for 3.3.1, 4.1.2, 1.3.2, and 302.7 to fully assess scope of issues",
+    "Request expanded testing coverage including NVDA, VoiceOver, Firefox, and mobile platforms",
+    "Establish interim accommodations for users with disabilities who need to use the LMS before remediation is complete",
+    "Schedule a follow-up accessibility review after vendor provides remediation updates",
+    "Engage legal/compliance counsel to assess ADA and Section 508 procurement risk given the documented barriers",
+    "Human accessibility reviewer should validate the truncated remarks and confirm whether any criteria were incorrectly marked Not Applicable"
+  ],
+  "needs_human_review": true
+}
+```

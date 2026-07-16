@@ -1,0 +1,112 @@
+# Claude Haiku 4.5 (us.anthropic.claude-haiku-4-5-20251001-v1:0)
+# latency=32.8s in=11510 out=3438 cost=$0.0287 err=None
+
+```json
+{
+  "category": "Need TAAP",
+  "confidence": 0.92,
+  "risk_level": "High",
+  "reason": "The VPAT reveals widespread accessibility barriers across core WCAG Level A and AA criteria. The compliance score of 44% (8 supported of 18 reviewable criteria) indicates significant gaps. Multiple Level A and AA criteria are marked 'Partially Supports' with documented exceptions affecting keyboard access, focus management, screen reader compatibility, form labels, color contrast, and status message announcements. These barriers impact fundamental accessibility for users with disabilities and block core workflows. A formal remediation and accessibility action plan (TAAP) is required before deployment or continued use.",
+  "regulatory_basis": {
+    "ada_relevance": "Under the ADA, web applications must be accessible to individuals with disabilities. The documented barriers in keyboard navigation (2.1.1, 2.1.2), focus order (2.4.3), screen reader support (1.1.1, 1.3.1, 4.1.2, 4.1.3), and form labels (3.3.2) create barriers that prevent equal access and participation for employees and learners with disabilities using assistive technology.",
+    "section_508_relevance": "Section 508 (Revised 2017) requires federal agencies and contractors to ensure electronic and information technology is accessible. The VPAT documents failures in Functional Performance Criteria 302.1 (Without Vision), 302.2 (With Limited Vision), 302.3 (Without Perception of Color), and 302.7 (With Limited Manipulation). Specific barriers in keyboard access, focus visibility, contrast, and status message announcements violate Section 508 technical standards.",
+    "wcag_relevance": "The product is evaluated against WCAG 2.0, 2.1, and 2.2 at Levels A and AA. Critical failures and partial supports are documented in: 1.1.1 (Non-text Content), 1.3.1 (Info and Relationships), 1.4.1 (Use of Color), 1.4.3 (Contrast Minimum), 1.4.4 (Resize Text), 1.4.10 (Reflow), 1.4.11 (Non-text Contrast), 1.4.12 (Text Spacing), 2.1.1 (Keyboard), 2.1.2 (No Keyboard Trap), 2.4.2 (Page Titled), 2.4.3 (Focus Order), 2.4.6 (Headings and Labels), 2.4.7 (Focus Visible), 2.5.7 (Dragging Movements), 3.2.2 (On Input), 3.3.1 (Error Identification), 3.3.2 (Labels or Instructions), 4.1.2 (Name, Role, Value), and 4.1.3 (Status Messages). No Level A or AA criterion is marked 'Supports' without exceptions."
+  },
+  "signals_found": [
+    "Compliance score of 44% (8 of 18 reviewable criteria supported) indicates significant accessibility gaps.",
+    "Multiple Level A criteria marked 'Partially Supports': 1.1.1, 1.3.1, 1.3.2, 1.4.1, 2.1.1, 2.1.2, 2.4.2, 2.4.3, 2.4.4, 2.5.3, 3.2.2, 3.3.1, 3.3.2, 4.1.2.",
+    "Multiple Level AA criteria marked 'Partially Supports': 1.4.3, 1.4.4, 1.4.5, 1.4.10, 1.4.11, 1.4.12, 2.4.6, 2.4.7, 2.5.7, 4.1.3.",
+    "Keyboard access barriers documented: Next/previous year buttons not focusable, Create New Group link not focusable, language selection not keyboard accessible, combobox not focusable via Tab, 'More options' button in table not keyboard accessible, calendar missing keyboard support, pagination current page not focusable, listboxes not expandable with Enter/Space, availability combobox options not keyboard focusable.",
+    "Focus order issues documented: Focus lost after checkbox interactions, focus moves to page top on search, focus lost after pencil icon activation, incorrect focus order between form fields, non-interactive table container receives focus, hidden buttons focused and announced, focus not moved to popup on Edit/Delete.",
+    "Keyboard trap barriers: Focus trapped on Description edit field in Copy Event, focus trapped in Shopping Cart and Checkout fields.",
+    "Screen reader compatibility issues: Images with empty alt attributes, incorrect alt text announcements, decorative separators focused and announced, pie charts not focused/announced, search icons missing alt text, inactive steps announced as 'Inactive graphic', sortable table elements announced multiple times, main landmark missing, visual labels not associated with edit fields, group labels not announced, table not properly implemented.",
+    "Form label and instruction gaps: No permanent visible labels for Title edit field, asterisk meaning not announced, no visible labels for select OU criteria combobox, no permanent visible label for keywords field, no visible labels for many edit fields, no permanent visible label for search users field.",
+    "Color contrast failures: White link text on colored backgrounds (yellow, green, blue, red) fails 4.5:1 ratio, orange focus indicator on grey menu items fails contrast, orange button text fails contrast on hover, orange text on white background fails contrast, unselected tabs on hover fail contrast.",
+    "Reflow and zoom issues: Content cropped at 200% zoom, dual scrollbar at 320px width, placeholder text cutoff, horizontal scrollbar at 320×256 px, expandable chevron button missing at 320×256 px, table headers missing at 320×256 px, page cannot be scrolled at 320×256 px, content overlaps at 320×256 px.",
+    "Text spacing issues: Search training plan title cropped after text spacing, content gets ellipses after applying text spacing.",
+    "Status message announcement failures: Error messages not announced by screen reader, status messages not announced after user actions, search results not announced, warning messages not announced, loading status not announced.",
+    "Focus visibility gaps: Focus not visible on Translate buttons, focus indicator not fully visible on Current tab button, focus indicator not visible on Search button, focus indicator not fully visible on training links.",
+    "Dragging movement without keyboard alternative: Curricula Admin uses dragging to arrange rows without keyboard alternative.",
+    "Automatic context changes: Page reloads automatically after language selection, page refreshes automatically when dates selected, pressing Esc closes entire dialog instead of search suggestion, star rating changes automatically on focus.",
+    "Page title issues: Page title does not contain site name, page title not descriptive, incorrect page title defined.",
+    "Link purpose issues: Links opening in new tab not announced as such, columns announced without context, multiple 'View Inventory Usage' links announced without context.",
+    "Label mismatch: Visible label for select button does not match accessible label, visual and programmatic labels different for Expired & Inactive.",
+    "Product version not specified in VPAT.",
+    "Evaluation scope limited to Chrome browser and JAWS screen reader; testing with other browsers and assistive technologies not documented.",
+    "No documented remediation roadmap or resolution dates provided.",
+    "Remarks for several criteria incomplete or truncated (e.g., 1.3.2, 3.3.1, 4.1.2)."
+  ],
+  "major_accessibility_risks": [
+    "Keyboard Navigation Barriers: Multiple interactive components are not keyboard accessible (buttons, comboboxes, calendar, pagination), preventing users who rely on keyboard-only navigation from accessing core functionality.",
+    "Focus Management Failures: Focus order is incorrect in multiple workflows, focus is lost after interactions, and focus traps exist in critical forms (Copy Event, Shopping Cart). This breaks keyboard navigation and screen reader workflows.",
+    "Screen Reader Incompatibility: Widespread issues with alt text (empty, incorrect, missing), semantic structure (missing landmarks, improper table markup, missing group labels), and status message announcements prevent blind and low-vision users from understanding and operating the application.",
+    "Form Accessibility Gaps: Missing visible labels, missing label associations, asterisk meanings not announced, and error messages not announced prevent users from completing forms independently.",
+    "Color Contrast Failures: Multiple UI elements fail WCAG AA contrast requirements (4.5:1 for normal text, 3:1 for large text), making content difficult or impossible to read for users with low vision or color blindness.",
+    "Reflow and Zoom Failures: Content is cropped, hidden, or overlaps when zoomed to 200% or at 320px viewport width, preventing users with low vision from accessing content at magnified sizes.",
+    "Automatic Context Changes: Pages reload or refresh automatically on input, and dialogs close unexpectedly, creating confusion and barriers for users with cognitive disabilities or those using assistive technology.",
+    "Dragging Without Keyboard Alternative: Curricula Admin feature requires dragging to arrange rows with no keyboard alternative, blocking users with motor disabilities.",
+    "Status Message Announcements: Error messages, success confirmations, and loading states are not announced to screen reader users, preventing them from understanding the outcome of their actions."
+  ],
+  "missing_or_unclear_information": [
+    "Product version not specified; VPAT does not identify which version of Cornerstone Learn was tested.",
+    "Evaluation date is January 27, 2026 (future date); unclear if this is a typo or if the document is a draft.",
+    "Testing scope limited to Chrome browser on Windows; no documentation of testing with Firefox, Safari, Edge, or other browsers.",
+    "Screen reader testing limited to JAWS; no documentation of testing with NVDA, VoiceOver, or other screen readers.",
+    "No documentation of testing with other assistive technologies (speech recognition, switch access, eye tracking, etc.).",
+    "Remarks for criteria 1.3.2, 3.3.1, and 4.1.2 are incomplete or truncated in the VPAT.",
+    "No remediation roadmap or timeline provided; no indication of when issues will be fixed.",
+    "No information on whether the product has been tested with users with disabilities.",
+    "No information on accessibility testing frequency or ongoing compliance monitoring.",
+    "No information on accessibility training for development and QA teams.",
+    "No accessibility statement or known issues document provided.",
+    "No information on which features or workflows are most critical for accessibility remediation."
+  ],
+  "recommendation": "Do not deploy or continue use of this product without a formal Accessibility Action Plan (TAAP). The product has a 44% compliance score with widespread barriers across keyboard access, focus management, screen reader support, form accessibility, color contrast, and status message announcements. These barriers prevent users with disabilities from accessing core learning management functionality and violate ADA, Section 508, and WCAG standards. Immediate actions required: (1) Engage an accessibility specialist to conduct detailed testing and create a prioritized remediation roadmap; (2) Establish a timeline for fixing Level A and AA barriers (recommend 30–60 days for critical issues); (3) Expand testing to multiple browsers (Firefox, Safari, Edge) and assistive technologies (NVDA, VoiceOver, speech recognition); (4) Implement automated and manual accessibility testing in the development pipeline; (5) Provide accessibility training to development and QA teams; (6) Conduct user testing with people with disabilities; (7) Publish an accessibility statement with known issues and remediation status; (8) Establish ongoing accessibility monitoring and compliance verification.",
+  "next_steps": [
+    "Classify this product as 'Need TAAP' and escalate to accessibility leadership and legal/compliance teams.",
+    "Request a detailed Accessibility Action Plan (TAAP) from the vendor (Csod) with specific remediation timelines for each barrier.",
+    "Prioritize remediation of Level A barriers (keyboard access, focus order, screen reader support, form labels) as these are foundational to accessibility.",
+    "Request expanded testing scope: multiple browsers (Chrome, Firefox, Safari, Edge), multiple screen readers (JAWS, NVDA, VoiceOver), and other assistive technologies.",
+    "Request clarification on product version and evaluation date; confirm the VPAT reflects the current production version.",
+    "Request complete remarks for criteria with truncated or incomplete descriptions (1.3.2, 3.3.1, 4.1.2).",
+    "Do not deploy this product to users with disabilities until critical barriers are remediated and verified.",
+    "If the product is already in use, communicate known accessibility barriers to users and provide workarounds or alternative solutions.",
+    "Establish a governance process for accessibility compliance verification before accepting future updates or versions.",
+    "Consider alternative learning management systems with stronger accessibility compliance if remediation timeline is unacceptable."
+  ],
+  "needs_human_review": true
+}
+```
+
+---
+
+## Summary
+
+**Classification: Need TAAP**
+
+This Cornerstone Learn VPAT documents a product with **significant accessibility barriers** that require a formal remediation and accessibility action plan before deployment or continued use.
+
+### Key Findings:
+
+1. **Low Compliance Score**: 44% of reviewable criteria are supported (8 of 18), indicating widespread accessibility gaps.
+
+2. **Multiple Level A and AA Failures**: The VPAT marks 14 Level A criteria and 10 Level AA criteria as "Partially Supports," with documented exceptions affecting:
+   - Keyboard access and focus management
+   - Screen reader compatibility
+   - Form labels and error messages
+   - Color contrast
+   - Reflow and text spacing
+   - Status message announcements
+
+3. **Core Workflow Barriers**: Users relying on keyboard-only navigation, screen readers, or magnification cannot access critical learning management functions (navigation, forms, status updates, dragging operations).
+
+4. **Incomplete Testing**: Evaluation limited to Chrome + JAWS; no testing with other browsers or assistive technologies.
+
+5. **No Remediation Plan**: VPAT provides no timeline or roadmap for fixing documented issues.
+
+### Regulatory Impact:
+- **ADA**: Barriers prevent equal access for employees and learners with disabilities.
+- **Section 508**: Failures in Functional Performance Criteria for vision, color perception, and manipulation.
+- **WCAG 2.0/2.1/2.2 AA**: Multiple criteria not met.
+
+**Recommendation**: Require vendor to provide a detailed TAAP with prioritized remediation timelines. Do not deploy until Level A and AA barriers are resolved and verified through expanded testing.
