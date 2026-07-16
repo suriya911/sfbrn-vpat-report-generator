@@ -135,3 +135,39 @@ def test_the_bearer_token_is_removed_when_there_was_none(monkeypatch: pytest.Mon
     with _bearer_token("temporary"):
         assert os.environ[BEARER_ENV] == "temporary"
     assert BEARER_ENV not in os.environ
+
+
+def test_usage_is_read_from_the_converse_envelope():
+    """The token counts come off the response, not out of the model's text."""
+    from vpat_reviewer.ai.bedrock import _usage_from
+
+    usage = _usage_from(
+        {
+            "usage": {"inputTokens": 5100, "outputTokens": 420, "totalTokens": 5520},
+            "metrics": {"latencyMs": 3300},
+        }
+    )
+    assert usage is not None
+    assert (usage.input_tokens, usage.output_tokens) == (5100, 420)
+    assert usage.total_tokens == 5520
+    assert usage.latency_ms == 3300
+
+
+def test_unreported_usage_is_none_not_zero():
+    """ "Not reported" and "cost nothing" are different facts; don't log a made-up 0."""
+    from vpat_reviewer.ai.bedrock import _usage_from
+
+    assert _usage_from({}) is None
+    assert _usage_from({"usage": None}) is None
+    assert _usage_from({"usage": {"inputTokens": 5}}) is None  # outputTokens missing
+    assert _usage_from({"usage": {"inputTokens": "many", "outputTokens": 1}}) is None
+
+
+def test_a_missing_latency_does_not_lose_the_token_counts():
+    """Latency is optional metadata; losing it must not discard the accounting."""
+    from vpat_reviewer.ai.bedrock import _usage_from
+
+    usage = _usage_from({"usage": {"inputTokens": 10, "outputTokens": 2}})
+    assert usage is not None
+    assert usage.latency_ms is None
+    assert usage.total_tokens == 12

@@ -25,6 +25,7 @@ __all__ = [
     "RegulatoryBasis",
     "RiskAssessment",
     "RiskAssessor",
+    "TokenUsage",
 ]
 
 #: The risk levels the rubric allows.
@@ -50,6 +51,39 @@ class AssessmentRequest:
     #: The record the prompt was built from, for adapters that need it apart
     #: from the prose (structured tool-use, say, rather than a text completion).
     record: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class TokenUsage:
+    """What one assessment cost, as the provider reported it.
+
+    This is transport metadata, not model output: it comes from the response
+    envelope, never from the text the model wrote. That distinction is the whole
+    reason it is a separate object — a model cannot report its own token usage,
+    and a number it volunteered would be a claim, not a measurement.
+
+    An assessor that reports no usage yields ``None`` rather than an instance of
+    zeros: "not reported" and "cost nothing" are different facts, and a log that
+    conflates them is a log that invents a measurement (golden rule 7, one layer
+    out).
+    """
+
+    input_tokens: int
+    output_tokens: int
+    #: Wall-clock latency the provider reported, if any.
+    latency_ms: int | None = None
+
+    @property
+    def total_tokens(self) -> int:
+        return self.input_tokens + self.output_tokens
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "total_tokens": self.total_tokens,
+            "latency_ms": self.latency_ms,
+        }
 
 
 @dataclass(frozen=True)
@@ -95,6 +129,10 @@ class RiskAssessment:
     error: str = ""
     #: The assessor's literal output, unparsed.
     raw_response: str = ""
+    #: What the call cost, as the provider reported it. ``None`` when unreported
+    #: -- including on a failed call, which may still have burned input tokens
+    #: we were never told about.
+    usage: TokenUsage | None = None
 
     @classmethod
     def not_assessed(
@@ -144,6 +182,7 @@ class RiskAssessment:
             "model_id": self.model_id,
             "error": self.error,
             "raw_response": self.raw_response,
+            "usage": self.usage.to_dict() if self.usage else None,
         }
 
 
