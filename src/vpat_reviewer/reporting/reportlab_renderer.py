@@ -30,6 +30,7 @@ import os
 import logging
 from datetime import date, datetime
 from pathlib import Path
+from xml.sax.saxutils import escape
 
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
@@ -136,6 +137,25 @@ def _generate_workaround(criterion) -> list:
 # "WCAG 2.1 Success Criteria" reference tables include the 2.1 set plus any
 # 2.2 rows actually found in the vendor VPAT — nothing parsed is dropped).
 WCAG22_ONLY = {"2.4.11", "2.5.7", "2.5.8", "3.3.8"}
+
+
+# ── Text helpers ───────────────────────────────────────────────────────────────
+
+def _esc(text):
+    """Escape text that came from outside us before it goes into a Paragraph.
+
+    ReportLab parses Paragraph text as mini-HTML, so any document-supplied string
+    is markup until proven otherwise. H5P's VPAT remarks say a progress bar has
+    'clickable elements implemented as <a> tags': ReportLab read that <a> as an
+    anchor, never found a closing tag, and the whole report died with
+    'Parse error: saw </para> instead of expected </a>'.
+
+    Apply this to vendor text, AI-generated text, and anything else we did not
+    author. Do NOT apply it to our own markup (the <b>/<font> we build here), and
+    do NOT apply it to strings bound for canvas.drawString, which draws literally
+    and would show '&amp;' to the user.
+    """
+    return escape(text if text is not None else "")
 
 
 # ── Style helpers ──────────────────────────────────────────────────────────────
@@ -458,7 +478,7 @@ def _criterion_card(crit, S, is_na_gap=False):
     description, plain = _wcag_lookup(crit.criterion_id)
 
     items = []
-    items.append(Paragraph(f"{crit.criterion_id} {crit_title}",
+    items.append(Paragraph(f"{crit.criterion_id} {_esc(crit_title)}",
         _ps("CardTitle", fontName="Helvetica", fontSize=11.5,
             textColor=C_ACCENT, spaceBefore=2, spaceAfter=6)))
 
@@ -495,7 +515,7 @@ def _criterion_card(crit, S, is_na_gap=False):
     ]))
     items.append(badge_row)
 
-    remarks_text = crit.remarks or "[No vendor remarks provided]"
+    remarks_text = _esc(crit.remarks) if crit.remarks else "[No vendor remarks provided]"
     remarks_p = Paragraph(
         f'<font color="#1a4f8a"><b>Vendor Remarks:</b></font> {remarks_text}',
         _ps("VRemark", fontName="Helvetica", fontSize=FS_TABLE,
@@ -598,12 +618,16 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     threshold = cfg["threshold"]
     rpt_title = cfg["report_title"]
 
-    product   = vpat_data.product_name or "[PRODUCT NAME NOT FOUND]"
-    version   = vpat_data.product_version or "[VERSION NOT SPECIFIED IN VPAT]"
-    vendor    = vpat_data.vendor_name or "[VENDOR NOT FOUND]"
-    vpat_date = vpat_data.vendor_report_date_raw or "[VENDOR REPORT DATE NOT FOUND]"
-    edition   = vpat_data.vpat_edition or "[VPAT EDITION NOT FOUND]"
-    v_contact = vpat_data.vendor_contact or "[VENDOR CONTACT NOT FOUND]"
+    # Vendor-supplied metadata: escaped, because every use below lands in a
+    # Paragraph. product_raw stays unescaped for the page-footer canvas, which
+    # draws literally (see _esc).
+    product_raw = vpat_data.product_name or "[PRODUCT NAME NOT FOUND]"
+    product   = _esc(product_raw)
+    version   = _esc(vpat_data.product_version or "[VERSION NOT SPECIFIED IN VPAT]")
+    vendor    = _esc(vpat_data.vendor_name or "[VENDOR NOT FOUND]")
+    vpat_date = _esc(vpat_data.vendor_report_date_raw or "[VENDOR REPORT DATE NOT FOUND]")
+    edition   = _esc(vpat_data.vpat_edition or "[VPAT EDITION NOT FOUND]")
+    v_contact = _esc(vpat_data.vendor_contact or "[VENDOR CONTACT NOT FOUND]")
 
     score     = score_info.get("score")
     score_str = f"{score}%" if score is not None else "N/A"
@@ -629,7 +653,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     impact_level = impact_info.get("final_level",
                        impact_info.get("suggested_level", "Medium"))
 
-    NumberedCanvas = _make_numbered_canvas(cfg, product, today_str, logo_path)
+    NumberedCanvas = _make_numbered_canvas(cfg, product_raw, today_str, logo_path)
     doc = SimpleDocTemplate(
         output_path, pagesize=letter,
         topMargin=1.2 * inch, bottomMargin=1.0 * inch,
@@ -707,7 +731,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
 
     exec_text = ""
     if vpat_data.product_description:
-        exec_text += (f"{product} \u2014 {vpat_data.product_description[:280]} ")
+        exec_text += (f"{product} \u2014 {_esc(vpat_data.product_description[:280])} ")
     exec_text += (
         f"{org_short} reviewed the vendor-submitted VPAT against the WCAG 2.1 "
         f"Level AA success criteria. ")
@@ -793,7 +817,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
         story.append(Paragraph("<b>Basis for Impact Determination:</b>",
                                S["body"]))
         for r in rationale:
-            story.append(Paragraph(f"\u2022  {r}", S["small"]))
+            story.append(Paragraph(f"\u2022  {_esc(r)}", S["small"]))
         story.append(Spacer(1, 0.08 * inch))
     impact_msgs = {
         "High": ("<b>High Impact \u2014 Alternative Access Plan Required.</b> "
@@ -821,9 +845,9 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     story.extend(_h2("Section 1 \u2014 Product and Description", S))
     story.append(_info_table([
         ("Product Name", product), ("Version", version), ("Vendor", vendor),
-        ("Description", vpat_data.product_description
+        ("Description", _esc(vpat_data.product_description)
              or "[PRODUCT DESCRIPTION NOT FOUND]"),
-        ("Product Type", vpat_data.product_type or ""),
+        ("Product Type", _esc(vpat_data.product_type)),
         ("VPAT Date", vpat_date +
             (" \u2014 flagged as outside the 12-month currency window"
              if vpat_data.is_outdated else "")),
@@ -1005,7 +1029,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     story.extend(_h2("Section 4 \u2014 Summary Report", S))
     s4 = f"{product} "
     if vpat_data.product_description:
-        s4 += f"is {vpat_data.product_description[:200].rstrip('.')}, and the "
+        s4 += f"is {_esc(vpat_data.product_description[:200].rstrip('.'))}, and the "
     else:
         s4 += "was reviewed by " + org_short + ", and the "
     s4 += (f"vendor's VPAT reports that {supported} of the {total_reviewed} "
@@ -1051,7 +1075,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
             if cid in WCAG22_ONLY and parsed is None:
                 continue  # 2.2-only rows appear only if the VPAT included them
             status = parsed.normalized_status if parsed else "Not Evaluated"
-            remarks = (parsed.remarks if parsed and parsed.remarks else "\u2014")
+            remarks = (_esc(parsed.remarks) if parsed and parsed.remarks else "\u2014")
             rows.append([
                 Paragraph(f"<b>{cid}</b> {ctitle}", _ps("WrCrit",
                     fontName="Helvetica", fontSize=FS_CAP,
@@ -1069,7 +1093,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     # ══ 13. SECTION 508 FUNCTIONAL PERFORMANCE CRITERIA ════════════════════════
     def _508_note(parsed):
         if parsed and parsed.remarks:
-            return parsed.remarks
+            return _esc(parsed.remarks)
         return (f"Not covered by the vendor's VPAT; flagged for independent "
                 f"third-party testing.")
 
