@@ -910,39 +910,28 @@ class VPATReviewerApp(tk.Tk):
         holder = tk.Frame(parent, bg=BG_PANEL)
         holder.pack(fill="both", expand=True)
 
-        # Three regions: fixed top + fixed bottom pin; only the barrier list
-        # (middle) scrolls. Pack bottom first so it always reserves its space.
+        # The action buttons (and any TAAP/Deny notice) pin to the bottom — pack
+        # them first with side="bottom" so they always reserve their space. All
+        # the summary content — verdict, tiles, facts, score message, and the
+        # barrier list — lives in one scroll region above, so nothing is ever cut
+        # off on a short or scaled window. The scrollbar auto-hides when it fits.
         self.sum_bottom = tk.Frame(holder, bg=BG_PANEL)
         self.sum_bottom.pack(side="bottom", fill="x")
-        self.sum_top = tk.Frame(holder, bg=BG_PANEL)
-        self.sum_top.pack(side="top", fill="x")
-
-        self.sum_mid = tk.Frame(holder, bg=BG_PANEL)
-        self.sum_mid.pack(side="top", fill="both", expand=True)
-        self.bar_heading = tk.Label(
-            self.sum_mid, text="", font=(FONT, 8, "bold"), bg=BG_PANEL, fg=FG_CAPTION, anchor="w"
-        )
-        self.bar_heading.pack(fill="x", padx=18, pady=(6, 2))
-        # Canvas (panel-coloured) fills the region; the white card lives *inside*
-        # the scroll area sized to its content. Few barriers → the card hugs them
-        # and the rest is plain panel (no empty white box, no scrollbar). Many
-        # barriers → the card is taller than the viewport → it scrolls and the
-        # auto-hide scrollbar appears.
-        self.bar_canvas, scroll_inner = self._scrollable(self.sum_mid, bg=BG_PANEL)
-        self.bar_list = tk.Frame(
-            scroll_inner, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
-        )
-        self.bar_list.pack(fill="x", padx=16, pady=(0, 10), anchor="n")
+        self.sum_canvas, self.sum_content = self._scrollable(holder, bg=BG_PANEL)
 
         self._render_summary_placeholder()
 
-    def _render_summary_placeholder(self):
-        for region in (self.sum_top, self.sum_bottom, self.bar_list):
+    def _clear_summary(self):
+        """Empty the scroll content and the pinned footer, and reset the scroll
+        position, before rendering a fresh summary or the placeholder."""
+        for region in (self.sum_content, self.sum_bottom):
             for w in region.winfo_children():
                 w.destroy()
-        self.bar_heading.config(text="")
-        self.bar_list.pack_forget()  # no empty card before the first review
-        wrap = tk.Frame(self.sum_top, bg=BG_PANEL)
+        self.sum_canvas.yview_moveto(0)
+
+    def _render_summary_placeholder(self):
+        self._clear_summary()
+        wrap = tk.Frame(self.sum_content, bg=BG_PANEL)
         wrap.pack(fill="x", padx=20, pady=26)
         tk.Label(wrap, text="\U0001f4cb", font=(FONT, 32), bg=BG_PANEL, fg="#9fb3c8").pack(
             pady=(0, 10)
@@ -963,9 +952,9 @@ class VPATReviewerApp(tk.Tk):
         ).pack(pady=(6, 18))
 
         legend = tk.Frame(
-            self.sum_top, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
+            self.sum_content, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
         )
-        legend.pack(fill="x", padx=16)
+        legend.pack(fill="x", padx=16, pady=(0, 16))
         tk.Label(
             legend, text="VERDICT CATEGORIES", font=(FONT, 8, "bold"), bg=BG_CARD, fg=FG_CAPTION
         ).pack(anchor="w", padx=12, pady=(10, 4))
@@ -1010,10 +999,7 @@ class VPATReviewerApp(tk.Tk):
         return "Deterministic rules"
 
     def _populate_summary(self):
-        for region in (self.sum_top, self.sum_bottom, self.bar_list):
-            for w in region.winfo_children():
-                w.destroy()
-        self.bar_canvas.yview_moveto(0)
+        self._clear_summary()
 
         data = self.vpat_data
         score = self.score_info.get("score")
@@ -1024,8 +1010,8 @@ class VPATReviewerApp(tk.Tk):
             self.category, CATEGORY_META["Needs Manual Review"]
         )
 
-        # (1) Verdict banner  (fixed — top region)
-        banner = tk.Frame(self.sum_top, bg=color)
+        # (1) Verdict banner
+        banner = tk.Frame(self.sum_content, bg=color)
         banner.pack(fill="x", padx=16, pady=(16, 10))
         tk.Label(banner, text=glyph, font=(FONT, 24, "bold"), bg=color, fg=FG_WHITE).pack(
             side="left", padx=(14, 8), pady=12
@@ -1051,8 +1037,8 @@ class VPATReviewerApp(tk.Tk):
             anchor="w",
         ).pack(fill="x", pady=(2, 0))
 
-        # (2) Stat tiles  (fixed)
-        tiles = tk.Frame(self.sum_top, bg=BG_PANEL)
+        # (2) Stat tiles
+        tiles = tk.Frame(self.sum_content, bg=BG_PANEL)
         tiles.pack(fill="x", padx=16, pady=(0, 10))
         score_str = f"{score}%" if score is not None else "N/A"
         score_color = C_GREEN if (score or 0) >= 75 else (C_ORANGE if (score or 0) >= 50 else C_RED)
@@ -1065,7 +1051,9 @@ class VPATReviewerApp(tk.Tk):
             for c in data.criteria
             if c.level == "AA" and c.normalized_status not in ("Supports", "Not Applicable")
         ]
-        facts = tk.Frame(self.sum_top, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1)
+        facts = tk.Frame(
+            self.sum_content, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
+        )
         facts.pack(fill="x", padx=16, pady=(0, 10))
         rows = [
             ("Product", data.product_name or "—"),
@@ -1098,7 +1086,7 @@ class VPATReviewerApp(tk.Tk):
         # (4) Score message
         msg = (self.score_info.get("message") or "").strip()
         if msg:
-            mb = tk.Frame(self.sum_top, bg=ACCENT_SFT)
+            mb = tk.Frame(self.sum_content, bg=ACCENT_SFT)
             mb.pack(fill="x", padx=16, pady=(0, 10))
             tk.Label(
                 mb,
@@ -1110,10 +1098,19 @@ class VPATReviewerApp(tk.Tk):
                 justify="left",
             ).pack(anchor="w", padx=12, pady=9)
 
-        # (5) All barriers — the ONLY scrolling region (middle)
-        self.bar_heading.config(text=f"BARRIERS  ({len(aa_barriers)})")
-        self.bar_list.pack(fill="x", padx=16, pady=(0, 10), anchor="n")  # re-show card
-        blist = self.bar_list
+        # (5) All barriers — part of the single scroll column
+        tk.Label(
+            self.sum_content,
+            text=f"BARRIERS  ({len(aa_barriers)})",
+            font=(FONT, 8, "bold"),
+            bg=BG_PANEL,
+            fg=FG_CAPTION,
+            anchor="w",
+        ).pack(fill="x", padx=18, pady=(6, 2))
+        blist = tk.Frame(
+            self.sum_content, bg=BG_CARD, highlightbackground=BORDER, highlightthickness=1
+        )
+        blist.pack(fill="x", padx=16, pady=(0, 10), anchor="n")
         if not aa_barriers:
             tk.Label(
                 blist, text="No WCAG AA barriers found. ✓", font=(FONT, 9), bg=BG_CARD, fg=C_GREEN
