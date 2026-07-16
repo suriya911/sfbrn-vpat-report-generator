@@ -41,6 +41,43 @@ def test_target_prefixed_status():
     assert normalize_status("Web: Partially Supports") == "Partially Supports"
 
 
+def test_multi_component_status_aggregates_worst_wins():
+    """Google Classroom answers per component; the row counts as the worst one.
+
+    Severity: Does Not Support > Partially Supports > Not Evaluated > Supports
+    > Not Applicable. A stated barrier in any component must not be hidden by a
+    cleaner answer in another.
+    """
+    assert normalize_status("Web: Supports Authoring Tool: Supports") == "Supports"
+    assert (
+        normalize_status("Web: Partially Supports Authoring Tool: Supports") == "Partially Supports"
+    )
+    assert normalize_status("Web: Supports Authoring Tool: Does Not Support") == "Does Not Support"
+    # A component that was not evaluated means the row cannot claim Supports.
+    assert normalize_status("Web: Supports Authoring Tool: Not Evaluated") == "Not Evaluated"
+
+
+def test_multi_component_not_applicable_only_when_all_are():
+    """Option A excludes NA because the feature is absent; that rationale does
+    not apply when another component answers, so mixed NA rows stay scored."""
+    assert normalize_status("Web: Not Applicable Authoring Tool: Supports") == "Supports"
+    assert (
+        normalize_status("Web: Not Applicable Authoring Tool: Partially Supports")
+        == "Partially Supports"
+    )
+    assert (
+        normalize_status("Web: Not Applicable Authoring Tool: Not Applicable") == "Not Applicable"
+    )
+
+
 def test_output_is_always_canonical():
-    for raw in ["", "weird value", "supports", "n/a", "partial", "not evaluated"]:
+    for raw in [
+        "",
+        "weird value",
+        "supports",
+        "n/a",
+        "partial",
+        "not evaluated",
+        "Web: Supports Authoring Tool: something unrecognizable",
+    ]:
         assert normalize_status(raw) in CANONICAL_STATUSES

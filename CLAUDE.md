@@ -424,6 +424,23 @@ from what the corpus reports, not from guesswork.
   *inside* "Not Applicab2le" in iCIMS. `extraction/pdf.py::_overlay_fonts` drops
   it by geometry (overlay text has no horizontally-adjacent same-font
   neighbours), not by font name.
+- **One cell can answer per component.** Google's ACRs stack several statuses in
+  one Conformance Level cell — `Web: Partially Supports` over `Authoring Tool:
+  Supports` — so requiring the whole cell to be a single status left **37 of 56
+  Google Classroom criteria "Not Evaluated"**. `_cell_status` accepts such a cell
+  only when it starts with a *known* component prefix and **every** segment is
+  itself a status (`domain/normalization.py::split_components`; the row's status
+  folds worst-wins, NA only if all components say NA). The prefix vocabulary is
+  deliberately closed — generalize it to `\w+:` and a review guide's
+  "Clarification: …" cells become conformance values.
+- **PDFs split the first letter off words.** Sample-VPAT's text layer reads
+  "P artially Supports" / "S upports". The strict cell match merely failed, but
+  the same-line text fallback then matched the ` Supports` **tail inside
+  "P artially Supports"** and recorded the *opposite* of what the vendor wrote —
+  the exact "confidently wrong" outcome this file exists to prevent.
+  `heal_kerning_splits` rejoins a split only when the glued token is a word from
+  the closed status vocabulary, so it can repair "P artially" but can never touch
+  prose or fuse "Not Applicable" into one word.
 - **A row with no evidence is not a finding.** `parse_508_fpc` used to synthesize
   all nine `302.x` rows on *every* document, including files that were not VPATs.
   Report only what the document states.

@@ -72,6 +72,18 @@
     "violations": 0,
     "wcag_count": 0
   },
+  "Sample-VPAT.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Does Not Support": 2,
+      "Not Applicable": 14,
+      "Partially Supports": 9,
+      "Supports": 25
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 50
+  },
   "TAAP Version 3_2 051225.docx": {
     "fpc_count": 0,
     "statuses": {},
@@ -94,6 +106,40 @@
       "Not Applicable": 10,
       "Partially Supports": 1,
       "Supports": 39
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 50
+  },
+  "google_classroom_web_vpat.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Partially Supports": 6,
+      "Supports": 50
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 56
+  },
+  "google_docs_web_vpat.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Does Not Support": 1,
+      "Not Applicable": 6,
+      "Partially Supports": 23,
+      "Supports": 20
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 50
+  },
+  "google_drawings_vpat.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Does Not Support": 1,
+      "Not Applicable": 6,
+      "Partially Supports": 18,
+      "Supports": 25
     },
     "unresolved": 0,
     "violations": 0,

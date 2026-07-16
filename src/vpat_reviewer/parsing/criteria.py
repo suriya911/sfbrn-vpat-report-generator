@@ -19,7 +19,11 @@ import re
 from typing import NamedTuple
 
 from vpat_reviewer.domain.models import VPATCriterion
-from vpat_reviewer.domain.normalization import normalize_status
+from vpat_reviewer.domain.normalization import (
+    COMPONENT_PREFIX_PATTERN,
+    normalize_status,
+    split_components,
+)
 from vpat_reviewer.extraction.base import Table
 from vpat_reviewer.parsing.text_cleanup import clean_extracted_text
 
@@ -139,11 +143,10 @@ WCAG_LEVELS: dict[str, str] = {
     "3.3.9": "AAA",
 }
 
-_STATUS_PREFIX_RE = re.compile(
-    r"^(?:Web|Software|Hardware|Open|Closed|Both|Authoring\s*Tool|Documentation)"
-    r"(?:\s*\([^)]*\))?\s*:\s*",
-    re.IGNORECASE,
-)
+# Derived from the shared component vocabulary in domain/normalization.py, so
+# the prefix this strips and the prefixes split_components segments on can
+# never drift apart.
+_STATUS_PREFIX_RE = re.compile("^" + COMPONENT_PREFIX_PATTERN, re.IGNORECASE)
 _TEXT_ID_RE = re.compile(r"^\s*(\d+\.\d+\.\d+)\b(.*)$")
 _TEXT_LEVEL_RE = re.compile(r"\(\s*(?:Level|WCAG)\s+(?:[\d.]+\s+)?(A{1,3})\b", re.IGNORECASE)
 _LEVEL_CUT_RE = re.compile(r"\(\s*(?:Level|WCAG)\b", re.IGNORECASE)
@@ -179,6 +182,49 @@ def _flatten(cell: object) -> str:
     return re.sub(r"\s+", " ", str(cell or "")).strip()
 
 
+# Every word that can appear in a conformance value. The heal below may join
+# two fragments ONLY when the result is one of these, so it can repair
+# "P artially" but can never touch ordinary prose ("a user", "A mechanism").
+_STATUS_WORDS = frozenset(
+    {
+        "supports",
+        "supported",
+        "support",
+        "partially",
+        "partial",
+        "does",
+        "not",
+        "applicable",
+        "evaluated",
+        "exceptions",
+        "apply",
+    }
+)
+_SPLIT_WORD_RE = re.compile(r"\b([A-Za-z]) ([A-Za-z]+)\b")
+
+
+def heal_kerning_splits(text: str) -> str:
+    """Rejoin status words whose first letter drifted off: "P artially" ...
+
+    Some PDFs (Sample-VPAT) render the first letter of a word with its own
+    kerning, and extraction reads it as a separate token: "P artially
+    Supports", "S upports". Left unhealed, the strict cell match fails -- and,
+    far worse, the same-line text fallback finds the " Supports" tail inside
+    "P artially Supports" and records the *opposite* of what the vendor wrote.
+
+    This is a closed-vocabulary repair: a join happens only when the glued
+    token is a word a conformance value can contain, so it cannot invent a
+    status and cannot rewrite prose ("Not Applicable" stays two words because
+    "notapplicable" is not in the vocabulary).
+    """
+
+    def _join(m: re.Match[str]) -> str:
+        joined = m.group(1) + m.group(2)
+        return joined if joined.lower() in _STATUS_WORDS else m.group(0)
+
+    return _SPLIT_WORD_RE.sub(_join, text)
+
+
 def _denoise(text: str) -> str:
     """Drop characters a conformance value can never contain.
 
@@ -191,15 +237,38 @@ def _denoise(text: str) -> str:
     return re.sub(r"\s{2,}", " ", re.sub(r"[^A-Za-z/\s]", "", text)).strip()
 
 
+def _segment_is_status(segment: str) -> bool:
+    """One component's answer, with the same forgiveness a whole cell gets."""
+    if _STRICT_STATUS_RE.fullmatch(segment):
+        return True
+    cleaned = heal_kerning_splits(_denoise(segment))
+    return bool(cleaned) and bool(_STRICT_STATUS_RE.fullmatch(cleaned))
+
+
 def _cell_status(cell: object) -> str:
     """The conformance value this cell holds, or "" if it is not a status cell."""
-    text = _STATUS_PREFIX_RE.sub("", _flatten(cell))
+    flat = heal_kerning_splits(_flatten(cell))
+    text = _STATUS_PREFIX_RE.sub("", flat)
     if text and _STRICT_STATUS_RE.fullmatch(text):
         return text
     # Second pass for overlay-polluted cells. Still a full-cell match, so prose
     # cannot be mistaken for an answer -- only noise is forgiven.
     cleaned = _denoise(text)
-    return cleaned if cleaned and _STRICT_STATUS_RE.fullmatch(cleaned) else ""
+    if cleaned and _STRICT_STATUS_RE.fullmatch(cleaned):
+        return cleaned
+    # Multi-component cells (Google Classroom): "Web: Partially Supports" and
+    # "Authoring Tool: Supports" stacked in one cell. Accepted only when EVERY
+    # segment is itself a status -- one word of prose disqualifies the cell, so
+    # a remarks column that also opens "Web:" can never be read as the answer.
+    # A blank segment ("Web:" with no answer) disqualifies it too: a missing
+    # status is always better than a manufactured one. The full multi-part text
+    # is the raw status; which component said what is the evidence.
+    # Known limit: if such a cell is ever split across physical continuation
+    # rows, only the first row's components are seen (unobserved in the corpus).
+    segments = split_components(flat)
+    if segments is not None and all(s and _segment_is_status(s) for s in segments):
+        return flat
+    return ""
 
 
 class RowStatus(NamedTuple):
@@ -353,8 +422,12 @@ def _is_criterion_line(raw_line: str) -> tuple[str, str] | None:
 
 
 def parse_from_text(text: str, seen_ids: set[str]) -> list[VPATCriterion]:
+    # Heal kerning splits once, up front: the same-line status search would
+    # otherwise find the " Supports" tail inside "P artially Supports" and
+    # record the opposite of what the vendor wrote (Sample-VPAT, rows 1.1.1
+    # and 1.3.1).
     criteria: list[VPATCriterion] = []
-    lines = text.split("\n")
+    lines = heal_kerning_splits(text).split("\n")
     n = len(lines)
     i = 0
     while i < n:

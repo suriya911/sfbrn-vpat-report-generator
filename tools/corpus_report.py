@@ -32,7 +32,8 @@ _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT / "src"))
 
 from vpat_reviewer.domain.models import VPATDocument  # noqa: E402
-from vpat_reviewer.parsing.criteria import WCAG_LEVELS  # noqa: E402
+from vpat_reviewer.domain.normalization import split_components  # noqa: E402
+from vpat_reviewer.parsing.criteria import WCAG_LEVELS, heal_kerning_splits  # noqa: E402
 from vpat_reviewer.parsing.document import parse_vpat  # noqa: E402
 
 BASELINE_PATH = _ROOT / "tools" / "corpus_baseline.json"
@@ -77,6 +78,16 @@ def _ids_in_text(text: str) -> set[str]:
     return found
 
 
+def _status_in_source(raw_status: str, source: str) -> bool:
+    """True if the reported status text appears in the (collapsed) source."""
+    if re.sub(r"\s+", " ", raw_status.lower()) in source:
+        return True
+    segments = split_components(raw_status)
+    if segments is None:
+        return False
+    return all(re.sub(r"\s+", " ", s.lower()) in source for s in segments if s.strip())
+
+
 def _check_invariants(doc: VPATDocument, rep: FileReport) -> None:
     """Structural properties that must hold regardless of ground truth."""
     wcag = [c for c in doc.criteria if c.section == "wcag"]
@@ -99,10 +110,14 @@ def _check_invariants(doc: VPATDocument, rep: FileReport) -> None:
         rep.violations.append(f"I4 duplicate ids: {sorted(dupes)[:8]}")
 
     # I1 (soundness) — a status we report must actually appear in the source.
-    # Catches rows synthesized from nothing.
-    text_lower = doc.raw_text.lower()
+    # Catches rows synthesized from nothing. The source is healed and
+    # whitespace-collapsed the same way the parser reads it, and a
+    # multi-component raw status ("Web: Partially Supports Authoring Tool:
+    # Supports") is checked per segment: the flattened whole never appears
+    # verbatim in a text layer that interleaves table columns.
+    source = re.sub(r"\s+", " ", heal_kerning_splits(doc.raw_text.lower()))
     for c in doc.criteria:
-        if c.raw_status and c.raw_status.lower() not in text_lower:
+        if c.raw_status and not _status_in_source(c.raw_status, source):
             rep.violations.append(
                 f"I1 status not found in source: {c.criterion_id}={c.raw_status!r}"
             )
