@@ -25,6 +25,10 @@ from typing import Any
 HIGH = "high"
 MEDIUM = "medium"
 
+#: WCAG conformance levels in cumulative order: claiming a level means
+#: satisfying it and every level before it.
+_LEVEL_ORDER = ("A", "AA", "AAA")
+
 
 @dataclass(frozen=True)
 class Flag:
@@ -104,6 +108,8 @@ def _default_score_flags() -> tuple[ScoreFlag, ...]:
 @dataclass(frozen=True)
 class GradingPolicy:
     # ── Scoring ──────────────────────────────────────────────────────────────
+    #: WCAG conformance target. Cumulative, as in WCAG itself: "AA" grades the
+    #: Level A *and* Level AA criteria (see ``graded_levels``).
     graded_level: str = "AA"
     #: Statuses that count as a pass in the numerator.
     supported_statuses: tuple[str, ...] = ("Supports",)
@@ -141,6 +147,18 @@ class GradingPolicy:
         return replace(self, **changes)
 
     # ── Scoring helpers ──────────────────────────────────────────────────────
+    @property
+    def graded_levels(self) -> tuple[str, ...]:
+        """Every WCAG level the conformance target includes: "AA" → ("A", "AA").
+
+        WCAG conformance is cumulative — a Level AA claim asserts every Level A
+        and Level AA criterion — so grading follows suit. An unrecognized value
+        falls back to grading exactly that level.
+        """
+        if self.graded_level in _LEVEL_ORDER:
+            return _LEVEL_ORDER[: _LEVEL_ORDER.index(self.graded_level) + 1]
+        return (self.graded_level,)
+
     def is_supported(self, status: str) -> bool:
         return status in self.supported_statuses
 

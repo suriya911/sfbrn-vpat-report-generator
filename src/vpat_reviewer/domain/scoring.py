@@ -17,14 +17,20 @@ class ScoreInfo(TypedDict):
     score: int | None
     supported: int
     total: int
+    #: Criteria found at the graded levels (A + AA by default). The key name
+    #: predates cumulative grading and is kept for report/sidecar compatibility.
     total_aa_found: int
     na_excluded: int
     message: str
 
 
 def graded_criteria(document: VPATDocument, policy: GradingPolicy) -> list[VPATCriterion]:
-    """Criteria at the policy's graded level (default: WCAG Level AA)."""
-    return [c for c in document.criteria if c.level == policy.graded_level]
+    """Criteria at the policy's conformance target (default "AA": Levels A and AA).
+
+    The target is cumulative, matching WCAG's own conformance model — a Level AA
+    claim asserts every Level A and Level AA criterion.
+    """
+    return [c for c in document.criteria if c.level in policy.graded_levels]
 
 
 def get_barriers(
@@ -32,7 +38,7 @@ def get_barriers(
 ) -> list[VPATCriterion]:
     """Graded criteria that are neither supported nor excluded.
 
-    By default: Level AA criteria that are not fully "Supports", excluding
+    By default: Level A and AA criteria that are not fully "Supports", excluding
     "Not Applicable" (feature absent → no barrier to report). Includes Partially
     Supports, Does Not Support, and Not Evaluated.
     """
@@ -40,7 +46,7 @@ def get_barriers(
     return [
         c
         for c in document.criteria
-        if c.level == policy.graded_level and policy.is_barrier(c.normalized_status)
+        if c.level in policy.graded_levels and policy.is_barrier(c.normalized_status)
     ]
 
 
@@ -65,7 +71,7 @@ def compliance_score(document: VPATDocument, policy: GradingPolicy | None = None
             na_excluded=len(graded) - total,
             message=(
                 "Compliance score could not be calculated — no reviewable "
-                "WCAG Level AA criteria were found."
+                "WCAG criteria were found at the graded levels."
             ),
         )
 

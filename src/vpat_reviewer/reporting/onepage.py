@@ -401,7 +401,8 @@ class OnePageRenderer:
             [
                 c
                 for c in document.criteria
-                if c.level == "AA" and c.normalized_status not in ("Supports", "Not Applicable")
+                if c.level in ("A", "AA")
+                and c.normalized_status not in ("Supports", "Not Applicable")
             ]
         )
 
@@ -411,7 +412,7 @@ class OnePageRenderer:
         rows = [
             c
             for c in document.criteria
-            if c.level == "AA" and c.normalized_status not in ("Supports", "Not Applicable")
+            if c.level in ("A", "AA") and c.normalized_status not in ("Supports", "Not Applicable")
         ]
         rows.sort(key=lambda c: (rank.get(c.normalized_status, 3), _sort_key(c.criterion_id)))
         return rows[:limit]
@@ -428,9 +429,10 @@ class OnePageRenderer:
                 textColor=_STATUS_COLOR.get(status, C_NEUTRAL),
             )
             title = _esc(c.title or "")
+            level = _esc(c.level or "?")
             rows.append(
                 [
-                    Paragraph(f"<b>{_esc(c.criterion_id)}</b>  {title}", cell),
+                    Paragraph(f"<b>{_esc(c.criterion_id)}</b> (Level {level})  {title}", cell),
                     Paragraph(_esc(_short_status(status)), st),
                 ]
             )
@@ -497,7 +499,8 @@ class OnePageRenderer:
         product = d.product_name or "the product"
 
         parts = [
-            f"{org} reviewed the vendor-submitted VPAT for {product} against WCAG 2.1 Level AA."
+            f"{org} reviewed the vendor-submitted VPAT for {product} "
+            f"against WCAG 2.1 Levels A and AA."
         ]
 
         pct = score.get("score")
@@ -505,7 +508,7 @@ class OnePageRenderer:
         reviewable = max(int(score.get("total", 0) or 0) - supported, 0)
         if pct is None:
             parts.append(
-                "The document yielded no scorable Level AA criteria, so no score is claimed."
+                "The document yielded no scorable Level A or AA criteria, so no score is claimed."
             )
         else:
             threshold = _threshold(cfg)
@@ -519,11 +522,11 @@ class OnePageRenderer:
         total_barriers = self._barrier_total(d)
         if total_barriers:
             parts.append(
-                f"{total_barriers} Level AA barrier(s) were identified; the most severe "
+                f"{total_barriers} Level A/AA barrier(s) were identified; the most severe "
                 f"are listed below."
             )
         else:
-            parts.append("No Level AA barriers were identified.")
+            parts.append("No Level A or AA barriers were identified.")
 
         na = int(score.get("na_excluded", 0) or 0)
         if na:

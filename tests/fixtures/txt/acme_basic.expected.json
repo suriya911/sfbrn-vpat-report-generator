@@ -8,9 +8,9 @@
     "WCAG 2.1 Level AA",
     "Section 508 (Revised 2017)"
   ],
-  "score": 33,
-  "supported": 1,
-  "reviewable_total": 3,
+  "score": 50,
+  "supported": 2,
+  "reviewable_total": 4,
   "barriers": [
     "1.4.3",
     "2.4.7"

@@ -25,8 +25,8 @@ def test_analyze_json(capsys):
     assert rc == 0
     out = json.loads(capsys.readouterr().out)
     assert out["product_name"] == "Acme Learn"
-    assert out["score"] == 33
-    assert out["score_detail"]["supported"] == 1
+    assert out["score"] == 50
+    assert out["score_detail"]["supported"] == 2
     assert out["barriers"] == ["1.4.3", "2.4.7"]
     assert out["document_kind"] == "vpat"
 

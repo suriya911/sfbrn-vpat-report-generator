@@ -20,13 +20,13 @@
   ],
   "evaluation_methods": "",
   "score": 100,
-  "supported": 10,
-  "reviewable_total": 10,
+  "supported": 15,
+  "reviewable_total": 15,
   "score_detail": {
     "score": 100,
-    "supported": 10,
-    "total": 10,
-    "total_aa_found": 10,
+    "supported": 15,
+    "total": 15,
+    "total_aa_found": 15,
     "na_excluded": 0,
     "message": "Strong accessibility support. The submitted VPAT indicates broad WCAG Level AA support, with few or no identified Level AA barriers."
   },

@@ -36,7 +36,7 @@ def test_record_carries_identity_and_score():
     rec = _record()
     assert rec["product_name"] == "Acme Learn"
     assert rec["vendor_name"] == "Acme Corporation"
-    assert rec["score"] == 33
+    assert rec["score"] == 50
     assert rec["barriers"] == ["1.4.3", "2.4.7"]
     assert rec["document_kind"] == "vpat"
 

@@ -83,7 +83,7 @@ excluded from the denominator and from the barrier count**, but still *appear*
 in the report as transparently documented gaps. This is encoded as
 `GradingPolicy.excluded_statuses = ("Not Applicable",)`, not hard-coded, so it's
 auditable and adjustable — but it is a deliberate policy, and the demo anchor
-(score 72) depends on it. Don't change it casually.
+(score 77) depends on it. Don't change it casually.
 
 ## Configuration & the frozen app
 

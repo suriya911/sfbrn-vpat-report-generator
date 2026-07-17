@@ -2,7 +2,7 @@
 
 Running this module builds a representative VPAT in memory, renders it to a PDF
 next to this file, and prints the compliance score plus a validation check. It
-doubles as the project's behavior anchor: the score must stay ``72`` and
+doubles as the project's behavior anchor: the score must stay ``77`` and
 validation must pass (see CLAUDE.md).
 """
 
@@ -35,9 +35,11 @@ def crit(
 def build_demo_document() -> VPATData:
     """Assemble a representative ScreenSteps-like VPAT.
 
-    Level AA holds 13 Supports, 5 Partially Supports, and 2 Not Applicable;
-    those counts drive the anchor score of 72, so keep them in sync with the
-    rows below if you edit them.
+    Grading is cumulative (Levels A and AA together). Level AA holds
+    13 Supports, 5 Partially Supports, and 2 Not Applicable; Level A holds
+    21 Supports, 5 Partially Supports, and 4 Not Applicable. Combined:
+    34 supported of 44 reviewable (6 NA excluded) → the anchor score of 77.
+    Keep those counts in sync with the rows below if you edit them.
     """
     doc = VPATData(
         product_name="ScreenSteps",
@@ -114,7 +116,7 @@ def build_demo_document() -> VPATData:
         crit("4.1.3", "AA", "Partially Supports", "Status Messages have ARIA attributes."),
     ]
 
-    # Level A sample rows (not graded for the AA score; shown for realism).
+    # Level A rows — graded alongside AA (cumulative conformance target).
     a_supports = (
         "1.2.1 1.3.1 1.3.2 1.3.3 1.4.1 1.4.2 2.1.1 2.1.2 2.1.4 2.2.1 2.3.1 "
         "2.4.2 2.4.3 2.4.4 2.5.1 2.5.2 2.5.3 3.1.1 3.2.1 3.2.2 3.3.1"

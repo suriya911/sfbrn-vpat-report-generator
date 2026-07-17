@@ -19,14 +19,14 @@
     "Section 508 (Revised 2017)"
   ],
   "evaluation_methods": "",
-  "score": 65,
-  "supported": 13,
-  "reviewable_total": 20,
+  "score": 68,
+  "supported": 17,
+  "reviewable_total": 25,
   "score_detail": {
-    "score": 65,
-    "supported": 13,
-    "total": 20,
-    "total_aa_found": 20,
+    "score": 68,
+    "supported": 17,
+    "total": 25,
+    "total_aa_found": 25,
     "na_excluded": 0,
     "message": "Limited accessibility support. The submitted VPAT includes multiple Level AA barriers or incomplete support statements that should be reviewed before adoption."
   },
@@ -35,10 +35,11 @@
     "suggested_level": "High",
     "rationale": [
       "One or more WCAG Level AA criteria are fully unsupported, potentially blocking core functionality for users with disabilities.",
-      "Compliance score of 65% indicates moderate accessibility gaps."
+      "Compliance score of 68% indicates moderate accessibility gaps."
     ]
   },
   "barriers": [
+    "4.1.2",
     "2.4.7",
     "2.4.11",
     "2.5.7",

@@ -19,7 +19,7 @@ _SETTINGS = {
 def test_analyze_scores_fixture():
     r = service.analyze(str(FIXTURE), policy=GradingPolicy.default())
     assert r.document.product_name == "Acme Learn"
-    assert r.score["score"] == 33
+    assert r.score["score"] == 50
     assert {b.criterion_id for b in r.barriers} == {"1.4.3", "2.4.7"}
     assert r.has_criteria
 

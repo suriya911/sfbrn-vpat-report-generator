@@ -19,14 +19,14 @@
     "Section 508 (Revised 2017)"
   ],
   "evaluation_methods": "",
-  "score": 60,
-  "supported": 6,
-  "reviewable_total": 10,
+  "score": 67,
+  "supported": 10,
+  "reviewable_total": 15,
   "score_detail": {
-    "score": 60,
-    "supported": 6,
-    "total": 10,
-    "total_aa_found": 10,
+    "score": 67,
+    "supported": 10,
+    "total": 15,
+    "total_aa_found": 15,
     "na_excluded": 0,
     "message": "Limited accessibility support. The submitted VPAT includes multiple Level AA barriers or incomplete support statements that should be reviewed before adoption."
   },
@@ -34,10 +34,11 @@
   "impact": {
     "suggested_level": "Low",
     "rationale": [
-      "Compliance score of 60% indicates moderate accessibility gaps."
+      "Compliance score of 67% indicates moderate accessibility gaps."
     ]
   },
   "barriers": [
+    "4.1.2",
     "1.4.5",
     "1.4.10",
     "1.4.11",

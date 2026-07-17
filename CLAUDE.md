@@ -46,7 +46,7 @@ These are load-bearing. If a change would violate one, stop and reconsider.
 
 1. **The behavior anchor must hold.** Run `python make_demo.py`. It must print:
    ```
-   Score: 72 | supported: 13 | reviewable: 18 | NA excluded: 2
+   Score: 77 | supported: 34 | reviewable: 44 | NA excluded: 6
    Validation: OK
    ```
    This is the canary for the whole scoring pipeline. If it changes, you changed
@@ -161,7 +161,7 @@ Two consequences of that arrow worth knowing before you trip on them:
 ├─ vpat_reviewer.spec      ← PyInstaller recipe (bundles wcag.json + deps)
 ├─ build_exe.bat           ← one-click build → dist/VPAT_Reviewer.exe
 ├─ installer.iss           ← optional Inno Setup click-through installer
-├─ make_demo.py            ← the behavior anchor (Score: 72 …)
+├─ make_demo.py            ← the behavior anchor (Score: 77 …)
 │
 ├─ src/vpat_reviewer/          ← THE PACKAGE. New code goes here.
 │  ├─ __init__.py              ← public API + __version__
@@ -247,7 +247,7 @@ From the project root, with a dev install (`pip install -e ".[dev]"`):
 | Lint | `ruff check .` |
 | Format | `ruff format .` |
 | Type-check | `mypy` |
-| Behavior anchor | `python make_demo.py` → `Score: 72 … Validation: OK` |
+| Behavior anchor | `python make_demo.py` → `Score: 77 … Validation: OK` |
 | **Parser scoreboard** | `python tools/corpus_report.py` (see §7a) |
 | **Parser regression gate** | `python tools/corpus_report.py --check` |
 | CLI: score a VPAT | `python -m vpat_reviewer.cli analyze path/to/vpat.pdf` |
@@ -319,9 +319,11 @@ would show `&amp;` to the reader.
   module is the single source of truth the CLI (`policy set`) and the GUI dialog
   both use, and it's where validation lives.
 - Add/adjust a test in `tests/unit/test_policy.py` or `test_policy_form.py`.
-- **Always** keep `GradingPolicy.default()` producing the anchor score (72).
+- **Always** keep `GradingPolicy.default()` producing the anchor score (77).
 
-Key `GradingPolicy` fields: `graded_level` ("A"/"AA"), `supported_statuses`,
+Key `GradingPolicy` fields: `graded_level` (the WCAG conformance target,
+cumulative as in WCAG itself — "AA" grades Levels A *and* AA, "A" grades A only;
+see `GradingPolicy.graded_levels`), `supported_statuses`,
 `excluded_statuses`, `compliance_threshold`, `score_bands`, `core_block_status`,
 `scale_weights`, `access_flags`, `legal_flags`, `scale_flags`, `score_flags`.
 
@@ -671,7 +673,7 @@ package directly now. Two genuine scripts remain at the root:
   `vpat_reviewer.spec`). Keep it thin — it just calls into the package (and
   routes `--selftest`). **Do not delete it**; the build depends on it.
 - **`make_demo.py`**: builds a sample report and prints the behavior anchor
-  (`Score: 72 | … | Validation: OK`). It imports from the package directly.
+  (`Score: 77 | … | Validation: OK`). It imports from the package directly.
 
 (The end-to-end regression suite that used to sit at the root now lives at
 `tests/test_regression.py` — see §8.)

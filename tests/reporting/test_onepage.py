@@ -151,8 +151,8 @@ def test_the_summary_states_the_score_and_the_barrier_count(tmp_path: Path) -> N
 
     text = _text(out)
     assert "SUMMARY" in text
-    assert "3 Level AA barrier(s)" in text
-    assert "25%" in text  # 1 of 4 AA criteria supported
+    assert "3 Level A/AA barrier(s)" in text
+    assert "25%" in text  # 1 of 4 graded criteria supported
     assert "below the SFBRN 90% threshold" in text
 
 
@@ -161,7 +161,7 @@ def test_the_summary_survives_a_clean_document(tmp_path: Path) -> None:
     out = tmp_path / "clean.pdf"
     OnePageRenderer().render(_inputs(_doc(n_barriers=0), verdict="Good to Go"), str(out))
 
-    assert "No Level AA barriers were identified." in _text(out)
+    assert "No Level A or AA barriers were identified." in _text(out)
 
 
 def test_the_sheet_shows_the_impact_answers_behind_the_level(tmp_path: Path) -> None:

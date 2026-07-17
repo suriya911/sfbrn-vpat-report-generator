@@ -25,12 +25,12 @@ def test_parse_document_integration():
     assert doc.vendor_name == "Instructure"
     assert "WCAG 2.1 Level AA" in doc.standards_reviewed
     # parse_vpat also synthesizes the 9 Section 508 FPC rows (level=""); assert the
-    # WCAG rows specifically. FPC rows don't affect the AA score.
+    # WCAG rows specifically. FPC rows sit outside the graded levels and don't score.
     wcag = [c for c in doc.criteria if c.section == "wcag"]
     assert len(wcag) == 3
 
-    info = compliance_score(doc)
-    assert info["total"] == 2 and info["supported"] == 1 and info["score"] == 50
+    info = compliance_score(doc)  # cumulative A+AA: 2 of 3 supported
+    assert info["total"] == 3 and info["supported"] == 2 and info["score"] == 67
 
 
 def test_parse_document_outdated_detection():

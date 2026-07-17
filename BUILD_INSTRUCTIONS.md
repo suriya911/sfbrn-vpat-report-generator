@@ -43,7 +43,7 @@ by `build_exe.bat` via `pip install -e ".[build]"`.
    ```
    python make_demo.py
    ```
-   must print `Score: 72 | ... | Validation: OK`.
+   must print `Score: 77 | ... | Validation: OK`.
 
 2. **Build the single .exe:** double-click `build_exe.bat` (or run it from a
    terminal). Output lands at `dist\VPAT_Reviewer.exe`. This one file is what
@@ -86,7 +86,7 @@ by `build_exe.bat` via `pip install -e ".[build]"`.
 ## Release checklist
 
 - [ ] `python -m pytest -q` → all green
-- [ ] `python make_demo.py` → `Score: 72 | ... | Validation: OK`
+- [ ] `python make_demo.py` → `Score: 77 | ... | Validation: OK`
 - [ ] `ruff check .` and `mypy` → clean
 - [ ] `build_exe.bat` → `dist\VPAT_Reviewer.exe` produced
 - [ ] Smoke test: exe launches, first-run dialog on a clean profile, report

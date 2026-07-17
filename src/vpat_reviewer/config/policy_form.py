@@ -17,7 +17,12 @@ from vpat_reviewer.domain.policy import GradingPolicy, ScoreBand
 # Simple scalar/list knobs a friendly form exposes. Score bands are edited
 # separately via ``set_band`` because each band has three sub-fields.
 EDITABLE_FIELDS: list[dict[str, Any]] = [
-    {"key": "graded_level", "label": "WCAG level graded", "type": "choice", "choices": ["A", "AA"]},
+    {
+        "key": "graded_level",
+        "label": "WCAG conformance target (cumulative: AA grades A + AA)",
+        "type": "choice",
+        "choices": ["A", "AA"],
+    },
     {"key": "compliance_threshold", "label": "Compliance threshold (%)", "type": "int"},
     {
         "key": "supported_statuses",

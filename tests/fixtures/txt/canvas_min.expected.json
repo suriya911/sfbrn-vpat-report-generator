@@ -7,9 +7,9 @@
     "WCAG 2.1 Level A",
     "WCAG 2.1 Level AA"
   ],
-  "score": 50,
-  "supported": 1,
-  "reviewable_total": 2,
+  "score": 67,
+  "supported": 2,
+  "reviewable_total": 3,
   "barriers": [
     "3.3.3"
   ],

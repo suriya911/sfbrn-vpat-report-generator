@@ -140,7 +140,7 @@ Three things worth understanding:
 
 ## What the compliance score means
 
-> **Level AA criteria the vendor fully supports ÷ Level AA criteria that apply**
+> **Level A and AA criteria the vendor fully supports ÷ Level A and AA criteria that apply**
 
 Criteria the vendor marks **Not Applicable** are excluded from *both* halves — a
 feature that doesn't exist can't pass or fail. They still appear in the report as
@@ -378,11 +378,11 @@ ruff check .                    # lint
 ruff format .                   # format
 mypy                            # strict type-checking
 python -m pytest -q             # the whole suite
-python make_demo.py             # must print: Score: 72 … Validation: OK
+python make_demo.py             # must print: Score: 77 … Validation: OK
 python tools/corpus_report.py --check   # the parser vs real vendor VPATs
 ```
 
-That **`Score: 72 … Validation: OK`** line is the canary for the entire scoring
+That **`Score: 77 … Validation: OK`** line is the canary for the entire scoring
 pipeline. If it changes, you changed scoring — make sure that was intentional.
 
 `corpus_report.py` is the other half of the net, and the more truthful half: the

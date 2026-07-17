@@ -331,7 +331,7 @@ def _compliance_meter(score, threshold, org_short):
 
     if score is None:
         caption = ("Compliance score could not be calculated because no "
-                   "reviewable WCAG Level AA criteria were found.")
+                   "reviewable WCAG Level A or AA criteria were found.")
         head = [[Paragraph("N/A", pct_style),
                  Paragraph(f"WCAG 2.1 Level AA compliance "
                            f"({org_short} threshold: {threshold}%)", lbl_style)]]
@@ -475,6 +475,7 @@ def _criterion_card(crit, S, is_na_gap=False):
     'What this means', pill badges, shaded Vendor Remarks block."""
     wcag_info = WCAG_DATA.get(crit.criterion_id)
     crit_title = wcag_info[0] if wcag_info else (crit.title or "")
+    crit_level = (wcag_info[1] if wcag_info else "") or crit.level or "?"
     description, plain = _wcag_lookup(crit.criterion_id)
 
     items = []
@@ -505,7 +506,7 @@ def _criterion_card(crit, S, is_na_gap=False):
                 textColor=C_BODY, leading=15, spaceBefore=2, spaceAfter=6)))
 
     badge_row = Table(
-        [[_level_pill("AA"), _status_pill(crit.normalized_status), ""]],
+        [[_level_pill(crit_level), _status_pill(crit.normalized_status), ""]],
         colWidths=[0.75 * inch, 1.45 * inch, CONTENT_W - 2.6 * inch])
     badge_row.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -638,14 +639,15 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     total_reviewed = score_info.get("total", 0)
     na_excl        = score_info.get("na_excluded", 0)
 
-    # Option A: barriers (scored) vs NA documented gaps (displayed only)
-    aa_criteria = [c for c in vpat_data.criteria if c.level == "AA"]
+    # Option A: barriers (scored) vs NA documented gaps (displayed only).
+    # Graded levels are cumulative (A + AA), matching domain/scoring.py.
+    graded_criteria = [c for c in vpat_data.criteria if c.level in ("A", "AA")]
     barriers = sorted(
-        [c for c in aa_criteria
+        [c for c in graded_criteria
          if c.normalized_status not in ("Supports", "Not Applicable")],
         key=lambda c: _sort_key(c.criterion_id))
     na_gaps = sorted(
-        [c for c in aa_criteria if c.normalized_status == "Not Applicable"],
+        [c for c in graded_criteria if c.normalized_status == "Not Applicable"],
         key=lambda c: _sort_key(c.criterion_id))
     section2_items = sorted(barriers + na_gaps,
                             key=lambda c: _sort_key(c.criterion_id))
@@ -719,7 +721,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
         f"This summary report was prepared by {org} from the "
         f"vendor-submitted Voluntary Product Accessibility Template (VPAT) for "
         f"{product}. It restates vendor conformance claims, identifies "
-        f"accessibility barriers at WCAG 2.1 Level AA, and provides "
+        f"accessibility barriers at WCAG 2.1 Levels A and AA, and provides "
         f"plain-language explanations and practical workarounds for faculty, "
         f"staff, auditors, and procurement reviewers. It is not an independent "
         f"audit of the product.", S["small"]))
@@ -734,11 +736,11 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
         exec_text += (f"{product} \u2014 {_esc(vpat_data.product_description[:280])} ")
     exec_text += (
         f"{org_short} reviewed the vendor-submitted VPAT against the WCAG 2.1 "
-        f"Level AA success criteria. ")
+        f"Level A and AA success criteria. ")
     if total_aa > 0 and score is not None:
         if na_excl > 0:
             exec_text += (
-                f"The review evaluated {total_aa} Level AA criteria, of which "
+                f"The review evaluated {total_aa} Level A and AA criteria, of which "
                 f"{na_excl} were reported Not Applicable and excluded from "
                 f"scoring per {org_short} policy; of the {total_reviewed} "
                 f"reviewable criteria, {supported} were fully supported, "
@@ -747,7 +749,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
                 f"{org_short} {threshold}% threshold. ")
         else:
             exec_text += (
-                f"Of the {total_reviewed} reviewable Level AA criteria, "
+                f"Of the {total_reviewed} reviewable Level A and AA criteria, "
                 f"{supported} were fully supported, producing an {org_short} "
                 f"compliance score of <b>{score_str}</b> \u2014 "
                 f"{'meeting' if score >= threshold else 'below'} the "
@@ -757,7 +759,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
             (WCAG_DATA.get(b.criterion_id, (b.title,))[0] or "").lower()
             for b in barriers[:5])
         exec_text += (
-            f"A total of <b>{len(barriers)} Level AA barrier(s)</b> were "
+            f"A total of <b>{len(barriers)} Level A/AA barrier(s)</b> were "
             f"identified, centering on {bnames}; documented workarounds "
             f"appear in Section 3 of this report. ")
     if na_gaps:
@@ -907,9 +909,9 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     story.append(_hr())
 
     # ══ 6. SECTION 2 — IDENTIFIED BARRIERS (LEVEL AA) ══════════════════════════
-    story.extend(_h2("Section 2 \u2014 Identified Barriers (Level AA)", S))
+    story.extend(_h2("Section 2 \u2014 Identified Barriers (Levels A and AA)", S))
     story.append(_callout([Paragraph(
-        "This section lists every WCAG 2.1 <b>Level AA</b> criterion that the "
+        "This section lists every WCAG 2.1 <b>Level A and AA</b> criterion that the "
         "vendor reported as anything other than \u201cSupports\u201d \u2014 "
         "including \u201cPartially Supports,\u201d \u201cDoes Not Support,\u201d "
         "\u201cNot Evaluated,\u201d and \u201cNot Applicable.\u201d "
@@ -919,7 +921,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
         "supported criteria are excluded; no workarounds are needed for them. "
         "Vendor remarks are reproduced verbatim and unaltered; "
         f"{org_short} adds only the quoted criterion text and a plain-language "
-        f"explanation. {len(section2_items)} of {total_aa} Level AA criteria "
+        f"explanation. {len(section2_items)} of {total_aa} Level A and AA criteria "
         "appear below.",
         _ps("ScopeTxt", fontName="Helvetica", fontSize=FS_TABLE,
             textColor=C_BODY, leading=14))]))
@@ -927,7 +929,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
 
     if not section2_items:
         story.append(_callout([Paragraph(
-            "No Level AA barriers were identified in the submitted VPAT.",
+            "No Level A or AA barriers were identified in the submitted VPAT.",
             _ps("NoBarTxt", fontName="Helvetica", fontSize=FS_TABLE,
                 textColor=C_BODY, leading=14))]))
     else:
@@ -966,7 +968,8 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
         for crit in section2_items:
             wcag_info = WCAG_DATA.get(crit.criterion_id)
             crit_title = wcag_info[0] if wcag_info else (crit.title or "")
-            witems = [Paragraph(f"{crit.criterion_id} {crit_title}",
+            crit_level = (wcag_info[1] if wcag_info else "") or crit.level or "?"
+            witems = [Paragraph(f"{crit.criterion_id} {crit_title} (Level {crit_level})",
                 _ps("WkHead", fontName="Helvetica", fontSize=10.5,
                     textColor=C_ACCENT, spaceAfter=4))]
             for w in _generate_workaround(crit):
@@ -1033,7 +1036,7 @@ def generate_report(vpat_data, score_info, impact_info, reviewer_answers,
     else:
         s4 += "was reviewed by " + org_short + ", and the "
     s4 += (f"vendor's VPAT reports that {supported} of the {total_reviewed} "
-           f"reviewable WCAG 2.1 Level AA criteria are fully met, for an "
+           f"reviewable WCAG 2.1 Level A and AA criteria are fully met, for an "
            f"{org_short} compliance score of <b>{score_str}</b>, "
            f"{'meeting' if score is not None and score >= threshold else 'below'} "
            f"the {org_short} {threshold}% threshold. ")

@@ -82,7 +82,7 @@ def test_a_failing_assessor_costs_the_verdict_not_the_review():
     assert result.assessment.category not in CATEGORIES
     assert "prose" in result.assessment.error
     # The analysis itself survives intact.
-    assert service.to_dict(result)["score"] == 33
+    assert service.to_dict(result)["score"] == 50
 
 
 def test_the_assessor_is_shown_the_document_not_our_verdict():

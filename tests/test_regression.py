@@ -40,7 +40,10 @@ def _crit(cid, level, status, remarks="", section="wcag"):
 
 
 def _sample_data():
-    """3 AA supported, 1 AA partial, 1 AA not-applicable, 1 AA not-evaluated."""
+    """3 AA supported, 1 AA partial, 1 AA not-applicable, 1 AA not-evaluated, 1 A supported.
+
+    Grading is cumulative (Levels A and AA together), so the Level A row counts.
+    """
     d = VPATData(product_name="TestProduct", vendor_name="TestVendor")
     d.criteria = [
         _crit("1.4.3", "AA", "Supports"),
@@ -73,11 +76,11 @@ def test_normalization_partial_is_not_supports():
 
 def test_na_excluded_from_denominator():
     info = compliance_score(_sample_data())
-    # 5 AA reviewable (NA excluded), 3 supported -> 60
+    # 6 A+AA reviewable (NA excluded), 4 supported -> 67
     assert info["na_excluded"] == 1
-    assert info["total"] == 5
-    assert info["supported"] == 3
-    assert info["score"] == 60
+    assert info["total"] == 6
+    assert info["supported"] == 4
+    assert info["score"] == 67
 
 
 def test_score_all_supported_is_100():
@@ -86,9 +89,10 @@ def test_score_all_supported_is_100():
     assert compliance_score(d)["score"] == 100
 
 
-def test_score_none_when_no_reviewable_aa():
+def test_score_none_when_no_reviewable_criteria():
+    # NA is excluded and AAA sits outside the default AA target — nothing scorable.
     d = VPATData()
-    d.criteria = [_crit("1.2.4", "AA", "Not Applicable"), _crit("2.1.1", "A", "Supports")]
+    d.criteria = [_crit("1.2.4", "AA", "Not Applicable"), _crit("1.2.6", "AAA", "Supports")]
     assert compliance_score(d)["score"] is None
 
 

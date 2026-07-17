@@ -134,7 +134,7 @@ if the new field needs special parsing.
 
 **In all cases:** add/adjust a test in `tests/unit/test_policy.py` or
 `test_policy_form.py`, and confirm `python make_demo.py` still prints
-`Score: 72 … Validation: OK` (the default policy must keep producing the anchor).
+`Score: 77 … Validation: OK` (the default policy must keep producing the anchor).
 
 Current fields for reference: `graded_level`, `supported_statuses`,
 `excluded_statuses`, `compliance_threshold`, `score_bands`, `core_block_status`,
@@ -307,7 +307,7 @@ ruff check .        # lint
 ruff format .       # format
 mypy                # types (strict, package only)
 python -m pytest -q # tests
-python make_demo.py # anchor: Score: 72 | … | Validation: OK
+python make_demo.py # anchor: Score: 77 | … | Validation: OK
 ```
 
 If you touched packaging or data loading, also rebuild and self-test:

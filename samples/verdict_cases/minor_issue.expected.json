@@ -19,14 +19,14 @@
     "Section 508 (Revised 2017)"
   ],
   "evaluation_methods": "",
-  "score": 80,
-  "supported": 8,
-  "reviewable_total": 10,
+  "score": 87,
+  "supported": 13,
+  "reviewable_total": 15,
   "score_detail": {
-    "score": 80,
-    "supported": 8,
-    "total": 10,
-    "total_aa_found": 10,
+    "score": 87,
+    "supported": 13,
+    "total": 15,
+    "total_aa_found": 15,
     "na_excluded": 0,
     "message": "Moderate accessibility support. The submitted VPAT indicates general WCAG Level AA support, but some barriers or exceptions may require review before approval."
   },

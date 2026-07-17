@@ -30,9 +30,9 @@ def sample() -> VPATDocument:
 def test_na_excluded_from_denominator():
     info = compliance_score(sample())
     assert info["na_excluded"] == 1
-    assert info["total"] == 5  # 6 AA - 1 NA
-    assert info["supported"] == 3
-    assert info["score"] == 60
+    assert info["total"] == 6  # 6 AA + 1 A - 1 NA (grading is cumulative A+AA)
+    assert info["supported"] == 4
+    assert info["score"] == 67
 
 
 def test_all_supported_is_100():
@@ -42,8 +42,9 @@ def test_all_supported_is_100():
 
 
 def test_no_reviewable_returns_none():
+    # NA is excluded and AAA sits outside the default AA target — nothing scorable.
     d = VPATDocument()
-    d.criteria = [crit("1.2.4", "AA", "Not Applicable"), crit("2.1.1", "A", "Supports")]
+    d.criteria = [crit("1.2.4", "AA", "Not Applicable"), crit("1.2.6", "AAA", "Supports")]
     assert compliance_score(d)["score"] is None
 
 
@@ -63,8 +64,8 @@ def test_policy_can_count_partial_as_supported():
     policy = GradingPolicy.default().with_changes(
         supported_statuses=("Supports", "Partially Supports")
     )
-    # Now 4 of 5 reviewable count as supported -> 80.
-    assert compliance_score(sample(), policy)["score"] == 80
+    # Now 5 of 6 reviewable count as supported -> 83.
+    assert compliance_score(sample(), policy)["score"] == 83
 
 
 def test_policy_can_grade_level_a():
