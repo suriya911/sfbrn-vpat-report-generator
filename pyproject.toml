@@ -16,6 +16,7 @@ dependencies = [
     "python-docx>=1.1", # DOCX VPAT extraction
     "pypdf>=4.0",       # post-generation PDF validation
     "boto3>=1.34",      # Amazon Bedrock runtime (AI review adapter)
+    "tkinterdnd2>=0.4", # OS drag-and-drop (best-effort: the app must run without it)
 ]
 
 [project.optional-dependencies]
@@ -65,7 +66,15 @@ warn_unused_ignores = true
 
 # Third-party libraries without type stubs.
 [[tool.mypy.overrides]]
-module = ["pdfplumber.*", "docx.*", "reportlab.*", "pypdf.*", "boto3.*", "botocore.*"]
+module = [
+    "pdfplumber.*",
+    "docx.*",
+    "reportlab.*",
+    "pypdf.*",
+    "boto3.*",
+    "botocore.*",
+    "tkinterdnd2.*",
+]
 ignore_missing_imports = true
 
 # Relocated legacy ReportLab engine — untyped, isolated behind the reporting port.

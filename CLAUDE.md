@@ -644,6 +644,32 @@ display the action buttons were cut off with no way to reach them.
   it clobbers the app's on the shared interpreter. Each canvas removes itself
   from the set on `<Destroy>` so the wheel handler never touches a dead widget.
 
+### Drag-and-drop is best-effort — do not "simplify" it
+
+File drops come from `tkinterdnd2` (the tkdnd Tcl extension), wired in
+`app.py::_enable_dnd`. The import and `TkinterDnD._require(self)` are both
+guarded: on any failure the app launches button-only and the drop-zone label
+stops promising drag-and-drop. Lessons baked in:
+
+- **The root stays `tk.Tk`.** `TkinterDnD.Tk` calls `_require` unguarded and
+  crashes at startup when tkdnd is missing — the opposite of best-effort. And
+  tkinterdnd2 monkey-patches its DnD methods onto `tkinter.BaseWidget` only,
+  which the root is *not*, so `_enable_dnd` registers the toplevel through the
+  raw Tcl API (`tkdnd::drop_target register`) instead.
+- **`<<Drop>>` is bound at the Tcl level** (`self.tk.call("bind", …, "%D")`)
+  because tkinter's own `bind()` has no substitution slot for `%D` — a plain
+  `self.bind("<<Drop>>")` runs but delivers no paths, silently.
+- **`<<DropEnter>>`/`<<DropPosition>>` handlers must return `"copy"`** — the
+  return value is the action reported to the OS, and returning nothing can make
+  Windows refuse the drop.
+- **Split `%D` with `self.tk.splitlist`**, never by whitespace — paths with
+  spaces arrive brace-wrapped.
+- Drops funnel into `_load_vpat`, the same choke point as the file dialog; the
+  accepted extensions derive from `extraction.registry.supported_extensions()`
+  plus `.doc` (`_DROP_EXTS`), so both entry paths behave identically.
+- These are per-widget binds — the "never add a second `bind_all`" rule above
+  is untouched.
+
 ### Things to know
 
 - Verifying this is inherently manual (the GUI is excluded from ruff/mypy and has
@@ -750,13 +776,17 @@ in the mirrored folder.
 
 - **Windows/Git Bash line endings.** `.gitattributes` normalizes to LF; you'll
   see "LF will be replaced by CRLF" warnings — harmless.
-- **Packaged data in the built exe.** `wcag.json` *and*
-  `ai/data/risk_review_prompt.md` are both loaded via `importlib.resources`, so
-  PyInstaller needs each declared in `vpat_reviewer.spec` (`datas`). Learn them
-  as a pair — they have the same failure mode, and it is a *silent* one: the
-  rubric going missing cost the exe its AI review entirely, with only a
-  `logger.warning` nobody reads. `--selftest` catches both (`wcag_data_loads`,
-  `review_rubric_loads`); run it on every build.
+- **Packaged data in the built exe.** `wcag.json`, `ai/data/risk_review_prompt.md`,
+  *and* tkinterdnd2's tkdnd binaries are all data the module graph can't see.
+  The first two are loaded via `importlib.resources` and declared in
+  `vpat_reviewer.spec` (`datas`); the tkdnd DLL/.tcl files are bundled by
+  pyinstaller-hooks-contrib's `hook-tkinterdnd2`, which only fires because the
+  spec names `tkinterdnd2` in `hiddenimports` (the GUI's guarded import hides it).
+  Learn them as a trio — same failure mode, and it is a *silent* one: the rubric
+  going missing cost the exe its AI review entirely, with only a `logger.warning`
+  nobody reads; missing tkdnd binaries would silently cost it drag-and-drop.
+  `--selftest` catches all three (`wcag_data_loads`, `review_rubric_loads`,
+  `dnd_assets_bundled`); run it on every build.
 - **`settings.json` is committed — never put a credential in it.** It holds
   identity, grading, and the Bedrock config, and the frozen app writes it beside
   the exe, so anything there is published. There is no settings field a token

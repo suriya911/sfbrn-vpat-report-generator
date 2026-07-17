@@ -104,6 +104,24 @@ def run_checks() -> dict[str, Any]:
     except Exception as e:  # noqa: BLE001
         record("ai_adapter_ready", False, f"{type(e).__name__}: {e}")
 
+    # 8. Drag-and-drop assets are bundled (packaging). tkinterdnd2's tkdnd Tcl
+    #    binaries are data the module graph can't see — the same silent failure
+    #    mode as wcag.json and the rubric. No Tk window is created here: we only
+    #    check that the files the GUI's _enable_dnd() would load are present.
+    try:
+        import tkinterdnd2
+
+        tkdnd_dir = Path(tkinterdnd2.__file__).parent / "tkdnd"
+        plat = {"win32": "win-", "darwin": "osx-", "linux": "linux-"}.get(sys.platform, "")
+        hits = [d for d in tkdnd_dir.glob(f"{plat}*") if any(d.glob("*.tcl"))]
+        record(
+            "dnd_assets_bundled",
+            bool(hits),
+            hits[0].name if hits else f"no {plat}* dir with .tcl files under {tkdnd_dir}",
+        )
+    except Exception as e:  # noqa: BLE001
+        record("dnd_assets_bundled", False, f"{type(e).__name__}: {e}")
+
     passed = all(c["ok"] for c in checks)
     return {
         "version": __version__,

@@ -38,12 +38,27 @@ from vpat_reviewer.service import (
     write_json,
 )
 from vpat_reviewer.ui.gui.policy_dialog import GradingPolicyDialog
+from vpat_reviewer.extraction import supported_extensions
 from vpat_reviewer.ui.gui.widgets import (
     FlatButton,
     make_scrollable,
     size_scrollable_dialog,
     work_area,
 )
+
+# OS drag-and-drop is BEST-EFFORT: tkinterdnd2 wraps the tkdnd Tcl extension,
+# which may be absent (not installed) or unloadable (binaries missing from a
+# frozen build). Every failure path must leave the button-only flow working.
+try:
+    from tkinterdnd2 import DND_FILES, TkinterDnD
+except Exception:  # noqa: BLE001 — any import failure just disables the feature
+    TkinterDnD = None  # type: ignore[assignment]
+    DND_FILES = "DND_Files"
+
+# What a drop accepts — the same set as the upload dialog: the extractor
+# registry (the single source of truth) plus .doc, which the registry rejects
+# later with its friendly convert-to-.docx message.
+_DROP_EXTS = {*supported_extensions(), ".doc"}
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -452,6 +467,7 @@ class VPATReviewerApp(tk.Tk):
         self._build_ui()
         self._ensure_dirs()
         self._bind_scroll()
+        self._enable_dnd()
 
         if first_run:
             self.after(200, self._first_run_setup)
@@ -723,6 +739,7 @@ class VPATReviewerApp(tk.Tk):
         )
         drop.pack(fill="x", padx=18, pady=(14, 8))
         drop.pack_propagate(False)
+        self.drop_frame = drop  # the DnD highlight handlers recolor this frame
 
         self.lbl_drop = tk.Label(
             drop,
@@ -1276,6 +1293,71 @@ class VPATReviewerApp(tk.Tk):
         self.lbl_drop.config(text=f"Loaded: {fname}", fg=FG_NAVY)
         self.btn_generate.config(state="normal", bg=ACCENT)
         self._status("File loaded. Fill in the questions above, then click Generate Report.")
+
+    # ── Drag and drop ──────────────────────────────────────────────────────────
+
+    def _enable_dnd(self):
+        """Wire OS drag-and-drop onto the whole window.
+
+        Best-effort: on any failure the app runs button-only and the drop-zone
+        label stops promising drag-and-drop. Never raises.
+        """
+        self._dnd_ready = False
+        try:
+            if TkinterDnD is None:
+                raise RuntimeError("tkinterdnd2 is not installed")
+            TkinterDnD._require(self)  # load the tkdnd Tcl package
+            # The root is a tk.Tk, not a BaseWidget, so tkinterdnd2's patched
+            # drop_target_register doesn't exist on it — register through the
+            # tkdnd Tcl API directly. Registering the toplevel accepts drops
+            # anywhere in the window.
+            self.tk.call("tkdnd::drop_target", "register", self._w, (DND_FILES,))
+            # Bind at the Tcl level: tkinter's own bind() has no substitution
+            # slot for %D (the dropped paths), so it would deliver no data.
+            # Each handler's return value is the action reported back to the
+            # OS — returning nothing can make Windows refuse the drop.
+            self.tk.call("bind", self._w, "<<Drop>>", self.register(self._on_drop) + " %D")
+            self.tk.call("bind", self._w, "<<DropEnter>>", self.register(self._on_drop_enter))
+            self.tk.call("bind", self._w, "<<DropPosition>>", self.register(self._on_drop_position))
+            self.tk.call("bind", self._w, "<<DropLeave>>", self.register(self._on_drop_leave))
+            self._dnd_ready = True
+        except Exception as e:  # noqa: BLE001 — DnD must never block the app from launching
+            logger.warning("Drag-and-drop unavailable (button upload still works): %s", e)
+            self.lbl_drop.config(text="Click the button below to upload a VPAT (PDF / Word / TXT)")
+
+    def _on_drop_enter(self):
+        self._set_drop_highlight(True)
+        return "copy"
+
+    def _on_drop_position(self):
+        return "copy"
+
+    def _on_drop_leave(self):
+        self._set_drop_highlight(False)
+
+    def _set_drop_highlight(self, on):
+        self.drop_frame.config(
+            bg=ACCENT_SFT if on else BG_SECTION,
+            highlightbackground=ACCENT if on else BORDER,
+        )
+        self.lbl_drop.config(bg=ACCENT_SFT if on else BG_SECTION, fg=ACCENT if on else FG_CAPTION)
+
+    def _on_drop(self, data):
+        # `data` is a Tcl list string — paths with spaces arrive brace-wrapped —
+        # so split it with the interpreter, never by whitespace. Windows doesn't
+        # always send <<DropLeave>> after a completed drop, so reset here too.
+        self._set_drop_highlight(False)
+        if self._processing:
+            self._status("Busy generating a report — drop the file again when it finishes.", C_ORANGE)
+            return
+        paths = [Path(p) for p in self.tk.splitlist(data)]
+        files = [p for p in paths if p.is_file() and p.suffix.lower() in _DROP_EXTS]
+        if not files:
+            self._status("That isn't a supported VPAT file — drop a .pdf, .docx, or .txt.", C_ORANGE)
+            return
+        self._load_vpat(str(files[0]))
+        if len(files) > 1:
+            self._status(f"{len(files)} files dropped — loaded the first: {files[0].name}.", C_ORANGE)
 
     def _status(self, msg: str, color: str = FG_CAPTION):
         self.lbl_status.config(text=msg, fg=color)

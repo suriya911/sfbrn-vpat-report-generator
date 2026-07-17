@@ -5,6 +5,7 @@ reportlab>=4.0        # PDF report generation
 pdfplumber>=0.10      # PDF VPAT text/table extraction
 python-docx>=1.1      # DOCX VPAT extraction (imported as "docx")
 pypdf>=4.0            # post-generation PDF validation
+tkinterdnd2>=0.4      # OS drag-and-drop (best-effort: the app must run without it)
 
 # Build-time only (packages the app into a Windows .exe):
 pyinstaller>=6.0

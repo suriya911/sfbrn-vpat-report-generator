@@ -47,6 +47,13 @@ hiddenimports: list[str] = []
 for pkg in ("reportlab", "pdfplumber", "pdfminer", "pypdf", "docx"):
     hiddenimports += collect_submodules(pkg)
 
+# Drag-and-drop: the GUI imports tkinterdnd2 inside a try/except (best-effort
+# feature), so name it explicitly rather than trusting the module graph. Once
+# it is in the graph, pyinstaller-hooks-contrib's hook-tkinterdnd2 bundles the
+# platform-specific tkdnd DLL + .tcl files — the same silent-failure family as
+# wcag.json / the rubric; the selftest's dnd_assets_bundled check is the canary.
+hiddenimports += ["tkinterdnd2"]
+
 # An icon is optional; drop assets/app.ico next to this spec to brand the exe.
 import os  # noqa: E402  (spec files run as plain scripts)
 
