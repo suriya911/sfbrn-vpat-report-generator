@@ -62,11 +62,11 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     # because config cannot import ai; a test pins them together.
     "use_ai": True,
     "bedrock_region": "us-west-2",
-    # A deliberate cost/latency trade: fast and near-free, but it under-flags
-    # relative to the Opus baseline. See ai/bedrock.py::DEFAULT_MODEL_ID for the
-    # numbers, and for why an id from the model catalog is not always one
-    # Converse accepts.
-    "bedrock_model_id": "nvidia.nemotron-nano-12b-v2",
+    # Amazon Nova 2 Lite: cheapest and near-fastest of everything measured, and
+    # it tracks the larger models' verdicts. The `us.` prefix is its inference
+    # profile and is required — Converse rejects the bare catalog id. See
+    # ai/bedrock.py::DEFAULT_MODEL_ID for the measurements and the caveats.
+    "bedrock_model_id": "us.amazon.nova-2-lite-v1:0",
     "bedrock_profile": "",
     "bedrock_max_tokens": 4096,
     "bedrock_temperature": 0.2,

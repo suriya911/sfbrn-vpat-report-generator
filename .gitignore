@@ -53,3 +53,10 @@ out/
 bedrock_api_key.txt
 *.bedrock.key
 .env
+
+# Scratch analysis output from tools/demo_matrix_report.py and
+# tools/model_selection_report.py — regenerate rather than track.
+_all59.json
+demo_matrix.json
+VPAT_Demo_Playbook.pdf
+VPAT_Model_Selection.pdf

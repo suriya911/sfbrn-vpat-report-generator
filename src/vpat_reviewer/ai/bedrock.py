@@ -34,31 +34,17 @@ from vpat_reviewer.ai.base import (
 from vpat_reviewer.ai.response import parse
 
 DEFAULT_REGION = "us-west-2"
-# NVIDIA Nemotron Nano 12B on Bedrock. Override with VPAT_BEDROCK_MODEL_ID or
-# the bedrock_model_id setting to switch models.
+# Amazon Nova 2 Lite, via its cross-region inference profile. Override with
+# VPAT_BEDROCK_MODEL_ID or the bedrock_model_id setting to switch models.
 #
-# **This is a deliberate cost/latency trade, not the most accurate option.**
-# Against the 59-model, 5-VPAT comparison in docs/model_eval, this model scores
-# 67.6 avg quality and agrees with the crowd consensus on 2 of 5 documents, vs
-# 86.0 / 4-of-5 for `us.anthropic.claude-opus-4-6-v1`. It is ~91x cheaper
-# ($0.0009 vs $0.0785/doc) and ~7.5x faster (3.5s vs 26.4s). Where it diverges it
-# tends to answer one category *lower* than the larger models -- on Google Docs
-# it said "Needs Manual Review" where Opus 4.6 said "Need TAAP" -- and
-# under-flagging is the unsafe direction for a procurement verdict.
-#
-# Those numbers predate the current rubric, and the rubric is what the model is
-# graded against: re-run docs/model_eval after editing
-# ai/data/risk_review_prompt.md before trusting the comparison, and before
-# treating a swap here as free. `needs_human_review` defaults to True for
-# exactly this reason.
-#
-# **Model-id form differs by model, so verify rather than pattern-match.** Some
-# models need a cross-region *inference profile* id (the `us.` prefix) and reject
-# the bare foundation-model id from the catalog: `anthropic.claude-opus-4-6-v1`
-# is real and Converse still refuses it -- "Invocation ... with on-demand
-# throughput isn't supported. Retry with the ID or ARN of an inference profile."
-# The Nemotron models have no inference profile and take the bare id. Check with
-# `aws bedrock list-inference-profiles` *and* `list-foundation-models`.
+# **The `us.` prefix is load-bearing.** The bare catalog id
+# `amazon.nova-2-lite-v1:0` is a real model that `list-foundation-models`
+# returns, and Converse rejects it outright: "Invocation ... with on-demand
+# throughput isn't supported. Retry your request with the ID or ARN of an
+# inference profile." Same trap as `anthropic.claude-opus-4-6-v1`. Not every
+# model works this way -- the Nemotron family has no inference profile and takes
+# the bare id -- so check `aws bedrock list-inference-profiles` rather than
+# pattern-matching a prefix onto a new id.
 #
 # A wrong id fails *silently in the product*: the Converse call raises,
 # assess_result records a non-verdict, and every report falls back to the offline
@@ -66,9 +52,25 @@ DEFAULT_REGION = "us-west-2"
 # it checks the adapter loads, not that the id answers. The cheap proof is one
 # real review with `verdict_source` == "ai" in the audit log (§7d).
 #
+# **Why this model.** Measured head-to-head on the Google Docs VPAT against the
+# eval's top 10 (see docs/model_eval): cheapest of everything that produced a
+# verdict at ~$0.001/doc, second-fastest at ~5s, and it agreed with the majority
+# camp -- including Claude Sonnet 4.5, Kimi K2.5, Haiku 4.5 and Palmyra X5 --
+# where the previous default (Nemotron Nano 12B) sat in the minority. It is ~81x
+# cheaper than Sonnet 4.5 and ~121x cheaper than Opus 4.6 for the same verdict as
+# Sonnet 4.5.
+#
+# Two caveats. The eval's quality/agreement figures predate the current rubric,
+# and models are graded against the rubric -- re-run docs/model_eval after
+# editing ai/data/risk_review_prompt.md before trusting them. And on the 5-doc
+# run against the *current* rubric, Nova was the most lenient of the three tested
+# (Minor Issue where Opus 4.6 held at Needs Manual Review on Atrium and Canvas).
+# Leniency is the unsafe direction for a procurement verdict, which is part of
+# why `needs_human_review` defaults to True.
+#
 # NOTE: duplicated in config/settings.py::IDENTITY_DEFAULTS, because config must
 # not import ai (the arrows point inward). A test pins the two together.
-DEFAULT_MODEL_ID = "nvidia.nemotron-nano-12b-v2"
+DEFAULT_MODEL_ID = "us.amazon.nova-2-lite-v1:0"
 
 # Standard env var boto3 uses for a Bedrock API key (bearer token).
 BEARER_ENV = "AWS_BEARER_TOKEN_BEDROCK"

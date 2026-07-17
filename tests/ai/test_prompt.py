@@ -89,13 +89,19 @@ def test_render_keeps_the_output_schema_braces_verbatim():
 
     ``str.format`` would read ``{"category": ...}`` as a field reference and
     raise KeyError. If this ever fails, someone reached for format().
+
+    Deliberately asserts on *structure*, not on the rubric's prose. This test
+    used to pin a placeholder's exact wording and broke three times in one day
+    for the honest reason that the rubric is meant to be edited -- it is data,
+    not code (§6). A test that fails when a maintainer does the thing the file
+    exists for is a false alarm, and false alarms are how real ones get ignored.
     """
     rendered = prompt.render(_record())
+    # Literal braces from the embedded JSON schema: the exact characters that
+    # would have raised KeyError under str.format.
+    assert '"regulatory_basis": {' in rendered
     assert '"category": "Good to Go | Minor Issue' in rendered
     assert '"needs_human_review": true' in rendered
-    # A schema placeholder carrying its own braces: str.format would read the
-    # angle-bracket hint's surrounding object as a field reference and raise.
-    assert '"ada_relevance": "<how ADA obligations factor into this classification>"' in rendered
 
 
 def test_render_survives_braces_in_vendor_text():

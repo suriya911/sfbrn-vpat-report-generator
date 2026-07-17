@@ -1,30 +1,19 @@
 {
-  "2026-January-VPAT-CornerstoneLearningManagement-CorePlatform.pdf": {
-    "fpc_count": 9,
-    "statuses": {
-      "Not Applicable": 18,
-      "Partially Supports": 24,
-      "Supports": 13
-    },
-    "unresolved": 0,
-    "violations": 0,
-    "wcag_count": 55
-  },
-  "Anatomy LT_SSU_June2026 (signed).pdf": {
+  "AnatomyLT_SSU_June_2026_VPAT.pdf": {
     "fpc_count": 0,
     "statuses": {},
     "unresolved": 0,
     "violations": 0,
     "wcag_count": 0
   },
-  "Appsian Accessibility Report.pdf": {
+  "Appsian_AccessibilityReport_VPAT.pdf": {
     "fpc_count": 0,
     "statuses": {},
     "unresolved": 0,
     "violations": 0,
     "wcag_count": 0
   },
-  "Atrium Connect - April 2025 - April 2026 - VPAT WCAG.pdf": {
+  "Atrium_Connect_April_2026_VPAT.pdf": {
     "fpc_count": 9,
     "statuses": {
       "Not Applicable": 1,
@@ -35,14 +24,17 @@
     "violations": 0,
     "wcag_count": 56
   },
-  "Beyond_Compare-ScooterSoftware-ACR(3-24-2020).doc": {
-    "fpc_count": 0,
-    "statuses": {},
+  "Canvas VPAT_2026.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Not Applicable": 1,
+      "Supports": 55
+    },
     "unresolved": 0,
     "violations": 0,
-    "wcag_count": 0
+    "wcag_count": 56
   },
-  "Canvas VPAT Novemeber 2023.pdf": {
+  "Canvas_November_2023_VPAT.pdf": {
     "fpc_count": 0,
     "statuses": {
       "Not Applicable": 1,
@@ -53,65 +45,18 @@
     "violations": 0,
     "wcag_count": 50
   },
-  "H5P.com_-_VPAT_-_2025.pdf": {
-    "fpc_count": 0,
-    "statuses": {
-      "Not Applicable": 7,
-      "Not Evaluated": 31,
-      "Partially Supports": 3,
-      "Supports": 46
-    },
-    "unresolved": 0,
-    "violations": 0,
-    "wcag_count": 87
-  },
-  "ICT Risk Scoring Example.docx": {
-    "fpc_count": 0,
-    "statuses": {},
-    "unresolved": 0,
-    "violations": 0,
-    "wcag_count": 0
-  },
-  "Sample-VPAT.pdf": {
-    "fpc_count": 0,
-    "statuses": {
-      "Does Not Support": 2,
-      "Not Applicable": 14,
-      "Partially Supports": 9,
-      "Supports": 25
-    },
-    "unresolved": 0,
-    "violations": 0,
-    "wcag_count": 50
-  },
-  "TAAP Version 3_2 051225.docx": {
-    "fpc_count": 0,
-    "statuses": {},
-    "unresolved": 0,
-    "violations": 0,
-    "wcag_count": 0
-  },
-  "VPAT-ACR Review In Depth Guide.docx": {
+  "Cornerstone_CorePlatform_January_2026_VPAT.pdf": {
     "fpc_count": 9,
     "statuses": {
-      "Not Evaluated": 38
-    },
-    "unresolved": 38,
-    "violations": 1,
-    "wcag_count": 38
-  },
-  "WRDS-VPAT_Jan2026.pdf": {
-    "fpc_count": 0,
-    "statuses": {
-      "Not Applicable": 10,
-      "Partially Supports": 1,
-      "Supports": 39
+      "Not Applicable": 18,
+      "Partially Supports": 24,
+      "Supports": 13
     },
     "unresolved": 0,
     "violations": 0,
-    "wcag_count": 50
+    "wcag_count": 55
   },
-  "google_classroom_web_vpat.pdf": {
+  "Google_Classroom_Web_VPAT.pdf": {
     "fpc_count": 9,
     "statuses": {
       "Partially Supports": 6,
@@ -121,7 +66,7 @@
     "violations": 0,
     "wcag_count": 56
   },
-  "google_docs_web_vpat.pdf": {
+  "Google_Docs_Web_VPAT.pdf": {
     "fpc_count": 9,
     "statuses": {
       "Does Not Support": 1,
@@ -133,7 +78,7 @@
     "violations": 0,
     "wcag_count": 50
   },
-  "google_drawings_vpat.pdf": {
+  "Google_Drawings_VPAT.pdf": {
     "fpc_count": 9,
     "statuses": {
       "Does Not Support": 1,
@@ -145,7 +90,78 @@
     "violations": 0,
     "wcag_count": 50
   },
-  "iCIMS_VPAT 2.5_WCAG2_2.2_August 2024_SkS.pdf": {
+  "H5P_2025_VPAT.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Not Applicable": 7,
+      "Not Evaluated": 31,
+      "Partially Supports": 3,
+      "Supports": 46
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 87
+  },
+  "Sample_VPAT.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Does Not Support": 2,
+      "Not Applicable": 14,
+      "Partially Supports": 9,
+      "Supports": 25
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 50
+  },
+  "ScooterSoftware_BeyondCompare_March_2020_VPAT.doc": {
+    "fpc_count": 0,
+    "statuses": {},
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 0
+  },
+  "TAAP_Version3-2_May_2025.docx": {
+    "fpc_count": 0,
+    "statuses": {},
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 0
+  },
+  "WRDS_January_2026_VPAT.pdf": {
+    "fpc_count": 0,
+    "statuses": {
+      "Not Applicable": 10,
+      "Partially Supports": 1,
+      "Supports": 39
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 50
+  },
+  "Zoom Workplace for Desktop - Windows VPAT_2025.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Not Applicable": 13,
+      "Partially Supports": 4,
+      "Supports": 38
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 55
+  },
+  "Zoom Workplace for Desktop - macOS VPAT_2026.pdf": {
+    "fpc_count": 9,
+    "statuses": {
+      "Not Applicable": 12,
+      "Partially Supports": 7,
+      "Supports": 34
+    },
+    "unresolved": 0,
+    "violations": 0,
+    "wcag_count": 53
+  },
+  "iCIMS_August_2024_VPAT.pdf": {
     "fpc_count": 0,
     "statuses": {
       "Not Applicable": 6,
