@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from vpat_reviewer.audit.base import FIELDS, AuditEvent
+from vpat_reviewer.config.settings import user_files_dir
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ LOG_NAME = "vpat_review_log.csv"
 #: committed and shared, while this is local by nature.
 #:
 #: The tests set it. Without it, anything that drives a review -- including the
-#: CLI test suite -- appends fixture rows to the developer's own Desktop log,
+#: CLI test suite -- appends fixture rows to the developer's own real log,
 #: which is real data a reviewer is meant to audit.
 PATH_ENV = "VPAT_AUDIT_LOG_PATH"
 
@@ -42,15 +43,15 @@ _FORMULA_LEAD = ("=", "+", "-", "@", "\t", "\r")
 def default_log_path() -> Path:
     """Where the log lives when nothing says otherwise.
 
-    Beside the report folders the GUI already creates on the Desktop, because
-    that is where a reviewer looks for what this app produced. Resolved from
-    ``Path.home()`` at call time, so it is correct on every reviewer's machine
-    rather than the one it was written on.
+    Inside the same ``~/Downloads/VPAT Reviewer Files`` the GUI writes reports
+    to -- one folder to look in, one folder to hand over. The location comes
+    from ``config.settings.user_files_dir`` rather than being spelled out here,
+    so the log cannot drift away from the reports it describes.
     """
     override = os.environ.get(PATH_ENV, "").strip()
     if override:
         return Path(override)
-    return Path.home() / "Desktop" / "VPAT Reviewer Files" / LOG_NAME
+    return user_files_dir() / LOG_NAME
 
 
 def _defuse(value: str) -> str:
@@ -101,7 +102,7 @@ def log_for(settings: dict[str, Any] | None) -> CsvAuditLog | None:
     the core never does. Returning ``None`` rather than a no-op writer keeps
     "logging is off" a visible decision at the call site.
 
-    Precedence is ``VPAT_AUDIT_LOG_PATH`` > the setting > the Desktop default;
+    Precedence is ``VPAT_AUDIT_LOG_PATH`` > the setting > the default;
     the env var wins because it is the local, per-machine lever and the setting
     ships to everyone.
     """

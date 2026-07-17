@@ -9,6 +9,7 @@ import pytest
 
 from vpat_reviewer.audit import FIELDS, AuditEvent, AuditLog, CsvAuditLog, log_for
 from vpat_reviewer.audit.csv_log import PATH_ENV, _defuse, default_log_path
+from vpat_reviewer.config.settings import user_files_dir
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -87,12 +88,41 @@ def test_vendor_text_cannot_smuggle_a_formula_into_the_spreadsheet() -> None:
 
 
 def test_the_default_log_lands_beside_the_reports(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Resolved per machine, so the shipped exe is right on every reviewer's."""
+    """The log must land in the same folder the GUI writes reports to.
+
+    Not "somewhere sensible" -- the *same* folder, from the same function. A
+    log that drifts away from the reports it describes is worse than none: it
+    still looks authoritative.
+    """
     monkeypatch.delenv(PATH_ENV, raising=False)  # the suite-wide guard sets it
-    path = default_log_path()
-    assert path.parent.name == "VPAT Reviewer Files"
-    assert path.parent.parent.name == "Desktop"
-    assert path.suffix == ".csv"
+    assert default_log_path() == user_files_dir() / "vpat_review_log.csv"
+    assert default_log_path().parent.parent.name == "Downloads"
+
+
+def test_the_log_and_the_gui_agree_on_where_files_go(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The whole point of user_files_dir(): one folder, decided in one place.
+
+    The GUI and the log each used to spell the location out for themselves.
+    Moving Desktop -> Downloads in one and not the other would leave the log
+    describing reports it no longer sits beside -- and nothing would fail.
+
+    So: point home at a temp dir, let the GUI actually create its folders, and
+    require the log to land in the same base it created.
+    """
+    monkeypatch.delenv(PATH_ENV, raising=False)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+
+    from vpat_reviewer.ui.gui.app import _ensure_folders
+
+    vpats, reports, prompts, responses = _ensure_folders()
+    base = tmp_path / "Downloads" / "VPAT Reviewer Files"
+
+    for folder in (vpats, reports, prompts, responses):
+        assert folder.exists()
+        assert folder.parent == base
+    assert default_log_path() == base / "vpat_review_log.csv"
 
 
 def test_the_env_override_wins_over_the_setting(
@@ -102,7 +132,7 @@ def test_the_env_override_wins_over_the_setting(
 
     ``audit_log_path`` lives in settings.json, which is committed and ships to
     every reviewer; the env var is per-machine. This precedence is also what
-    stops the suite writing fixture rows into a developer's real Desktop log --
+    stops the suite writing fixture rows into a developer's real log --
     see tests/conftest.py.
     """
     monkeypatch.setenv(PATH_ENV, str(tmp_path / "redirected.csv"))
