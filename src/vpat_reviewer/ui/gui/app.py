@@ -170,12 +170,10 @@ def _status_color(status: str) -> str:
 # ── Folder helpers ─────────────────────────────────────────────────────────────
 
 
-def _desktop() -> Path:
-    return Path.home() / "Desktop"
-
-
 def _ensure_folders() -> tuple:
-    base = _desktop() / "VPAT Reviewer Files"
+    # ~/Downloads/VPAT Reviewer Files — defined once in config.settings so the
+    # audit log lands in the same place; see user_files_dir().
+    base = settings_manager.user_files_dir()
     vpats = base / "VPATs"
     reports = base / "VPAT Summary Reports"
     ai_prompts = base / "AI Prompts"
@@ -517,7 +515,7 @@ class VPATReviewerApp(tk.Tk):
         except Exception as e:
             messagebox.showerror(
                 "Folder Error",
-                f"Could not create Desktop folders:\n{e}\n\n"
+                f"Could not create the VPAT Reviewer Files folder in Downloads:\n{e}\n\n"
                 "Reports will be saved to the current directory.",
             )
             self.vpats_dir = Path(".")
@@ -1314,7 +1312,7 @@ class VPATReviewerApp(tk.Tk):
     def _persist_ai_io(self, stem, prompt_text, assessment):
         """Save the exact prompt sent to Bedrock and the assessment it produced.
 
-        Writes to the two Desktop folders (AI Prompts / AI Responses) so every
+        Writes to the two log folders (AI Prompts / AI Responses) so every
         run has an auditable trail. Never raises — logging must not block a report.
 
         The record is ``assessment.to_dict()`` verbatim: it already carries the

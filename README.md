@@ -76,7 +76,7 @@ the reports. Then:
 2. **Answer four questions** about how the product will be used (below).
 3. **Click Generate Report.**
 
-The report opens in a folder on your Desktop, filed by verdict.
+The report opens in a folder in your Downloads, filed by verdict.
 
 ### The four questions, and why they matter
 
@@ -161,7 +161,7 @@ Read this before reviewing anything confidential.
   send the original file.
 - It runs on **every report**, automatically. Nothing asks first.
 - A copy of what was sent and what came back is saved **unencrypted** in
-  `Desktop\VPAT Reviewer Files\AI Prompts\` and `\AI Responses\`.
+  `Downloads\VPAT Reviewer Files\AI Prompts\` and `\AI Responses\`.
 
 **To keep the app fully offline**, set `"use_ai": false` in `settings.json`. You
 get the same report, with the verdict decided by the built-in rules above, and
@@ -179,10 +179,11 @@ on your own computer and still does.
 
 ## Where your files go
 
-Everything lands in one folder on your Desktop:
+Everything lands in one folder in your Downloads — the same path on Windows
+and macOS:
 
 ```
-Desktop/VPAT Reviewer Files/
+Downloads/VPAT Reviewer Files/
 ├── VPATs/                        a copy of each document you reviewed
 ├── VPAT Summary Reports/
 │   ├── Good To Go/               reports, filed by verdict

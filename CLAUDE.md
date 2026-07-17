@@ -540,13 +540,13 @@ Every one of these is a bug that shipped.
   `confidence: 0.05`; the number and `needs_human_review` go into the rationale
   bullets and the sidecar for a human to discount. A confidence floor is a
   policy decision nobody has made.
-- **`_persist_ai_io` writes the full VPAT payload in plaintext to the Desktop**
+- **`_persist_ai_io` writes the full VPAT payload in plaintext to `~/Downloads`**
   every run — a payload that is also transmitted to AWS.
 
 ## 7d. Working on the audit log — read this before you touch it
 
-One CSV row per review, appended to `vpat_review_log.csv` in the Desktop
-`VPAT Reviewer Files` folder (override with the `audit_log_path` setting; switch
+One CSV row per review, appended to `vpat_review_log.csv` in
+`~/Downloads/VPAT Reviewer Files` (override with the `audit_log_path` setting; switch
 it off with `audit_log_enabled: false`). `service.build_audit_event` maps a
 review to a row; `audit/csv_log.py` writes it; the GUI and the CLI call it.
 

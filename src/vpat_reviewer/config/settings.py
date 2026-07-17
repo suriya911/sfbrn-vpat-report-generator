@@ -60,13 +60,6 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     # file, or use an AWS profile via bedrock_profile (a profile *name* is not a
     # secret). `bedrock_model_id` duplicates ai/bedrock.py::DEFAULT_MODEL_ID
     # because config cannot import ai; a test pins them together.
-    # The CSV audit trail: one row per review. Empty path means the default —
-    # `vpat_review_log.csv` beside the Desktop report folders, resolved per
-    # machine (audit.csv_log.default_log_path). Set a path to put it elsewhere,
-    # e.g. a shared drive. The log never gates a review: an unwritable path costs
-    # the row and logs a warning.
-    "audit_log_enabled": True,
-    "audit_log_path": "",
     "use_ai": True,
     "bedrock_region": "us-west-2",
     # A deliberate cost/latency trade: fast and near-free, but it under-flags
@@ -77,6 +70,13 @@ IDENTITY_DEFAULTS: dict[str, Any] = {
     "bedrock_profile": "",
     "bedrock_max_tokens": 4096,
     "bedrock_temperature": 0.2,
+    # The CSV audit trail: one row per review. An empty path means the default —
+    # `vpat_review_log.csv` inside ~/Downloads/VPAT Reviewer Files, beside the
+    # reports (see user_files_dir). Set a path to put it elsewhere, e.g. a shared
+    # drive; VPAT_AUDIT_LOG_PATH overrides both. The log never gates a review: an
+    # unwritable path costs the row and logs a warning.
+    "audit_log_enabled": True,
+    "audit_log_path": "",
 }
 
 FIELD_LABELS: list[tuple[str, str]] = [
@@ -94,6 +94,30 @@ _GRADING_KEY = "grading"
 def _project_root() -> Path:
     # src/vpat_reviewer/config/settings.py -> parents[3] == the project root.
     return Path(__file__).resolve().parents[3]
+
+
+#: The folder every user-facing artefact goes in, under the user's Downloads.
+USER_FILES_DIRNAME = "VPAT Reviewer Files"
+
+
+def user_files_dir() -> Path:
+    """The one folder this app writes to: ``~/Downloads/VPAT Reviewer Files``.
+
+    Reports, copied VPATs, the AI prompt/response logs, and the audit CSV all
+    live here, so a reviewer has one place to look and one folder to hand over.
+
+    ``Path.home()`` resolves correctly on Windows and macOS alike, at call time
+    rather than import time -- so the frozen exe is right on every machine it is
+    copied to, not just the one it was built on.
+
+    **Single source of truth on purpose.** The GUI and the audit log both need
+    this, and they used to hardcode it separately: change one and the log
+    silently orphans itself from the reports it describes. Same duplication
+    hazard as the Bedrock model id (see ai/bedrock.py), which is why it lives in
+    exactly one place instead. `config/` imports only `domain/`, so both `ui/`
+    and `audit/` can depend on it without bending the arrows.
+    """
+    return Path.home() / "Downloads" / USER_FILES_DIRNAME
 
 
 def default_settings_path() -> Path:
